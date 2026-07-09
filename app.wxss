@@ -1,0 +1,34 @@
+@import './styles/theme.wxss';
+
+/* 全局 CSS 变量与重置 (无主题时的兜底值) */
+page {
+  --bg: #0f0f18;
+  --surface: #1a1a2e;
+  --card: #16213e;
+  --accent1: #e8a838; /* 国潮金 */
+  --accent2: #4ecdc4; /* 清新绿 */
+  --accent3: #ff6b9d; /* 活力粉 */
+  --accent4: #a855f7; /* 紫气 */
+  --text: #f0e8d8;
+  --text-sub: #a89880;
+  --border: rgba(232, 168, 56, 0.2);
+  --green: #6bcb77;
+  --radius: 16px;
+
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  box-sizing: border-box;
+}
+
+view, text, scroll-view, image {
+  box-sizing: border-box;
+}
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}

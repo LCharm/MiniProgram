@@ -1,0 +1,238 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <view class="sub-nav">
+    <view class="sub-nav-pill {{currentTab === 'home' ? 'active' : ''}}" bindtap="switchTab" data-tab="home">🏠 推荐茶方</view>
+    <view class="sub-nav-pill {{currentTab === 'formula' ? 'active' : ''}}" bindtap="switchTab" data-tab="formula">🤖 AI配茶</view>
+    <view class="sub-nav-pill {{currentTab === 'game' ? 'active' : ''}}" bindtap="switchTab" data-tab="game">🎯 消消乐</view>
+    <view class="sub-nav-pill {{currentTab === 'contest' ? 'active' : ''}}" bindtap="switchTab" data-tab="contest">🏆 创意赛</view>
+  </view>
+
+  <scroll-view scroll-y class="scroll-content">
+
+    <!-- ==================== 推荐茶方 ==================== -->
+    <block wx:if="{{currentTab === 'home'}}">
+      <view style="padding: 24rpx 24rpx 0;">
+        <view class="hero fade-in">
+          <view class="hero-badge">亳州花茶</view>
+          <view class="hero-title">AI<span class="highlight">配方</span><br/>生成器</view>
+          <view class="hero-subtitle">道地药材 · 智能配比 · 体质精准匹配</view>
+          <view class="hero-stats">
+            <view class="stat-item"><view class="stat-num">86</view><view class="stat-label">爆款茶方</view></view>
+            <view class="stat-item"><view class="stat-num">32</view><view class="stat-label">药食同源</view></view>
+            <view class="stat-item"><view class="stat-num">7</view><view class="stat-label">效果分类</view></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view class="section-title">按症状选茶</view>
+      </view>
+      <view class="symptom-tags">
+        <view class="symptom-tag {{activeSymptom === item.id ? 'active' : ''}}"
+              wx:for="{{symptomTags}}" wx:key="id"
+              bindtap="toggleSymptom" data-id="{{item.id}}">
+          {{item.emoji}} {{item.label}}
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view class="section-title">推荐茶方</view>
+        <view class="section-more" bindtap="viewAllFormulas">全部 ›</view>
+      </view>
+
+      <view class="tea-formula-card fade-in">
+        <view class="formula-header">
+          <view>
+            <view class="formula-name">亳菊助眠宁心茶</view>
+            <view class="formula-suit">适合：失眠烦躁 · 肝火旺盛</view>
+          </view>
+          <view class="formula-badge">⭐推荐</view>
+        </view>
+        <view class="formula-ingredients">
+          <view class="formula-ing">亳菊 5g</view>
+          <view class="formula-ing">酸枣仁 10g</view>
+          <view class="formula-ing">茯苓 8g</view>
+          <view class="formula-ing">甘草 3g</view>
+        </view>
+        <view class="formula-brew">
+          <text class="brew-label">冲泡：</text>90°C水，焖泡5分钟\n<text class="brew-label">饮用：</text>睡前1小时，每日1杯\n<text class="brew-label">禁忌：</text>孕妇、脾胃虚寒者慎用
+        </view>
+      </view>
+
+      <view class="tea-formula-card accent fade-in">
+        <view class="formula-header">
+          <view>
+            <view class="formula-name accent">熬夜护肝排毒茶</view>
+            <view class="formula-suit">适合：长期熬夜 · 眼睛干涩</view>
+          </view>
+          <view class="formula-badge accent">🔥爆款</view>
+        </view>
+        <view class="formula-ingredients accent">
+          <view class="formula-ing accent">决明子 8g</view>
+          <view class="formula-ing accent">枸杞 10g</view>
+          <view class="formula-ing accent">菊花 5g</view>
+          <view class="formula-ing accent">山楂 6g</view>
+        </view>
+        <view class="formula-brew accent">
+          <text class="brew-label accent">冲泡：</text>85°C水，焖泡8分钟\n<text class="brew-label accent">饮用：</text>下午或晚间饮用\n<text class="brew-label accent">功效：</text>清肝明目、排肝毒
+        </view>
+      </view>
+    </block>
+
+    <!-- ==================== AI配茶 ==================== -->
+    <block wx:if="{{currentTab === 'formula'}}">
+      <view style="padding: 24rpx 24rpx 0;">
+        <view class="hero hero-formula fade-in">
+          <view class="hero-badge">🤖 AI 智能配茶</view>
+          <view class="hero-title">自由选材<br/><span class="highlight">AI 优化配比</span></view>
+        </view>
+      </view>
+
+      <view class="material-workshop fade-in">
+        <view class="workshop-title">🌿 选择药材食材（最多3味）</view>
+        <view class="materials-grid">
+          <view class="material-item {{item.selected ? 'active' : ''}}"
+                wx:for="{{ingredients}}" wx:key="id"
+                bindtap="toggleIngredient" data-id="{{item.id}}">
+            <view class="material-icon">{{item.icon}}</view>
+            <view class="material-name">{{item.name}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="action-area fade-in">
+        <view class="selected-count">已选: {{selectedCount}}/3</view>
+        <button class="generate-btn {{selectedCount > 0 ? '' : 'disabled'}}" bindtap="generateRecipe">{{isGenerating ? 'AI 调配中...' : '🤖 AI 智能生成专属配方'}}</button>
+      </view>
+
+      <view class="recipe-result fade-in" wx:if="{{showResult}}">
+        <view class="recipe-card">
+          <view class="recipe-badge">AI 原创配方</view>
+          <view class="recipe-name">{{recipeData.name}}</view>
+          <view class="recipe-tags">
+            <text class="tag" wx:for="{{recipeData.tags}}" wx:key="*this">{{item}}</text>
+          </view>
+          <view class="recipe-desc">{{recipeData.desc}}</view>
+          <view class="recipe-divider"></view>
+          <view class="recipe-details">
+            <view class="detail-row"><text class="label">配料比：</text><text class="value">{{recipeData.formula}}</text></view>
+            <view class="detail-row"><text class="label">适宜：</text><text class="value">{{recipeData.suitable}}</text></view>
+          </view>
+          <button class="save-btn {{recipeData.isCollected ? 'collected' : ''}}" bindtap="saveRecipe">{{recipeData.isCollected ? '取消收藏' : '收藏配方 (+10灵力)'}}</button>
+        </view>
+      </view>
+    </block>
+
+    <!-- ==================== 消消乐 ==================== -->
+    <block wx:if="{{currentTab === 'game'}}">
+      <view style="padding: 24rpx 24rpx 0;">
+        <view class="hero hero-game fade-in">
+          <view class="hero-badge">🎯 药材消消乐</view>
+          <view class="hero-title"><span class="highlight">三消闯关</span><br/>赢花茶优惠券</view>
+        </view>
+      </view>
+
+      <view class="game-panel fade-in">
+        <view class="game-stats">
+          <view class="game-stat"><text class="gs-label">💰 积分</text><text class="gs-val">{{gameScore}}</text></view>
+          <view class="game-stat"><text class="gs-label">🎯 关卡</text><text class="gs-val">1-{{gameLevel}}</text></view>
+          <view class="game-stat"><text class="gs-label">⏱️ 时间</text><text class="gs-val {{gameTimer <= 10 ? 'urgent' : ''}}">{{gameTimer}}s</text></view>
+        </view>
+
+        <view class="game-board">
+          <block wx:for="{{cards}}" wx:key="uid">
+            <view class="card-wrap" bindtap="flipCard" data-index="{{index}}">
+              <view class="card {{item.isFlipped || item.isMatched ? 'flipped' : ''}}">
+                <view class="card-face card-back"></view>
+                <view class="card-face card-front {{item.isMatched ? 'matched' : ''}}">
+                  <view class="card-icon">{{item.icon}}</view>
+                  <view class="card-name">{{item.name}}</view>
+                </view>
+              </view>
+            </view>
+          </block>
+        </view>
+
+        <button class="game-start-btn" wx:if="{{!gameRunning && !gameOver}}" bindtap="startGame">🎮 开始游戏</button>
+        <button class="game-start-btn" wx:if="{{gameOver}}" bindtap="startGame">🔄 再来一局</button>
+
+        <view class="game-tips" wx:if="{{gameRunning}}">翻开两张相同的药材即可消除并获得积分</view>
+      </view>
+
+      <view class="reward-card fade-in">
+        <view class="reward-icon">🎁</view>
+        <view class="reward-title">今日通关奖励</view>
+        <view class="reward-desc">闯关积分可兑换花茶优惠券</view>
+        <view class="reward-tiers">
+          <view class="reward-tier green {{gameScore >= 50 ? 'earned' : ''}}">
+            <text wx:if="{{gameScore >= 50}}">✅ </text>满50积分 → 9折券
+          </view>
+          <view class="reward-tier gold {{gameScore >= 100 ? 'earned' : ''}}">
+            <text wx:if="{{gameScore >= 100}}">✅ </text>满100积分 → 8折券
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- ==================== 创意赛 ==================== -->
+    <block wx:if="{{currentTab === 'contest'}}">
+      <view style="padding: 24rpx 24rpx 0;">
+        <view class="hero hero-contest fade-in">
+          <view class="hero-badge">🏆 创意配方大赛</view>
+          <view class="hero-title"><span class="highlight">年轻人</span><br/>脑洞茶方赛</view>
+          <view class="hero-subtitle">提交创意配方 · 全网点赞 · 入库署名</view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view class="section-title">热门创意茶方</view>
+        <view class="section-more" bindtap="submitFormula">投稿 ›</view>
+      </view>
+
+      <view class="contest-grid fade-in">
+        <view class="contest-card hot" bindtap="likeFormula" data-name="熬夜护肝茶">
+          <view class="contest-icon">🌙</view>
+          <view class="contest-name">熬夜护肝茶</view>
+          <view class="contest-author">@宿舍的酸菜鱼</view>
+          <view class="contest-likes">👍 2.3k 点赞</view>
+          <view class="contest-hot-badge">🔥榜首</view>
+        </view>
+        <view class="contest-card" bindtap="likeFormula" data-name="学生素颜茶">
+          <view class="contest-icon">✨</view>
+          <view class="contest-name">学生素颜茶</view>
+          <view class="contest-author">@爱美的小周</view>
+          <view class="contest-likes">👍 1.8k 点赞</view>
+        </view>
+        <view class="contest-card" bindtap="likeFormula" data-name="久坐祛湿茶">
+          <view class="contest-icon">💼</view>
+          <view class="contest-name">久坐祛湿茶</view>
+          <view class="contest-author">@打工人小李</view>
+          <view class="contest-likes">👍 1.2k 点赞</view>
+        </view>
+        <view class="contest-card" bindtap="likeFormula" data-name="备考提神茶">
+          <view class="contest-icon">📚</view>
+          <view class="contest-name">备考提神茶</view>
+          <view class="contest-author">@考研中的阿强</view>
+          <view class="contest-likes">👍 980 点赞</view>
+        </view>
+      </view>
+
+      <view class="submit-section">
+        <button class="submit-formula-btn" bindtap="submitFormula">✍️ 提交我的创意配方</button>
+      </view>
+    </block>
+
+    <view style="height: 160rpx;"></view>
+  </scroll-view>
+
+  <!-- 优惠券弹窗 -->
+  <view class="coupon-overlay" wx:if="{{showCouponModal}}" bindtap="closeCouponModal">
+    <view class="coupon-modal" catchtap="">
+      <view class="coupon-emoji">🎉</view>
+      <view class="coupon-title">恭喜通关！</view>
+      <view class="coupon-score">获得积分：<text class="highlight">{{gameScore}}</text></view>
+      <view class="coupon-reward">🎁 {{couponReward}}</view>
+      <view class="coupon-desc">已发放至「我的 → 优惠券」</view>
+      <button class="coupon-btn" bindtap="claimCoupon">立即领取</button>
+    </view>
+  </view>
+</view>

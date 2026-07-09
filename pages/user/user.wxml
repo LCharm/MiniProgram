@@ -1,0 +1,83 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll-content">
+
+    <view class="profile-card fade-in">
+      <view class="avatar-area">
+        <open-data class="avatar-real" type="userAvatarUrl" wx:if="{{isLogin}}"></open-data>
+        <view class="avatar-placeholder" wx:else></view>
+        <view class="user-info">
+          <view class="nickname">{{isLogin ? '养生行者·小白' : '点击登录'}}</view>
+          <view class="user-physical" wx:if="{{isLogin && physicalType}}">{{physicalType}}</view>
+        </view>
+      </view>
+      <view class="member-badge" wx:if="{{isLogin}}">✦ 会员到期：{{memberExpiry || '2026/12/31'}}</view>
+      <button class="login-btn" wx:if="{{!isLogin}}" bindtap="handleLogin">微信一键登录</button>
+    </view>
+
+    <view class="stats-board fade-in">
+      <view class="stat-box">
+        <view class="stat-val highlight">{{isLogin ? totalPower : '--'}}</view>
+        <view class="stat-name">养生战力</view>
+      </view>
+      <view class="divider"></view>
+      <view class="stat-box">
+        <view class="stat-val highlight-green">{{isLogin ? spiritualEnergy : '--'}}</view>
+        <view class="stat-name">灵力值</view>
+      </view>
+      <view class="divider"></view>
+      <view class="stat-box">
+        <view class="stat-val">{{isLogin ? cardCount : '--'}}</view>
+        <view class="stat-name">卡牌收集</view>
+      </view>
+      <view class="divider"></view>
+      <view class="stat-box">
+        <view class="stat-val">{{isLogin ? checkinDays : '--'}}</view>
+        <view class="stat-name">打卡天数</view>
+      </view>
+    </view>
+
+    <view class="menu-list fade-in">
+      <view class="menu-item" bindtap="goToPhysicalReport">
+        <view class="menu-icon">📋</view>
+        <view class="menu-text">体质测评记录</view>
+        <view class="menu-badge" wx:if="{{physicalType}}">{{physicalType}}</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="goToCardBook">
+        <view class="menu-icon">🃏</view>
+        <view class="menu-text">秘境卡牌图鉴</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="goToRankList">
+        <view class="menu-icon">🏆</view>
+        <view class="menu-text">段位排行榜</view>
+        <view class="menu-badge" wx:if="{{isLogin && currentRank}}">{{currentRank}}</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="goToCollectedTeas">
+        <view class="menu-icon">🍵</view>
+        <view class="menu-text">收藏的茶方</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="goToBackpack">
+        <view class="menu-icon">🎒</view>
+        <view class="menu-text">我的背包</view>
+        <view class="menu-badge" wx:if="{{couponCount > 0}}">{{couponCount}}件</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="goToMemberCenter">
+        <view class="menu-icon">⭐</view>
+        <view class="menu-text">会员中心</view>
+        <view class="menu-badge highlight">灵力值兑换</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" data-url="/pages/user/settings/settings" bindtap="goToSettings">
+        <view class="menu-icon">⚙️</view>
+        <view class="menu-text">设置</view>
+        <view class="menu-arrow">›</view>
+      </view>
+    </view>
+
+    <view style="height: 160rpx;"></view>
+  </scroll-view>
+</view>

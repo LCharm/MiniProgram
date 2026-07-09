@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>柒辰科技 · 三款AI养生小程序</title>
+<style>
+  /* ===== CSS RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f18;
+    --surface: #1a1a2e;
+    --card: #16213e;
+    --accent1: #e8a838; /* 国潮金 */
+    --accent2: #4ecdc4; /* 清新绿 */
+    --accent3: #ff6b9d; /* 活力粉 */
+    --accent4: #a855f7; /* 紫气 */
+    --text: #f0e8d8;
+    --text-sub: #a89880;
+    --border: rgba(232,168,56,0.2);
+    --green: #6bcb77;
+    --radius: 16px;
+    --r-sm: 10px;
+    font-family: -apple-system, 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+  
+  /* ===== LAYOUT ===== */
+  .app-shell {
+    max-width: 390px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* ===== TOP NAV (APP SWITCHER) ===== */
+  .app-switcher {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-tab {
+    flex: 1;
+    padding: 10px 4px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all .2s;
+    border-bottom: 2px solid transparent;
+  }
+  .app-tab.active {
+    color: var(--accent1);
+    border-bottom-color: var(--accent1);
+    background: rgba(232,168,56,0.06);
+  }
+  .app-tab .icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+  /* ===== PAGE SYSTEM ===== */
+  .app-content { display: none; flex-direction: column; min-height: calc(100vh - 52px - 60px); }
+  .app-content.active { display: flex; flex-direction: column; }
+  
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    display: flex;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    font-size: 9px;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .nav-item.active { color: var(--accent1); }
+  .nav-item .nav-icon { font-size: 20px; margin-bottom: 2px; }
+
+  /* ===== HERO BANNER ===== */
+  .hero {
+    margin: 12px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, #1a2550 0%, #2d1b69 50%, #1a3a4a 100%);
+    padding: 20px 18px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,168,56,0.3), transparent);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--accent1);
+    color: #0f0f18;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .hero-title { font-size: 22px; font-weight: 800; line-height: 1.3; }
+  .hero-title span { color: var(--accent1); }
+  .hero-subtitle { font-size: 12px; color: var(--text-sub); margin-top: 6px; }
+  .hero-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 18px; font-weight: 800; color: var(--accent1); }
+  .stat-label { font-size: 10px; color: var(--text-sub); }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 12px 8px;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 16px;
+    background: var(--accent1);
+    border-radius: 2px;
+  }
+  .section-more { font-size: 11px; color: var(--accent2); }
+
+  /* ===== CARDS ===== */
+  .card-row { display: flex; gap: 10px; padding: 0 12px 10px; }
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card:active { transform: scale(0.97); }
+  .card-half { flex: 1; }
+  .card-full { margin: 0 12px 10px; }
+
+  /* ===== PRODUCT CARDS ===== */
+  .product-card {
+    border-radius: var(--radius);
+    margin: 0 12px 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: transform .2s;
+  }
+  .product-card:active { transform: scale(0.98); }
+  .product-card-inner {
+    display: flex;
+    align-items: stretch;
+    min-height: 100px;
+  }
+  .product-color-bar {
+    width: 6px;
+    flex-shrink: 0;
+  }
+  .product-body { flex: 1; padding: 14px; }
+  .product-icon { font-size: 32px; float: right; margin-left: 8px; }
+  .product-tag {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .product-name { font-size: 15px; font-weight: 800; line-height: 1.3; }
+  .product-desc { font-size: 11px; color: var(--text-sub); margin-top: 5px; line-height: 1.6; }
+  .product-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .feature-chip {
+    font-size: 9px;
+    padding: 2px 7px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 10px;
+    color: var(--text-sub);
+  }
+
+  /* ===== GAME CARDS ===== */
+  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 12px 10px; }
+  .game-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform .2s, border-color .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-card::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; right: -20px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    opacity: 0.15;
+  }
+  .game-card:active { transform: scale(0.96); }
+  .game-card-icon { font-size: 28px; margin-bottom: 8px; }
+  .game-card-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .game-card-desc { font-size: 10px; color: var(--text-sub); line-height: 1.5; }
+  .game-hot-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: var(--accent3);
+    color: white;
+    font-size: 8px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+
+  /* ===== RANK / LEVEL ===== */
+  .rank-bar {
+    background: var(--card);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    padding: 14px;
+    border: 1px solid var(--border);
+  }
+  .rank-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .rank-title { font-size: 13px; font-weight: 700; }
+  .rank-level {
+    font-size: 11px;
+    padding: 2px 10px;
+    background: linear-gradient(135deg, var(--accent1), #f5a623);
+    color: #0f0f18;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+  .xp-bar-bg {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .xp-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent1));
+    transition: width 1s ease;
+  }
+  .xp-text { font-size: 10px; color: var(--text-sub); text-align: right; }
+  .rank-stages {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    color: var(--text-sub);
+  }
+  .stage.done { color: var(--accent1); }
+  .stage-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+  .stage.done .stage-dot { background: var(--accent1); }
+  .stage.current .stage-dot { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+
+  /* ===== HEALTH PAGE ===== */
+  .physical-types {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 12px 10px;
+  }
+  .physical-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .physical-chip.active {
+    border-color: var(--accent1);
+    background: rgba(232,168,56,0.1);
+  }
+  .physical-chip .emoji { font-size: 20px; display: block; margin-bottom: 4px; }
+  .physical-chip .name { font-size: 10px; }
+
+  .quiz-card {
+    background: var(--card);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+  .quiz-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .quiz-num { font-size: 12px; color: var(--accent1); font-weight: 700; }
+  .quiz-bar-bg { flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+  .quiz-bar-fill { height: 100%; background: var(--accent1); border-radius: 4px; }
+  .quiz-q { font-size: 14px; font-weight: 600; line-height: 1.6; margin-bottom: 14px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .quiz-opt:active { background: rgba(232,168,56,0.15); border-color: var(--accent1); }
+  .quiz-opt.selected { background: rgba(232,168,56,0.2); border-color: var(--accent1); color: var(--accent1); }
+
+  /* ===== TEA PAGE ===== */
+  .symptom-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 12px 12px;
+  }
+  .symptom-tag {
+    padding: 6px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .symptom-tag.active {
+    background: rgba(78,205,196,0.15);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  .tea-formula {
+    background: linear-gradient(135deg, #0d2b1f 0%, #1a3a2e 100%);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid rgba(107,203,119,0.3);
+  }
+  .formula-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .formula-name { font-size: 16px; font-weight: 800; color: var(--green); }
+  .formula-badge {
+    font-size: 9px;
+    background: rgba(107,203,119,0.2);
+    color: var(--green);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .ingredients { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .ingredient {
+    padding: 4px 10px;
+    background: rgba(107,203,119,0.1);
+    border: 1px solid rgba(107,203,119,0.2);
+    border-radius: 16px;
+    font-size: 11px;
+    color: #a8e6b3;
+  }
+  .brew-steps {
+    font-size: 11px;
+    color: var(--text-sub);
+    line-height: 1.8;
+    border-top: 1px solid rgba(107,203,119,0.15);
+    padding-top: 10px;
+  }
+  .brew-steps span { color: var(--green); font-weight: 600; }
+
+  .material-workshop {
+    background: var(--card);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    padding: 14px;
+    border: 1px solid var(--border);
+  }
+  .workshop-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .materials-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .material-item { text-align: center; cursor: pointer; }
+  .material-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 4px;
+    transition: all .2s;
+    position: relative;
+  }
+  .material-icon.selected {
+    border-color: var(--accent2);
+    background: rgba(78,205,196,0.15);
+    box-shadow: 0 0 10px rgba(78,205,196,0.3);
+  }
+  .material-icon .pieces {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--accent3);
+    color: white;
+    font-size: 8px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+  .material-name { font-size: 9px; color: var(--text-sub); }
+
+  /* ===== HUATUO PAGE ===== */
+  .chat-messages {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
+  .msg { display: flex; gap: 10px; }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .msg-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .msg.ai .msg-bubble {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+  }
+  .msg.user .msg-bubble {
+    background: linear-gradient(135deg, rgba(232,168,56,0.3), rgba(168,85,247,0.2));
+    border: 1px solid rgba(232,168,56,0.3);
+    border-top-right-radius: 4px;
+  }
+  .ai-typing { display: flex; align-items: center; gap: 4px; padding: 10px 14px; }
+  .typing-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent1);
+    animation: typing 1.4s ease infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: .2s; }
+  .typing-dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes typing { 0%,60%,100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-4px); } }
+
+  .chat-input-bar {
+    padding: 10px 12px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .quick-qs {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .quick-qs::-webkit-scrollbar { display: none; }
+  .quick-q {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+  }
+  .quick-q:active { border-color: var(--accent1); color: var(--accent1); }
+  .chat-input {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+  }
+  .send-btn {
+    width: 36px; height: 36px;
+    background: var(--accent1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    border: none;
+    color: #0f0f18;
+    flex-shrink: 0;
+  }
+
+  /* ===== GAME PAGE ===== */
+  .dungeon-map {
+    background: var(--card);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+  .dungeon-title { font-size: 14px; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+  .stages-row { display: flex; justify-content: space-between; align-items: center; position: relative; }
+  .stages-row::before {
+    content: '';
+    position: absolute;
+    top: 24px; left: 10%;
+    width: 80%; height: 2px;
+    background: linear-gradient(90deg, var(--accent1) 40%, rgba(255,255,255,0.1) 40%);
+  }
+  .stage-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+  }
+  .stage-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    transition: all .2s;
+  }
+  .stage-circle.unlocked { border-color: var(--accent1); background: rgba(232,168,56,0.1); }
+  .stage-circle.current {
+    border-color: var(--accent2);
+    background: rgba(78,205,196,0.1);
+    box-shadow: 0 0 15px rgba(78,205,196,0.4);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 15px rgba(78,205,196,0.4); } 50% { box-shadow: 0 0 25px rgba(78,205,196,0.7); } }
+  .stage-circle.locked { opacity: 0.4; }
+  .stage-name { font-size: 9px; color: var(--text-sub); text-align: center; max-width: 50px; }
+  .stage-circle.current + .stage-name { color: var(--accent2); font-weight: 700; }
+
+  .battle-card {
+    background: linear-gradient(135deg, #1a1030 0%, #2d1a3e 100%);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid rgba(168,85,247,0.3);
+    cursor: pointer;
+    transition: transform .2s;
+  }
+  .battle-card:active { transform: scale(0.98); }
+  .battle-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .battle-tag {
+    font-size: 9px;
+    background: rgba(168,85,247,0.2);
+    color: var(--accent4);
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .battle-live { font-size: 10px; color: var(--accent3); display: flex; align-items: center; gap: 4px; }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent3); animation: blink 1s ease infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .battle-players { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 14px 0; }
+  .player { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .player-avatar {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    border: 2px solid var(--accent4);
+  }
+  .player-name { font-size: 11px; font-weight: 600; }
+  .player-score { font-size: 12px; font-weight: 800; color: var(--accent4); }
+  .vs-text { font-size: 22px; font-weight: 900; color: var(--accent3); }
+  .battle-join-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent4), var(--accent3));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+
+  /* ===== USER PAGE ===== */
+  .profile-header {
+    background: linear-gradient(135deg, #1a2550 0%, #2d1b69 100%);
+    margin: 12px;
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid var(--border);
+  }
+  .profile-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    border: 2px solid var(--accent1);
+    flex-shrink: 0;
+  }
+  .profile-info { flex: 1; }
+  .profile-name { font-size: 17px; font-weight: 800; }
+  .profile-physical {
+    font-size: 11px;
+    color: var(--accent1);
+    background: rgba(232,168,56,0.1);
+    padding: 2px 10px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .profile-vip {
+    font-size: 10px;
+    background: linear-gradient(135deg, var(--accent1), #f5a623);
+    color: #0f0f18;
+    padding: 3px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    margin-top: 6px;
+    display: inline-block;
+  }
+
+  .stats-row {
+    display: flex;
+    background: var(--card);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .stats-item {
+    flex: 1;
+    padding: 14px 8px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stats-item:last-child { border-right: none; }
+  .stats-val { font-size: 20px; font-weight: 800; color: var(--accent1); }
+  .stats-label { font-size: 9px; color: var(--text-sub); margin-top: 3px; }
+
+  .menu-list {
+    background: var(--card);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: background .2s;
+    gap: 12px;
+  }
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item:active { background: rgba(255,255,255,0.03); }
+  .menu-icon { font-size: 18px; width: 24px; }
+  .menu-text { flex: 1; font-size: 13px; }
+  .menu-badge {
+    font-size: 9px;
+    background: var(--accent3);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .menu-arrow { color: var(--text-sub); font-size: 12px; }
+
+  /* ===== BLINDBOX ANIMATION ===== */
+  .blindbox-container {
+    background: linear-gradient(135deg, #1a1030 0%, #2d1a0a 100%);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid rgba(232,168,56,0.3);
+    text-align: center;
+  }
+  .blindbox-icon {
+    font-size: 52px;
+    display: block;
+    margin: 0 auto 10px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .blindbox-title { font-size: 16px; font-weight: 800; color: var(--accent1); margin-bottom: 6px; }
+  .blindbox-sub { font-size: 11px; color: var(--text-sub); margin-bottom: 14px; }
+  .blindbox-tasks { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .task-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 10px 12px;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .task-check {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .task-check.done { background: var(--green); border-color: var(--green); }
+  .task-text { flex: 1; }
+  .task-reward { font-size: 10px; color: var(--accent1); font-weight: 600; }
+  .open-box-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent1), #f5a623);
+    color: #0f0f18;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .open-box-btn:active { opacity: 0.8; }
+
+  /* ===== REPORT CARD ===== */
+  .report-card {
+    background: linear-gradient(135deg, #0d1f2d 0%, #1a3040 100%);
+    margin: 0 12px 10px;
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid rgba(78,205,196,0.3);
+  }
+  .report-physical {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(78,205,196,0.15);
+  }
+  .physical-emoji { font-size: 40px; }
+  .physical-name { font-size: 20px; font-weight: 900; color: var(--accent2); }
+  .physical-sub { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+  .report-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .report-module {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 10px;
+  }
+  .module-title { font-weight: 700; margin-bottom: 4px; color: var(--accent2); display: flex; align-items: center; gap: 4px; }
+  .module-content { color: var(--text-sub); line-height: 1.7; }
+
+  /* ===== SCROLL ===== */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .scroll-content::-webkit-scrollbar { display: none; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30,30,50,0.95);
+    border: 1px solid var(--accent1);
+    border-radius: var(--radius);
+    padding: 20px 28px;
+    text-align: center;
+    z-index: 999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s;
+    backdrop-filter: blur(10px);
+    min-width: 200px;
+  }
+  .toast.show { opacity: 1; pointer-events: auto; }
+  .toast-icon { font-size: 36px; margin-bottom: 8px; }
+  .toast-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .toast-sub { font-size: 11px; color: var(--text-sub); }
+
+  /* ===== OVERLAY ===== */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 500;
+    display: none;
+    align-items: flex-end;
+    backdrop-filter: blur(4px);
+  }
+  .overlay.active { display: flex; }
+  .bottom-sheet {
+    background: var(--surface);
+    width: 100%;
+    max-width: 390px;
+    margin: 0 auto;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 20px 16px 32px;
+    border-top: 1px solid var(--border);
+    animation: slideUp .3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sheet-handle {
+    width: 40px; height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+  .sheet-title { font-size: 16px; font-weight: 800; margin-bottom: 14px; }
+  .close-sheet {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-sub);
+  }
+
+  /* ===== ANIMATIONS ===== */
+  .fade-in { animation: fadeIn .4s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .shake { animation: shake .4s ease; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25%,75% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
+
+  /* ===== SCROLLBAR ===== */
+  * { scrollbar-width: thin; scrollbar-color: rgba(232,168,56,0.3) transparent; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- TOP APP SWITCHER -->
+  <div class="app-switcher">
+    <div class="app-tab active" onclick="switchApp('health')" id="tab-health">
+      <span class="icon">🌿</span>养生管家
+    </div>
+    <div class="app-tab" onclick="switchApp('tea')" id="tab-tea">
+      <span class="icon">🍵</span>花茶配方
+    </div>
+    <div class="app-tab" onclick="switchApp('huatuo')" id="tab-huatuo">
+      <span class="icon">⚕️</span>华佗问诊
+    </div>
+  </div>
+
+  <!-- ===== APP 1: AI 体质养生管家 ===== -->
+  <div class="app-content active" id="app-health">
+    <div class="bottom-nav" id="nav-health">
+      <div class="nav-item active" onclick="showPage('health','home')">
+        <span class="nav-icon">🏠</span>首页
+      </div>
+      <div class="nav-item" onclick="showPage('health','quiz')">
+        <span class="nav-icon">📋</span>体质测评
+      </div>
+      <div class="nav-item" onclick="showPage('health','game')">
+        <span class="nav-icon">🎮</span>修行闯关
+      </div>
+      <div class="nav-item" onclick="showPage('health','user')">
+        <span class="nav-icon">👤</span>我的
+      </div>
+    </div>
+    
+    <!-- Health Home -->
+    <div class="scroll-content" id="page-health-home">
+      <div class="hero fade-in">
+        <div class="hero-badge">⚡ 00后专属</div>
+        <div class="hero-title">AI <span>体质养生</span><br>管家</div>
+        <div class="hero-subtitle">华佗故里 · 亳州道地药材 · 九种体质精准调理</div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-num">9</div>
+            <div class="stat-label">体质类型</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">20+</div>
+            <div class="stat-label">道地药材</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">5</div>
+            <div class="stat-label">闯关秘境</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">7</div>
+            <div class="stat-label">方案模块</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rank-bar fade-in">
+        <div class="rank-header">
+          <div class="rank-title">⚔️ 我的养生战力</div>
+          <div class="rank-level">🥈 白银药师</div>
+        </div>
+        <div class="xp-bar-bg">
+          <div class="xp-bar-fill" style="width:65%"></div>
+        </div>
+        <div class="xp-text">战力 650 / 1000 → 升级黄金华佗门徒</div>
+        <div class="rank-stages">
+          <div class="stage done">
+            <div class="stage-dot"></div>
+            <span>青铜</span>
+          </div>
+          <div class="stage done">
+            <div class="stage-dot"></div>
+            <span>白银</span>
+          </div>
+          <div class="stage current">
+            <div class="stage-dot"></div>
+            <span>黄金</span>
+          </div>
+          <div class="stage">
+            <div class="stage-dot"></div>
+            <span>铂金</span>
+          </div>
+          <div class="stage">
+            <div class="stage-dot"></div>
+            <span>王者</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">今日任务</div>
+        <div class="section-more">查看全部 ›</div>
+      </div>
+      <div class="blindbox-container fade-in" style="margin:0 12px 10px">
+        <div class="blindbox-tasks">
+          <div class="task-item">
+            <div class="task-check done">✓</div>
+            <div class="task-text">早睡打卡（23:00前）</div>
+            <div class="task-reward">+20灵力</div>
+          </div>
+          <div class="task-item">
+            <div class="task-check done">✓</div>
+            <div class="task-text">晨起喝水记录</div>
+            <div class="task-reward">+15灵力</div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"></div>
+            <div class="task-text">五禽戏运动打卡</div>
+            <div class="task-reward">+30灵力</div>
+          </div>
+          <div class="task-item">
+            <div class="task-check"></div>
+            <div class="task-text">完成今日养生答题</div>
+            <div class="task-reward">+25灵力</div>
+          </div>
+        </div>
+        <button class="open-box-btn" onclick="showToast('🎁','开盒成功！','获得亳菊稀有卡牌 × 1')">
+          🎁 完成任务·开盲盒
+        </button>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">我的养生报告</div>
+        <div class="section-more">更新 ›</div>
+      </div>
+      <div class="report-card fade-in">
+        <div class="report-physical">
+          <div class="physical-emoji">💧</div>
+          <div>
+            <div class="physical-name">痰湿体质</div>
+            <div class="physical-sub">综合体质测评 · 2024/06/20</div>
+          </div>
+        </div>
+        <div class="report-modules">
+          <div class="report-module">
+            <div class="module-title">🍵 茶饮方案</div>
+            <div class="module-content">荷叶茯苓茶<br>早晚各一杯</div>
+          </div>
+          <div class="report-module">
+            <div class="module-title">🥗 饮食建议</div>
+            <div class="module-content">清淡少油腻<br>多食山楂薏米</div>
+          </div>
+          <div class="report-module">
+            <div class="module-title">🏃 运动方案</div>
+            <div class="module-content">五禽戏熊经<br>每日20分钟</div>
+          </div>
+          <div class="report-module">
+            <div class="module-title">😴 作息调理</div>
+            <div class="module-content">22:30入睡<br>午休30分钟</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- Health Quiz -->
+    <div class="scroll-content" id="page-health-quiz" style="display:none">
+      <div style="padding:12px 12px 0">
+        <div class="hero" style="margin:0 0 12px">
+          <div class="hero-badge">AI 九种体质辨识</div>
+          <div class="hero-title">精准测评<br><span>专属方案</span></div>
+          <div class="hero-subtitle">20题问卷 + 舌象拍照 · 双维度融合判定</div>
+        </div>
+      </div>
+      <div class="section-header">
+        <div class="section-title">选择体质类型了解</div>
+      </div>
+      <div class="physical-types">
+        <div class="physical-chip active" onclick="selectPhysical(this, '平和质', '体质最佳')">
+          <span class="emoji">✨</span>
+          <span class="name">平和质</span>
+        </div>
+        <div class="physical-chip" onclick="selectPhysical(this, '气虚质', '容易疲乏')">
+          <span class="emoji">😮‍💨</span>
+          <span class="name">气虚质</span>
+        </div>
+        <div class="physical-chip" onclick="selectPhysical(this, '阳虚质', '怕冷畏寒')">
+          <span class="emoji">🥶</span>
+          <span class="name">阳虚质</span>
+        </div>
+        <div class="physical-chip" onclick="selectPhysical(this, '阴虚质', '手足心热')">
+          <span class="emoji">🔥</span>
+          <span class="name">阴虚质</span>
+        </div>
+        <div class="physical-chip" onclick="selectPhysical(this, '痰湿质', '体型偏胖')">
+          <span class="emoji">💧</span>
+          <span class="name">痰湿质</span>
+        </div>
+        <div class="physical-chip" onclick="selectPhysical(this, '湿热质', '面部油腻')">
+          <span class="emoji">🌡️</span>
+          <span class="name">湿热质</span>
+        </div>
+        <div class="physical-chip" onclick="selectPhysical(this, '血瘀质', '色素沉着')">
+          <span class="emoji">🫀</span>
+          <span class="name">血瘀质</span>
+        </div>
+        <div class="physical-chip" onclick="selectPhysical(this, '气郁质', '情绪抑郁')">
+          <span class="emoji">😔</span>
+          <span class="name">气郁质</span>
+        </div>
+        <div class="physical-chip" onclick="selectPhysical(this, '特禀质', '易过敏')">
+          <span class="emoji">🤧</span>
+          <span class="name">特禀质</span>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">开始问卷测评</div>
+      </div>
+      <div class="quiz-card" id="quiz-card">
+        <div class="quiz-progress">
+          <span class="quiz-num">第 <span id="qnum">1</span>/20 题</span>
+          <div class="quiz-bar-bg">
+            <div class="quiz-bar-fill" id="quiz-fill" style="width:5%"></div>
+          </div>
+        </div>
+        <div class="quiz-q" id="quiz-question">您平时容易感到疲乏，四肢无力吗？</div>
+        <div class="quiz-options" id="quiz-options">
+          <div class="quiz-opt" onclick="answerQ(this,1)">A. 没有</div>
+          <div class="quiz-opt" onclick="answerQ(this,2)">B. 偶尔有</div>
+          <div class="quiz-opt" onclick="answerQ(this,3)">C. 经常有</div>
+          <div class="quiz-opt" onclick="answerQ(this,4)">D. 总是如此</div>
+        </div>
+      </div>
+      <div class="card card-full" style="padding:14px;text-align:center;cursor:pointer;margin:0 12px 20px" onclick="openTongue()">
+        <div style="font-size:28px;margin-bottom:6px">📷</div>
+        <div style="font-weight:700;font-size:13px;margin-bottom:4px">AI 舌象拍照识别</div>
+        <div style="font-size:11px;color:var(--text-sub)">拍摄舌头照片，AI 自动分析气血湿气状况</div>
+      </div>
+    </div>
+
+    <!-- Health Game -->
+    <div class="scroll-content" id="page-health-game" style="display:none">
+      <div class="dungeon-map fade-in">
+        <div class="dungeon-title">🗺️ 华佗养生秘境 · 闯关修行</div>
+        <div class="stages-row">
+          <div class="stage-node" onclick="enterStage('白芍秘境','已解锁')">
+            <div class="stage-circle unlocked">🌸</div>
+            <div class="stage-name">白芍秘境</div>
+          </div>
+          <div class="stage-node" onclick="enterStage('亳菊山谷','当前关卡')">
+            <div class="stage-circle current">🌼</div>
+            <div class="stage-name">亳菊山谷</div>
+          </div>
+          <div class="stage-node">
+            <div class="stage-circle locked">🍄</div>
+            <div class="stage-name">茯苓仙林</div>
+          </div>
+          <div class="stage-node">
+            <div class="stage-circle locked">🦅</div>
+            <div class="stage-name">五禽道场</div>
+          </div>
+          <div class="stage-node">
+            <div class="stage-circle locked">🏮</div>
+            <div class="stage-name">药膳古巷</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="battle-card fade-in" onclick="joinBattle()">
+        <div class="battle-header">
+          <div class="battle-tag">⚔️ 体质分身 PK</div>
+          <div class="battle-live"><div class="live-dot"></div>3人在线</div>
+        </div>
+        <div class="battle-players">
+          <div class="player">
+            <div class="player-avatar">🐉</div>
+            <div class="player-name">养生达人小明</div>
+            <div class="player-score">战力 890</div>
+          </div>
+          <div class="vs-text">VS</div>
+          <div class="player">
+            <div class="player-avatar">🦊</div>
+            <div class="player-name">等待挑战者</div>
+            <div class="player-score">你来吗？</div>
+          </div>
+        </div>
+        <button class="battle-join-btn">⚡ 发起挑战 · 争夺周榜第一</button>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">🃏 药材卡牌图鉴</div>
+        <div class="section-more">3/20 ›</div>
+      </div>
+      <div class="game-grid fade-in">
+        <div class="game-card" onclick="showCard('亳菊','清肝明目、散风清热',true)" style="border-color:rgba(232,168,56,0.3)">
+          <div class="game-card-icon">🌼</div>
+          <div class="game-card-name">亳菊</div>
+          <div class="game-card-desc">亳州道地药材<br>清肝明目</div>
+          <div class="game-hot-badge">★稀有</div>
+        </div>
+        <div class="game-card" onclick="showCard('白芍','养血调经、敛阴止汗',true)" style="border-color:rgba(168,85,247,0.3)">
+          <div class="game-card-icon">🌸</div>
+          <div class="game-card-name">白芍</div>
+          <div class="game-card-desc">亳州四大药材<br>养血调经</div>
+        </div>
+        <div class="game-card" style="opacity:0.4">
+          <div class="game-card-icon">🍄</div>
+          <div class="game-card-name">茯苓</div>
+          <div class="game-card-desc">待解锁<br>通关获得</div>
+        </div>
+        <div class="game-card" style="opacity:0.4">
+          <div class="game-card-icon">🌿</div>
+          <div class="game-card-name">甘草</div>
+          <div class="game-card-desc">待解锁<br>通关获得</div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- Health User -->
+    <div class="scroll-content" id="page-health-user" style="display:none">
+      <div class="profile-header fade-in">
+        <div class="profile-avatar">🐼</div>
+        <div class="profile-info">
+          <div class="profile-name">养生行者·小白</div>
+          <div class="profile-physical">💧 痰湿体质</div>
+          <div class="profile-vip">✦ 会员到期：2024/12/31</div>
+        </div>
+      </div>
+      <div class="stats-row fade-in">
+        <div class="stats-item">
+          <div class="stats-val">650</div>
+          <div class="stats-label">养生战力</div>
+        </div>
+        <div class="stats-item">
+          <div class="stats-val">3</div>
+          <div class="stats-label">卡牌收集</div>
+        </div>
+        <div class="stats-item">
+          <div class="stats-val">15</div>
+          <div class="stats-label">打卡天数</div>
+        </div>
+        <div class="stats-item">
+          <div class="stats-val">240</div>
+          <div class="stats-label">灵力值</div>
+        </div>
+      </div>
+      <div class="menu-list fade-in">
+        <div class="menu-item" onclick="showToast('📋','我的测评记录','查看历史体质报告')">
+          <span class="menu-icon">📋</span>
+          <span class="menu-text">体质测评记录</span>
+          <span class="menu-badge">NEW</span>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="showToast('🏆','段位排行榜','白银药师排名第89位')">
+          <span class="menu-icon">🏆</span>
+          <span class="menu-text">段位排行榜</span>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="showToast('🎁','我的背包','灵力×240 · 碎片×3')">
+          <span class="menu-icon">🎁</span>
+          <span class="menu-text">道具背包</span>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="showToast('⭐','会员中心','开通会员解锁完整报告')">
+          <span class="menu-icon">⭐</span>
+          <span class="menu-text">开通会员</span>
+          <span class="menu-arrow">›</span>
+        </div>
+        <div class="menu-item" onclick="showToast('📍','附近驿站','找到3家亳州养生驿站')">
+          <span class="menu-icon">📍</span>
+          <span class="menu-text">附近养生驿站</span>
+          <span class="menu-arrow">›</span>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- ===== APP 2: 亳州花茶配方生成器 ===== -->
+  <div class="app-content" id="app-tea">
+    <div class="bottom-nav" id="nav-tea">
+      <div class="nav-item active" onclick="showPage('tea','home')">
+        <span class="nav-icon">🏠</span>首页
+      </div>
+      <div class="nav-item" onclick="showPage('tea','formula')">
+        <span class="nav-icon">🤖</span>AI配茶
+      </div>
+      <div class="nav-item" onclick="showPage('tea','game')">
+        <span class="nav-icon">🎯</span>消消乐
+      </div>
+      <div class="nav-item" onclick="showPage('tea','contest')">
+        <span class="nav-icon">🏆</span>创意赛
+      </div>
+    </div>
+
+    <!-- Tea Home -->
+    <div class="scroll-content" id="page-tea-home">
+      <div class="hero fade-in">
+        <div class="hero-badge">亳州花茶</div>
+        <div class="hero-title">AI<span>配方</span><br>生成器</div>
+        <div class="hero-subtitle">道地药材 · 智能配比 · 体质精准匹配</div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-num">86</div>
+            <div class="stat-label">爆款茶方</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">32</div>
+            <div class="stat-label">药食同源</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">7</div>
+            <div class="stat-label">效果分类</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">按症状选茶</div>
+      </div>
+      <div class="symptom-tags">
+        <div class="symptom-tag active" onclick="toggleSymptom(this)">😴 助眠</div>
+        <div class="symptom-tag" onclick="toggleSymptom(this)">💦 祛湿</div>
+        <div class="symptom-tag" onclick="toggleSymptom(this)">🔥 清火</div>
+        <div class="symptom-tag" onclick="toggleSymptom(this)">🍃 健脾</div>
+        <div class="symptom-tag" onclick="toggleSymptom(this)">🩸 气血</div>
+        <div class="symptom-tag" onclick="toggleSymptom(this)">🧘 轻畅</div>
+        <div class="symptom-tag" onclick="toggleSymptom(this)">😮‍💨 润喉</div>
+        <div class="symptom-tag" onclick="toggleSymptom(this)">🌙 熬夜</div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">推荐茶方</div>
+        <div class="section-more">全部 ›</div>
+      </div>
+      <div class="tea-formula fade-in">
+        <div class="formula-header">
+          <div>
+            <div class="formula-name">亳菊助眠宁心茶</div>
+            <div style="font-size:11px;color:var(--text-sub);margin-top:2px">适合：失眠烦躁 · 肝火旺盛</div>
+          </div>
+          <div class="formula-badge">⭐推荐</div>
+        </div>
+        <div class="ingredients">
+          <div class="ingredient">亳菊 5g</div>
+          <div class="ingredient">酸枣仁 10g</div>
+          <div class="ingredient">茯苓 8g</div>
+          <div class="ingredient">甘草 3g</div>
+        </div>
+        <div class="brew-steps">
+          <span>冲泡：</span>90°C水，焖泡5分钟<br>
+          <span>饮用：</span>睡前1小时，每日1杯<br>
+          <span>禁忌：</span>孕妇、脾胃虚寒者慎用
+        </div>
+      </div>
+
+      <div class="tea-formula fade-in" style="background:linear-gradient(135deg,#1a1830 0%,#2d1a35 100%);border-color:rgba(168,85,247,0.3)">
+        <div class="formula-header">
+          <div>
+            <div class="formula-name" style="color:var(--accent4)">熬夜护肝排毒茶</div>
+            <div style="font-size:11px;color:var(--text-sub);margin-top:2px">适合：长期熬夜 · 眼睛干涩</div>
+          </div>
+          <div class="formula-badge" style="background:rgba(168,85,247,0.2);color:var(--accent4)">🔥爆款</div>
+        </div>
+        <div class="ingredients">
+          <div class="ingredient" style="color:#c4a8e6;background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.2)">决明子 8g</div>
+          <div class="ingredient" style="color:#c4a8e6;background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.2)">枸杞 10g</div>
+          <div class="ingredient" style="color:#c4a8e6;background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.2)">菊花 5g</div>
+          <div class="ingredient" style="color:#c4a8e6;background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.2)">山楂 6g</div>
+        </div>
+        <div class="brew-steps" style="border-top-color:rgba(168,85,247,0.15)">
+          <span style="color:var(--accent4)">冲泡：</span>85°C水，焖泡8分钟<br>
+          <span style="color:var(--accent4)">饮用：</span>下午或晚间饮用<br>
+          <span style="color:var(--accent4)">功效：</span>清肝明目、排肝毒
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- Tea AI Formula -->
+    <div class="scroll-content" id="page-tea-formula" style="display:none">
+      <div style="padding:12px">
+        <div class="hero" style="margin:0 0 12px">
+          <div class="hero-badge">🤖 AI 智能配茶</div>
+          <div class="hero-title">自由选材<br><span>AI 优化配比</span></div>
+        </div>
+      </div>
+
+      <div class="material-workshop fade-in">
+        <div class="workshop-title">🌿 选择药材食材（可多选）</div>
+        <div class="materials-grid">
+          <div class="material-item" onclick="toggleMaterial(this)">
+            <div class="material-icon">🌼<span class="pieces">×8</span></div>
+            <div class="material-name">亳菊</div>
+          </div>
+          <div class="material-item" onclick="toggleMaterial(this)">
+            <div class="material-icon selected">🌿<span class="pieces">×12</span></div>
+            <div class="material-name">荷叶</div>
+          </div>
+          <div class="material-item" onclick="toggleMaterial(this)">
+            <div class="material-icon">🍒<span class="pieces">×5</span></div>
+            <div class="material-name">山楂</div>
+          </div>
+          <div class="material-item" onclick="toggleMaterial(this)">
+            <div class="material-icon selected">🌰<span class="pieces">×7</span></div>
+            <div class="material-name">茯苓</div>
+          </div>
+          <div class="material-item" onclick="toggleMaterial(this)">
+            <div class="material-icon">🌱<span class="pieces">×3</span></div>
+            <div class="material-name">决明子</div>
+          </div>
+          <div class="material-item" onclick="toggleMaterial(this)">
+            <div class="material-icon">🔴<span class="pieces">×9</span></div>
+            <div class="material-name">枸杞</div>
+          </div>
+          <div class="material-item" onclick="toggleMaterial(this)">
+            <div class="material-icon">🌸<span class="pieces">×4</span></div>
+            <div class="material-name">白芍</div>
+          </div>
+          <div class="material-item" onclick="toggleMaterial(this)">
+            <div class="material-icon">💚<span class="pieces">×6</span></div>
+            <div class="material-name">甘草</div>
+          </div>
+          <div class="material-item">
+            <div class="material-icon" style="opacity:0.4;font-size:16px">🔒</div>
+            <div class="material-name">薏米</div>
+          </div>
+          <div class="material-item">
+            <div class="material-icon" style="opacity:0.4;font-size:16px">🔒</div>
+            <div class="material-name">陈皮</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:0 12px 10px">
+        <button class="open-box-btn" style="background:linear-gradient(135deg,var(--accent2),#3aafa9)" onclick="generateFormula()">
+          🤖 AI 智能生成专属配方
+        </button>
+      </div>
+
+      <div class="tea-formula fade-in" id="ai-result" style="display:none">
+        <div class="formula-header">
+          <div>
+            <div class="formula-name">荷叶茯苓祛湿轻体茶</div>
+            <div style="font-size:11px;color:var(--text-sub);margin-top:2px">AI 优化配比 · 专属推荐</div>
+          </div>
+          <div class="formula-badge">AI生成</div>
+        </div>
+        <div class="ingredients">
+          <div class="ingredient">荷叶 8g</div>
+          <div class="ingredient">茯苓 10g</div>
+          <div class="ingredient">山楂 5g</div>
+          <div class="ingredient">甘草 3g</div>
+        </div>
+        <div class="brew-steps">
+          <span>AI分析：</span>您选材偏向祛湿健脾，最优配比如上<br>
+          <span>冲泡：</span>90°C水，焖泡6分钟，早晚各一杯<br>
+          <span>适合：</span>痰湿/湿热体质，上班族久坐人群
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- Tea Game -->
+    <div class="scroll-content" id="page-tea-game" style="display:none">
+      <div style="padding:12px">
+        <div class="hero" style="margin:0 0 12px;background:linear-gradient(135deg,#0d2b1f,#1a3a2e)">
+          <div class="hero-badge">🎯 药材消消乐</div>
+          <div class="hero-title"><span>三消闯关</span><br>赢花茶优惠券</div>
+        </div>
+      </div>
+      <!-- Simple Tile Match Game -->
+      <div class="card card-full" style="padding:16px;text-align:center">
+        <div id="match-game">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between">
+            <span>💰 积分：<span id="score">0</span></span>
+            <span>关卡：1-3</span>
+            <span>⏱️ <span id="timer">60</span>s</span>
+          </div>
+          <div id="tile-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:12px"></div>
+          <button class="open-box-btn" style="background:linear-gradient(135deg,var(--green),#3aafa9);font-size:13px" onclick="startGame()">
+            🎮 开始游戏
+          </button>
+        </div>
+      </div>
+      <div style="padding:12px">
+        <div class="card" style="padding:14px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">🎁</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">今日通关奖励</div>
+          <div style="font-size:11px;color:var(--text-sub);margin-bottom:10px">闯关积分可兑换花茶优惠券</div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <div style="padding:8px 16px;background:rgba(107,203,119,0.1);border:1px solid rgba(107,203,119,0.2);border-radius:10px;font-size:11px;color:var(--green)">满50积分 → 9折券</div>
+            <div style="padding:8px 16px;background:rgba(232,168,56,0.1);border:1px solid rgba(232,168,56,0.2);border-radius:10px;font-size:11px;color:var(--accent1)">满100积分 → 8折券</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- Tea Contest -->
+    <div class="scroll-content" id="page-tea-contest" style="display:none">
+      <div style="padding:12px">
+        <div class="hero" style="margin:0 0 12px;background:linear-gradient(135deg,#1a1030,#2d1040)">
+          <div class="hero-badge">🏆 创意配方大赛</div>
+          <div class="hero-title"><span>年轻人</span><br>脑洞茶方赛</div>
+          <div class="hero-subtitle">提交创意配方 · 全网点赞 · 入库署名</div>
+        </div>
+      </div>
+      <div class="section-header">
+        <div class="section-title">热门创意茶方</div>
+        <div class="section-more">投稿 ›</div>
+      </div>
+      <div class="game-grid">
+        <div class="game-card" onclick="likeFormula(this,'熬夜护肝茶')" style="border-color:rgba(232,168,56,0.3)">
+          <div class="game-card-icon">🌙</div>
+          <div class="game-card-name">熬夜护肝茶</div>
+          <div class="game-card-desc">@宿舍的酸菜鱼<br>👍 2.3k 点赞</div>
+          <div class="game-hot-badge">🔥榜首</div>
+        </div>
+        <div class="game-card" onclick="likeFormula(this,'素颜清透茶')" style="border-color:rgba(255,107,157,0.3)">
+          <div class="game-card-icon">✨</div>
+          <div class="game-card-name">学生素颜茶</div>
+          <div class="game-card-desc">@爱美的小周<br>👍 1.8k 点赞</div>
+        </div>
+        <div class="game-card" onclick="likeFormula(this,'久坐祛湿茶')">
+          <div class="game-card-icon">💼</div>
+          <div class="game-card-name">久坐祛湿茶</div>
+          <div class="game-card-desc">@打工人小李<br>👍 1.2k 点赞</div>
+        </div>
+        <div class="game-card" onclick="likeFormula(this,'备考提神茶')" style="border-color:rgba(78,205,196,0.3)">
+          <div class="game-card-icon">📚</div>
+          <div class="game-card-name">备考提神茶</div>
+          <div class="game-card-desc">@考研中的阿强<br>👍 980 点赞</div>
+        </div>
+      </div>
+      <div style="padding:0 12px 20px">
+        <button class="open-box-btn" onclick="showToast('✍️','提交配方','创意配方审核后将公开展示')">
+          ✍️ 提交我的创意配方
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== APP 3: 华佗AI轻问诊 ===== -->
+  <div class="app-content" id="app-huatuo">
+    <div class="bottom-nav" id="nav-huatuo">
+      <div class="nav-item active" onclick="showPage('huatuo','chat')">
+        <span class="nav-icon">💬</span>问诊
+      </div>
+      <div class="nav-item" onclick="showPage('huatuo','story')">
+        <span class="nav-icon">📖</span>奇遇记
+      </div>
+      <div class="nav-item" onclick="showPage('huatuo','quiz')">
+        <span class="nav-icon">🎯</span>脑洞答题
+      </div>
+      <div class="nav-item" onclick="showPage('huatuo','relax')">
+        <span class="nav-icon">🌊</span>解压</div>
+    </div>
+
+    <!-- Huatuo Chat -->
+    <div style="display:flex;flex-direction:column;height:calc(100vh - 52px - 60px);overflow:hidden" id="page-huatuo-chat">
+      <div style="padding:10px 12px 4px;background:var(--surface);border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:24px">⚕️</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">华佗养生顾问</div>
+            <div style="font-size:10px;color:var(--green)">● 在线 · 仅养生科普建议</div>
+          </div>
+        </div>
+      </div>
+      <div class="quick-qs">
+        <div class="quick-q" onclick="askQ(this,'我熬夜怎么调理？')">熬夜调理</div>
+        <div class="quick-q" onclick="askQ(this,'我脾胃不好吃什么？')">脾胃调养</div>
+        <div class="quick-q" onclick="askQ(this,'春季养生怎么做？')">春季养生</div>
+        <div class="quick-q" onclick="askQ(this,'亳菊有什么功效？')">亳菊功效</div>
+        <div class="quick-q" onclick="askQ(this,'五禽戏怎么练？')">五禽戏</div>
+      </div>
+      <div class="chat-messages" id="chat-msgs">
+        <div class="msg ai fade-in">
+          <div class="msg-avatar">⚕️</div>
+          <div class="msg-bubble">
+            您好！我是华佗养生顾问，来自华佗故里亳州 🌿<br><br>
+            我专注日常养生调理、四季作息建议和本地道地药材科普。请问今天有什么想了解的养生问题？<br><br>
+            <em style="font-size:10px;color:var(--text-sub)">温馨提示：本内容仅为养生调理参考，身体不适请前往正规医疗机构就诊。</em>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <input class="chat-input" id="chat-input" placeholder="询问养生建议..." onkeypress="if(event.key==='Enter')sendMsg()">
+        <button class="send-btn" onclick="sendMsg()">↑</button>
+      </div>
+    </div>
+
+    <!-- Huatuo Story -->
+    <div class="scroll-content" id="page-huatuo-story" style="display:none">
+      <div style="padding:12px">
+        <div class="hero" style="margin:0 0 12px;background:linear-gradient(135deg,#1a1530,#2d2040)">
+          <div class="hero-badge">📖 沉浸剧情</div>
+          <div class="hero-title"><span>华佗</span><br>古风奇遇记</div>
+          <div class="hero-subtitle">跟随华佗游历亳州 · 选择决定结局</div>
+        </div>
+      </div>
+      <div class="quiz-card" style="background:linear-gradient(135deg,#1a1530,#2a1a3e);border-color:rgba(168,85,247,0.3)">
+        <div style="font-size:12px;color:var(--accent4);margin-bottom:10px;font-weight:700">第一章：白芍园的清晨</div>
+        <div class="quiz-q" style="color:var(--text);font-size:13px;line-height:1.8">
+          初春清晨，华佗邀你同游亳州白芍园。园中白芍盛开，晨露未干。<br><br>
+          华佗问道："今晨你可曾饮水，调理五脏六腑？"
+        </div>
+        <div class="quiz-options" style="margin-top:14px">
+          <div class="quiz-opt" onclick="storyChoice(this,'饮了温水一杯，片刻后又练了五禽戏','✨ 完美！华佗赞许点头：此乃上佳之举。解锁「华佗真传」成就！')">
+            🌟 饮了温水一杯，顺带练了五禽戏
+          </div>
+          <div class="quiz-opt" onclick="storyChoice(this,'刚起床直接出来了','💡 华佗微笑道：晨起温水，乃养生第一步，明日试试？')">
+            😅 刚起床直接出来了
+          </div>
+          <div class="quiz-opt" onclick="storyChoice(this,'还没吃早饭呢','🌿 华佗说：空腹晨游，可先采几朵白芍花，泡水而饮...')">
+            🤔 还没吃早饭呢
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px">
+        <div class="card" style="padding:12px;display:flex;align-items:center;gap:12px">
+          <div style="font-size:24px">🗺️</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">剧情进度</div>
+            <div style="font-size:11px;color:var(--text-sub);margin-top:3px">第1章/共5章 · 2个分支未探索</div>
+          </div>
+          <div style="margin-left:auto;font-size:20px;color:var(--accent4)">1/5</div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- Huatuo Quiz -->
+    <div class="scroll-content" id="page-huatuo-quiz" style="display:none">
+      <div style="padding:12px">
+        <div class="hero" style="margin:0 0 12px;background:linear-gradient(135deg,#0d2030,#1a3040)">
+          <div class="hero-badge">🎯 脑洞大挑战</div>
+          <div class="hero-title">养生<span>冷知识</span><br>答题对战</div>
+        </div>
+      </div>
+      <div class="quiz-card fade-in" id="brainquiz">
+        <div class="quiz-progress">
+          <span class="quiz-num" style="color:var(--accent2)">元气值 <span id="energy">0</span> ⚡</span>
+          <div class="quiz-bar-bg">
+            <div class="quiz-bar-fill" id="energy-fill" style="width:0%;background:linear-gradient(90deg,var(--accent2),var(--green))"></div>
+          </div>
+        </div>
+        <div class="quiz-q" id="brain-q">以下哪种说法是正确的养生常识？</div>
+        <div class="quiz-options" id="brain-opts">
+          <div class="quiz-opt" onclick="brainAnswer(this, false)">A. 喝凉水对肠胃有好处</div>
+          <div class="quiz-opt" onclick="brainAnswer(this, false)">B. 熬夜后多睡一天就能补回来</div>
+          <div class="quiz-opt" onclick="brainAnswer(this, true)">C. 五禽戏是华佗创立的养生运动 ✓</div>
+          <div class="quiz-opt" onclick="brainAnswer(this, false)">D. 喝酒能活血通络，每天喝点好</div>
+        </div>
+      </div>
+      <div class="game-grid" style="padding:0 12px 20px">
+        <div class="game-card" onclick="showToast('👥','双人对战','邀请好友一起答题')">
+          <div class="game-card-icon">👥</div>
+          <div class="game-card-name">好友对战</div>
+          <div class="game-card-desc">邀请好友同时<br>答题竞速</div>
+          <div class="game-hot-badge">热</div>
+        </div>
+        <div class="game-card" onclick="showToast('🏅','今日排行','元气值榜单前10名可兑换茶饮')">
+          <div class="game-card-icon">🏅</div>
+          <div class="game-card-name">今日排行</div>
+          <div class="game-card-desc">元气值榜单<br>兑换专属茶方</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Huatuo Relax -->
+    <div class="scroll-content" id="page-huatuo-relax" style="display:none">
+      <div style="padding:12px">
+        <div class="hero" style="margin:0 0 12px;background:linear-gradient(135deg,#0d1a30,#1a2540)">
+          <div class="hero-badge">🌊 情绪解压</div>
+          <div class="hero-title">青年<span>解压</span><br>专属空间</div>
+          <div class="hero-subtitle">熬夜 · 焦虑 · 考试压力 · 职场内耗</div>
+        </div>
+      </div>
+      <div class="game-grid fade-in">
+        <div class="game-card" onclick="showToast('🎨','情绪涂鸦','释放情绪，随心涂鸦')">
+          <div class="game-card-icon">🎨</div>
+          <div class="game-card-name">情绪涂鸦</div>
+          <div class="game-card-desc">随心涂鸦<br>释放压力</div>
+        </div>
+        <div class="game-card" onclick="showToast('🌳','树洞倾诉','记录内心，仅自己可见')">
+          <div class="game-card-icon">🌳</div>
+          <div class="game-card-name">压力树洞</div>
+          <div class="game-card-desc">仅记录<br>不对外公开</div>
+        </div>
+        <div class="game-card" onclick="showToast('🧘','静心冥想','华佗古风音乐助眠')">
+          <div class="game-card-icon">🎵</div>
+          <div class="game-card-name">静心听音</div>
+          <div class="game-card-desc">华佗古曲<br>助眠解压</div>
+          <div class="game-hot-badge">新</div>
+        </div>
+        <div class="game-card" onclick="showToast('✨','元气积攒','积攒元气兑换舒缓茶饮')">
+          <div class="game-card-icon">⚡</div>
+          <div class="game-card-name">元气积攒</div>
+          <div class="game-card-desc">兑换情绪<br>调理茶方</div>
+        </div>
+      </div>
+      <div class="blindbox-container fade-in" style="margin:0 12px 10px;background:linear-gradient(135deg,#1a1030,#2d2050)">
+        <div style="font-size:44px;display:block;margin-bottom:10px;animation:float 3s ease-in-out infinite">🌙</div>
+        <div style="font-size:14px;font-weight:800;color:var(--accent4);margin-bottom:6px">今晚的情绪调理方案</div>
+        <div style="font-size:11px;color:var(--text-sub);margin-bottom:14px">根据你的元气值，定制专属舒缓茶饮和作息方案</div>
+        <button class="open-box-btn" style="background:linear-gradient(135deg,var(--accent4),var(--accent3))" onclick="showToast('🌙','专属方案已生成','推荐：亳菊酸枣仁茶 + 22:30入睡')">
+          ✨ 获取今晚专属调理方案
+        </button>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <div class="toast-icon" id="toast-icon">🎉</div>
+    <div class="toast-title" id="toast-title">提示</div>
+    <div class="toast-sub" id="toast-sub"></div>
+  </div>
+
+  <!-- OVERLAY / BOTTOM SHEET -->
+  <div class="overlay" id="overlay" onclick="closeOverlay()">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div id="sheet-content"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let currentApp = 'health';
+let currentPages = { health: 'home', tea: 'home', huatuo: 'chat' };
+let quizStep = 0;
+let energyVal = 0;
+let gameScore = 0;
+let gameTimer = null;
+
+const quizQuestions = [
+  { q: '您平时容易感到疲乏，四肢无力吗？', opts: ['A. 没有','B. 偶尔有','C. 经常有','D. 总是如此'] },
+  { q: '您的口腔或身体是否常有痰感，感觉粘腻？', opts: ['A. 没有','B. 偶尔','C. 经常','D. 很严重'] },
+  { q: '您的皮肤或面部是否有油腻感？', opts: ['A. 干燥','B. 适中','C. 偶尔油腻','D. 经常油腻'] },
+  { q: '您是否容易出汗，活动后大汗淋漓？', opts: ['A. 很少','B. 正常出汗','C. 稍微活动就出','D. 经常自汗'] },
+];
+
+const aiResponses = {
+  '熬夜': '熬夜伤肝损肾，建议您尽量在23点前入睡 🌙\n\n养生建议：\n• 晚上喝杯亳菊枸杞茶，清肝明目\n• 睡前做几个五禽戏放松操\n• 早起喝一杯温水，排毒养颜\n\n⚠️ 温馨提示：本内容仅为养生调理参考，身体不适请前往正规医疗机构就诊。',
+  '脾胃': '脾胃调养是养生基础 🌿\n\n亳州特色建议：\n• 茯苓山楂茶，健脾消食\n• 饭后散步15分钟，助消化\n• 少食生冷、油腻食物\n• 定时定量进食，不暴饮暴食\n\n⚠️ 温馨提示：本内容仅为养生调理参考。',
+  '春季': '春季养生重在养肝疏气 🌸\n\n春季亳州养生方案：\n• 晨起喝玫瑰花亳菊茶，舒肝解郁\n• 户外踏青，拥抱自然之气\n• 早睡早起，顺应春季阳气上升\n• 饮食以清淡为主，多吃时蔬\n\n⚠️ 温馨提示：本内容仅为养生调理参考。',
+  '亳菊': '亳菊是亳州四大道地药材之一 🌼\n\n功效：清肝明目、散风清热\n\n使用建议：\n• 泡茶：亳菊3-5g，开水冲泡\n• 适合：肝火旺、眼睛干涩、头痛\n• 搭配：枸杞更佳，滋补肝肾\n\n⚠️ 脾胃虚寒者慎用，孕妇请遵医嘱。',
+  '五禽戏': '五禽戏是华佗创立的养生功法 🦅\n\n五禽：虎、鹿、熊、猿、鸟\n\n养生功效：\n• 虎戏：增强筋骨，改善腰腿\n• 鹿戏：通督脉，强腰健肾\n• 熊戏：调理脾胃，增强消化\n• 猿戏：灵活四肢，活跃大脑\n• 鸟戏：调心肺，改善气血\n\n建议每天早晨练习15-20分钟！',
+  'default': '这个问题问得很好！作为华佗故里的养生顾问，我来为您解答 🌿\n\n亳州养生文化源远流长，华佗创立五禽戏，本地道地药材亳菊、白芍、茯苓、白术享誉全国。\n\n日常养生三原则：\n• 规律作息：22-23点入睡\n• 均衡饮食：多食药食同源食材\n• 适度运动：五禽戏最佳\n\n⚠️ 温馨提示：本内容仅为养生调理参考，身体不适请前往正规医疗机构就诊。'
+};
+
+// ===== APP SWITCHING =====
+function switchApp(app) {
+  document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+app).classList.add('active');
+  document.querySelectorAll('.app-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('app-'+app).classList.add('active');
+  currentApp = app;
+  // show correct page
+  showPage(app, currentPages[app]);
+}
+
+// ===== PAGE NAVIGATION =====
+function showPage(app, page) {
+  currentPages[app] = page;
+  // hide all pages for this app
+  const content = document.getElementById('app-'+app);
+  if (!content) return;
+  content.querySelectorAll('[id^="page-'+app+'-"]').forEach(p => p.style.display = 'none');
+  const pg = document.getElementById('page-'+app+'-'+page);
+  if (pg) pg.style.display = '';
+  // update nav
+  const nav = document.getElementById('nav-'+app);
+  if (nav) {
+    nav.querySelectorAll('.nav-item').forEach((item, i) => {
+      item.classList.toggle('active', item.getAttribute('onclick')?.includes("'"+page+"'"));
+    });
+  }
+  // special: huatuo chat is flex
+  if (app === 'huatuo' && page === 'chat') {
+    const chatPage = document.getElementById('page-huatuo-chat');
+    if (chatPage) chatPage.style.display = 'flex';
+  }
+}
+
+// ===== TOAST =====
+let toastTimer = null;
+function showToast(icon, title, sub='') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-sub').textContent = sub;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== OVERLAY =====
+function showOverlay(html) {
+  document.getElementById('sheet-content').innerHTML = html;
+  document.getElementById('overlay').classList.add('active');
+}
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('active');
+}
+
+// ===== HEALTH FUNCTIONS =====
+function selectPhysical(el, name, desc) {
+  document.querySelectorAll('.physical-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  showToast('💡', name, desc + ' · 点击开始测评');
+}
+
+function answerQ(el, val) {
+  document.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  quizStep = Math.min(quizStep + 1, quizQuestions.length - 1);
+  setTimeout(() => {
+    const q = quizQuestions[quizStep];
+    document.getElementById('qnum').textContent = quizStep + 1;
+    document.getElementById('quiz-fill').style.width = ((quizStep+1)/20*100) + '%';
+    document.getElementById('quiz-question').textContent = q.q;
+    const opts = document.getElementById('quiz-options');
+    opts.innerHTML = q.opts.map((o,i) => `<div class="quiz-opt" onclick="answerQ(this,${i+1})">${o}</div>`).join('');
+    if (quizStep === quizQuestions.length - 1) {
+      setTimeout(() => showToast('🎉','测评完成！','正在生成您的专属体质报告...'), 600);
+    }
+  }, 400);
+}
+
+function openTongue() {
+  showToast('📷', '舌象识别', '请在良好光线下拍摄舌头正面照片');
+}
+
+function enterStage(name, status) {
+  if (status === '已解锁' || status === '当前关卡') {
+    showOverlay(`
+      <div class="sheet-title">⚔️ ${name}</div>
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:48px;margin-bottom:12px">${name.includes('白芍')?'🌸':name.includes('亳菊')?'🌼':'🍄'}</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px">${name}</div>
+        <div style="font-size:11px;color:var(--text-sub);margin-bottom:20px">养生知识答题闯关 · 通关获得药材卡牌</div>
+        <button class="open-box-btn" onclick="closeOverlay();showToast('⚔️','进入${name}','开始闯关修行，获得养生灵力！')">进入关卡</button>
+      </div>
+    `);
+  } else {
+    showToast('🔒', '关卡未解锁', '完成前置关卡后解锁');
+  }
+}
+
+function joinBattle() {
+  showOverlay(`
+    <div class="sheet-title">⚔️ 体质分身 PK</div>
+    <div style="text-align:center;padding:16px 0">
+      <div style="font-size:13px;color:var(--text-sub);margin-bottom:16px">挑战「养生达人小明」</div>
+      <div style="display:flex;justify-content:center;gap:24px;margin-bottom:20px">
+        <div style="text-align:center">
+          <div style="font-size:44px">🐉</div>
+          <div style="font-size:12px;font-weight:700">小明</div>
+          <div style="font-size:11px;color:var(--accent4)">战力 890</div>
+        </div>
+        <div style="font-size:24px;font-weight:900;color:var(--accent3);display:flex;align-items:center">VS</div>
+        <div style="text-align:center">
+          <div style="font-size:44px">🦊</div>
+          <div style="font-size:12px;font-weight:700">你</div>
+          <div style="font-size:11px;color:var(--accent2)">战力 650</div>
+        </div>
+      </div>
+      <button class="open-box-btn" onclick="closeOverlay();showToast('⚡','挑战已发起！','双方养生习惯对决，结果明天公布')">确认挑战</button>
+    </div>
+  `);
+}
+
+function showCard(name, desc, owned) {
+  if (owned) {
+    showToast('🃏', name, desc);
+  }
+}
+
+// ===== TEA FUNCTIONS =====
+function toggleSymptom(el) {
+  el.classList.toggle('active');
+  if (el.classList.contains('active')) {
+    showToast('🍵', '已选择：'+el.textContent, '为您筛选对应茶方');
+  }
+}
+
+function toggleMaterial(el) {
+  const icon = el.querySelector('.material-icon');
+  icon.classList.toggle('selected');
+}
+
+function generateFormula() {
+  const selected = document.querySelectorAll('#page-tea-formula .material-icon.selected').length;
+  if (selected < 2) {
+    showToast('⚠️', '请至少选择2种食材', '选材后AI才能生成配方');
+    return;
+  }
+  showToast('🤖', 'AI配方生成中...', '正在优化配比和冲泡方案');
+  setTimeout(() => {
+    const result = document.getElementById('ai-result');
+    result.style.display = 'block';
+    result.classList.add('fade-in');
+    showToast('✅', '配方生成成功！', '荷叶茯苓祛湿轻体茶 · 专属推荐');
+  }, 1500);
+}
+
+// ===== TILE GAME =====
+const tiles = ['🌼','🌿','🍒','🌰','🌱','🔴'];
+let tileGrid = [];
+let selected = null;
+let gameRunning = false;
+
+function startGame() {
+  const grid = document.getElementById('tile-grid');
+  gameScore = 0;
+  let seconds = 60;
+  document.getElementById('score').textContent = 0;
+  document.getElementById('timer').textContent = 60;
+  
+  // generate 6x6 grid with pairs
+  let pool = [];
+  for(let i=0;i<18;i++) pool.push(tiles[i%6], tiles[i%6]);
+  pool.sort(() => Math.random()-.5);
+  
+  grid.innerHTML = '';
+  tileGrid = pool.map((t,i) => {
+    const cell = document.createElement('div');
+    cell.style.cssText = 'width:100%;aspect-ratio:1;border-radius:8px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:all .2s;user-select:none';
+    cell.textContent = t;
+    cell.dataset.val = t;
+    cell.dataset.idx = i;
+    cell.dataset.matched = '0';
+    cell.addEventListener('click', () => clickTile(cell));
+    grid.appendChild(cell);
+    return cell;
+  });
+  
+  gameRunning = true;
+  clearInterval(gameTimer);
+  gameTimer = setInterval(() => {
+    seconds--;
+    document.getElementById('timer').textContent = seconds;
+    if (seconds <= 0) {
+      clearInterval(gameTimer);
+      gameRunning = false;
+      showToast('⏱️','时间到！', '得分：'+gameScore+'分，兑换优惠券');
+    }
+  }, 1000);
+}
+
+function clickTile(cell) {
+  if (!gameRunning || cell.dataset.matched === '1') return;
+  if (cell === selected) { cell.style.background='var(--card)'; selected=null; return; }
+  cell.style.background = 'rgba(232,168,56,0.2)';
+  cell.style.borderColor = 'var(--accent1)';
+  if (!selected) { selected = cell; return; }
+  if (selected.dataset.val === cell.dataset.val) {
+    selected.dataset.matched = '1';
+    cell.dataset.matched = '1';
+    [selected,cell].forEach(c => {
+      c.style.background='rgba(107,203,119,0.2)';
+      c.style.borderColor='var(--green)';
+    });
+    gameScore += 10;
+    document.getElementById('score').textContent = gameScore;
+    showToast('✨','+10分！','消除成功');
+  } else {
+    const s = selected; const c2 = cell;
+    setTimeout(() => {
+      [s,c2].forEach(c => { c.style.background='var(--card)'; c.style.borderColor='var(--border)'; });
+    }, 400);
+  }
+  selected = null;
+}
+
+function likeFormula(el, name) {
+  showToast('👍', '为「'+name+'」点赞成功！', '+ 1 点赞值已记录');
+}
+
+// ===== HUATUO FUNCTIONS =====
+function askQ(el, text) {
+  document.getElementById('chat-input').value = text;
+  sendMsg();
+}
+
+function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  
+  const msgs = document.getElementById('chat-msgs');
+  
+  // user msg
+  const userDiv = document.createElement('div');
+  userDiv.className = 'msg user fade-in';
+  userDiv.innerHTML = `<div class="msg-avatar">🙋</div><div class="msg-bubble">${text}</div>`;
+  msgs.appendChild(userDiv);
+  
+  // typing
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'msg ai';
+  typingDiv.innerHTML = `<div class="msg-avatar">⚕️</div><div class="msg-bubble"><div class="ai-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  msgs.appendChild(typingDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+  
+  setTimeout(() => {
+    let response = aiResponses.default;
+    for (const key of Object.keys(aiResponses)) {
+      if (text.includes(key)) { response = aiResponses[key]; break; }
+    }
+    typingDiv.querySelector('.msg-bubble').innerHTML = response.replace(/\n/g, '<br>');
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 1200);
+}
+
+function storyChoice(el, choice, result) {
+  el.classList.add('selected');
+  setTimeout(() => showToast('📖', choice, result), 300);
+}
+
+let brainStep = 0;
+const brainQs = [
+  { q:'以下哪种说法是正确的养生常识？', opts:['A. 喝凉水对肠胃有好处','B. 熬夜后多睡一天就能补回来','C. 五禽戏是华佗创立的养生运动 ✓','D. 喝酒能活血，每天喝点好'], ans:2 },
+  { q:'亳州"四大道地药材"包含哪个？', opts:['A. 人参','B. 亳菊 ✓','C. 冬虫夏草','D. 三七'], ans:1 },
+  { q:'中医体质共分为几种？', opts:['A. 5种','B. 7种','C. 9种 ✓','D. 12种'], ans:2 },
+];
+
+function brainAnswer(el, correct) {
+  document.querySelectorAll('#brain-opts .quiz-opt').forEach(o => o.style.pointerEvents='none');
+  el.style.background = correct ? 'rgba(107,203,119,0.2)' : 'rgba(255,107,157,0.2)';
+  el.style.borderColor = correct ? 'var(--green)' : 'var(--accent3)';
+  if (correct) {
+    energyVal = Math.min(100, energyVal + 25);
+    document.getElementById('energy').textContent = energyVal;
+    document.getElementById('energy-fill').style.width = energyVal + '%';
+    showToast('⚡', '+25 元气值！', '回答正确！继续加油');
+  } else {
+    showToast('💡', '答错了~', '正确答案已标注，下次注意！');
+  }
+  brainStep = (brainStep + 1) % brainQs.length;
+  setTimeout(() => {
+    const q = brainQs[brainStep];
+    document.getElementById('brain-q').textContent = q.q;
+    document.getElementById('brain-opts').innerHTML = q.opts.map((o,i) => 
+      `<div class="quiz-opt" onclick="brainAnswer(this,${i===q.ans})">${o}</div>`
+    ).join('');
+  }, 1000);
+}
+
+// Init
+showPage('health', 'home');
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll-content">
+
+    <view style="padding: 24rpx 24rpx 0;">
+      <view class="hero fade-in">
+        <view class="hero-badge">AI 九种体质辨识</view>
+        <view class="hero-title">精准测评<br/><text class="highlight">专属方案</text></view>
+        <view class="hero-subtitle">专业问卷 + 舌象拍照 · 双维度融合判定</view>
+      </view>
+    </view>
+
+    <block wx:if="{{step !== 'result'}}">
+      <view class="section-header">
+        <view class="section-title">了解九种体质</view>
+      </view>
+      <view class="physical-types fade-in">
+        <view class="physical-chip {{selectedPhysical === '平和质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="平和质" data-desc="体质最佳">
+          <text class="emoji">✨</text><text class="name">平和质</text>
+        </view>
+        <view class="physical-chip {{selectedPhysical === '气虚质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="气虚质" data-desc="容易疲乏">
+          <text class="emoji">😮‍💨</text><text class="name">气虚质</text>
+        </view>
+        <view class="physical-chip {{selectedPhysical === '阳虚质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="阳虚质" data-desc="怕冷畏寒">
+          <text class="emoji">🥶</text><text class="name">阳虚质</text>
+        </view>
+        <view class="physical-chip {{selectedPhysical === '阴虚质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="阴虚质" data-desc="手足心热">
+          <text class="emoji">🔥</text><text class="name">阴虚质</text>
+        </view>
+        <view class="physical-chip {{selectedPhysical === '痰湿质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="痰湿质" data-desc="体型偏胖">
+          <text class="emoji">💧</text><text class="name">痰湿质</text>
+        </view>
+        <view class="physical-chip {{selectedPhysical === '湿热质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="湿热质" data-desc="面部油腻">
+          <text class="emoji">🌡️</text><text class="name">湿热质</text>
+        </view>
+        <view class="physical-chip {{selectedPhysical === '血瘀质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="血瘀质" data-desc="色素沉着">
+          <text class="emoji">🫀</text><text class="name">血瘀质</text>
+        </view>
+        <view class="physical-chip {{selectedPhysical === '气郁质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="气郁质" data-desc="情绪抑郁">
+          <text class="emoji">😔</text><text class="name">气郁质</text>
+        </view>
+        <view class="physical-chip {{selectedPhysical === '特禀质' ? 'active' : ''}}" bindtap="selectPhysical" data-name="特禀质" data-desc="易过敏">
+          <text class="emoji">🤧</text><text class="name">特禀质</text>
+        </view>
+      </view>
+    </block>
+
+    <block wx:if="{{step !== 'result'}}">
+      <view class="section-header">
+        <view class="section-title">开始问卷测评</view>
+      </view>
+    </block>
+
+    <view class="quiz-card-wrapper fade-in">
+      <view class="step-gender" wx:if="{{step === 'gender'}}">
+        <view class="gender-title">精准评估需要了解您的性别</view>
+        <view class="gender-options">
+          <view class="gender-card" bindtap="selectGender" data-gender="male">
+            <view class="gender-icon">👨</view>
+            <view>男</view>
+          </view>
+          <view class="gender-card" bindtap="selectGender" data-gender="female">
+            <view class="gender-icon">👩</view>
+            <view>女</view>
+          </view>
+        </view>
+      </view>
+
+      <block wx:if="{{step === 'testing'}}">
+        <view class="quiz-progress">
+          <text class="quiz-num">第 <text style="color:var(--accent1)">{{currentIndex + 1}}</text>/{{currentQueue.length}} 题</text>
+          <view class="quiz-bar-bg">
+            <view class="quiz-bar-fill" style="width: {{((currentIndex + 1) / currentQueue.length) * 100}}%"></view>
+          </view>
+        </view>
+
+        <view class="question-type" wx:if="{{currentQueue[currentIndex].type}}">{{currentQueue[currentIndex].type}}维度</view>
+        <view class="quiz-q">{{currentQueue[currentIndex].text}}</view>
+
+        <view class="quiz-options">
+          <block wx:for="{{optionsList}}" wx:key="score">
+            <view class="quiz-opt {{currentAnswer === item.score ? 'selected' : ''}}"
+                  bindtap="selectOption" data-score="{{item.score}}">
+              {{['A','B','C','D','E'][index]}}. {{item.label}}
+            </view>
+          </block>
+        </view>
+
+        <view class="action-footer">
+          <button class="nav-btn prev-btn" bindtap="prevQuestion" wx:if="{{currentIndex > 0}}">上一题</button>
+        </view>
+      </block>
+
+      <view class="step-intermission" wx:if="{{step === 'intermission'}}">
+        <view class="intermission-title">基础筛查已完成</view>
+        <view class="intermission-desc">系统已为您初步锁定体质倾向。是否继续完成进阶测试（约2分钟），以获取最专业的综合调理方案？</view>
+        <button class="nav-btn submit-btn" bindtap="startAdvancedMode">继续进阶测试 (推荐)</button>
+        <button class="nav-btn prev-btn" style="margin-top:24rpx; width: 100%" bindtap="generateFinalReport">直接查看基础报告</button>
+      </view>
+
+      <!-- 结果展示 -->
+      <view class="step-result" wx:if="{{step === 'result'}}">
+        <view class="result-header">
+          <view class="result-emoji">{{resultData.majorEmoji}}</view>
+          <view class="result-type">{{resultData.majorName}}</view>
+          <view class="result-score">转化分 <text class="highlight">{{resultData.majorScore}}</text></view>
+          <view class="result-date">测评日期：{{resultData.date}}</view>
+        </view>
+
+        <view class="result-tip">
+          <view class="tip-title">📋 体质分析</view>
+          <view class="tip-text">{{resultData.tip}}</view>
+        </view>
+
+        <view class="result-tie-warn" wx:if="{{resultData.tieNote}}">
+          <view class="tie-icon">⚠️</view>
+          <view class="tie-text">{{resultData.tieNote}}</view>
+        </view>
+
+        <view class="result-details">
+          <view class="details-title">九种体质转化分一览</view>
+          <view class="details-list">
+            <view class="detail-item {{item.id === resultData.majorId ? 'highlight' : ''}}"
+                  wx:for="{{resultData.details}}" wx:key="id">
+              <view class="detail-emoji">{{item.emoji}}</view>
+              <view class="detail-name">{{item.name}}</view>
+              <view class="detail-score">{{item.score}}分</view>
+              <view class="detail-judgment judgment-{{item.judgment === '是' ? 'yes' : item.judgment === '倾向是' ? 'maybe' : 'no'}}">{{item.judgment}}</view>
+            </view>
+          </view>
+        </view>
+
+        <view class="result-actions">
+          <button class="nav-btn submit-btn" bindtap="goToHealth">返回首页</button>
+          <button class="nav-btn prev-btn" style="margin-top:20rpx; width: 100%" bindtap="retakeQuiz">重新测评</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="tongue-entry fade-in" bindtap="openTongue" wx:if="{{step !== 'result'}}">
+      <view class="tongue-icon">📷</view>
+      <view class="tongue-title">AI 舌象拍照识别</view>
+      <view class="tongue-desc">拍摄舌头照片，AI 自动分析气血湿气状况</view>
+    </view>
+
+    <view style="height: 160rpx;"></view>
+  </scroll-view>
+</view>

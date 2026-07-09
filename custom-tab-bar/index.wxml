@@ -1,0 +1,22 @@
+<view class="bottom-nav" data-theme="{{currentTheme}}">
+  <view class="nav-item {{selected === 0 ? 'active' : ''}}" data-index="0" data-path="/pages/health/health" bindtap="switchTab">
+    <view class="nav-icon">🏠</view>
+    <text>首页</text>
+  </view>
+  <view class="nav-item {{selected === 1 ? 'active' : ''}}" data-index="1" data-path="/pages/quiz/quiz" bindtap="switchTab">
+    <view class="nav-icon">📋</view>
+    <text>体质测评</text>
+  </view>
+  <view class="nav-item {{selected === 2 ? 'active' : ''}}" data-index="2" data-path="/pages/tea/tea" bindtap="switchTab">
+    <view class="nav-icon">🍵</view>
+    <text>花茶配方</text>
+  </view>
+  <view class="nav-item {{selected === 3 ? 'active' : ''}}" data-index="3" data-path="/pages/huatuo/huatuo" bindtap="switchTab">
+    <view class="nav-icon">⚕️</view>
+    <text>华佗问诊</text>
+  </view>
+  <view class="nav-item {{selected === 4 ? 'active' : ''}}" data-index="4" data-path="/pages/user/user" bindtap="switchTab">
+    <view class="nav-icon">👤</view>
+    <text>个人中心</text>
+  </view>
+</view>

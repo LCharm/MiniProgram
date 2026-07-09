@@ -1,0 +1,31 @@
+{
+  "pages": [
+    "pages/health/health",
+    "pages/quiz/quiz",
+    "pages/tea/tea",
+    "pages/huatuo/huatuo",
+    "pages/user/user",
+    "pages/user/settings/settings"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#0f0f18",
+    "navigationBarTitleText": "柒辰AI养生",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#a89880",
+    "selectedColor": "#e8a838",
+    "backgroundColor": "#1a1a2e",
+    "list": [
+      { "pagePath": "pages/health/health", "text": "首页" },
+      { "pagePath": "pages/quiz/quiz", "text": "体质测评" },
+      { "pagePath": "pages/tea/tea", "text": "花茶配方" },
+      { "pagePath": "pages/huatuo/huatuo", "text": "华佗问诊" },
+      { "pagePath": "pages/user/user", "text": "个人中心" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

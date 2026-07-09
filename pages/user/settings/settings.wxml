@@ -1,0 +1,30 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll-content">
+
+    <view class="section">
+      <view class="section-title">界面皮肤</view>
+      <view class="theme-grid">
+        <view class="theme-card {{themeIndex === idx ? 'active' : ''}}"
+              wx:for="{{themes}}" wx:key="id" wx:for-index="idx"
+              bindtap="selectTheme" data-idx="{{idx}}">
+          <view class="theme-preview" style="background: linear-gradient(135deg, {{item.colors[0]}}, {{item.colors[1]}});"></view>
+          <view class="theme-name">{{item.name}}</view>
+          <view class="theme-check" wx:if="{{themeIndex === idx}}">✓</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">账户昵称</view>
+      <view class="nick-row">
+        <input class="nick-input" value="{{nickName}}" bindinput="onNickInput" placeholder="请输入昵称" maxlength="12" />
+        <button class="save-btn" bindtap="saveNick">保存</button>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="logout-btn" bindtap="handleLogout">退出登录</view>
+    </view>
+
+  </scroll-view>
+</view>

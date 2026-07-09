@@ -1,0 +1,106 @@
+.scroll-content {
+  height: 100vh;
+  padding: 24rpx;
+  background: var(--bg, #0f0f18);
+}
+
+.section {
+  margin-bottom: 40rpx;
+}
+
+.section-title {
+  font-size: 26rpx;
+  color: var(--text-sub);
+  margin-bottom: 20rpx;
+  padding-left: 8rpx;
+}
+
+.theme-grid {
+  display: flex;
+  gap: 20rpx;
+}
+
+.theme-card {
+  flex: 1;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16rpx;
+  text-align: center;
+  border: 2rpx solid transparent;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.theme-card.active {
+  border-color: var(--accent1);
+}
+
+.theme-preview {
+  height: 80rpx;
+  border-radius: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.theme-name {
+  font-size: 22rpx;
+  color: var(--text);
+}
+
+.theme-check {
+  position: absolute;
+  top: 6rpx;
+  right: 10rpx;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: var(--accent1);
+  color: #0f0f18;
+  font-size: 18rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nick-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20rpx 24rpx;
+}
+
+.nick-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--text);
+  height: 72rpx;
+  line-height: 72rpx;
+}
+
+.nick-input::placeholder {
+  color: var(--text-sub);
+}
+
+.save-btn {
+  margin: 0;
+  background: var(--accent1);
+  color: #0f0f18;
+  font-size: 24rpx;
+  font-weight: 700;
+  padding: 0 32rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  border-radius: 30rpx;
+}
+
+.logout-btn {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #e05555;
+  font-weight: 600;
+}

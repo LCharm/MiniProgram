@@ -1,0 +1,174 @@
+<view class="chat-container app-shell" data-theme="{{currentTheme}}">
+  <view class="sub-nav">
+    <view class="sub-nav-pill {{currentTab === 'chat' ? 'active' : ''}}" bindtap="switchTab" data-tab="chat">💬 问诊</view>
+    <view class="sub-nav-pill {{currentTab === 'story' ? 'active' : ''}}" bindtap="switchTab" data-tab="story">📖 奇遇记</view>
+    <view class="sub-nav-pill {{currentTab === 'quiz' ? 'active' : ''}}" bindtap="switchTab" data-tab="quiz">🎯 脑洞答题</view>
+    <view class="sub-nav-pill {{currentTab === 'dungeon' ? 'active' : ''}}" bindtap="switchTab" data-tab="dungeon">⚔️ 修行闯关</view>
+  </view>
+
+  <!-- 问诊对话 -->
+  <block wx:if="{{currentTab === 'chat'}}">
+    <scroll-view scroll-y class="chat-scroll" scroll-into-view="{{scrollToId}}" scroll-with-animation>
+      <view class="chat-content">
+        <block wx:for="{{msgList}}" wx:key="id">
+          <view class="msg-row {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}">
+            <view class="avatar">{{item.role === 'user' ? '我' : '佗'}}</view>
+            <view class="msg-bubble">
+              <view wx:if="{{item.typing}}" class="ai-typing">
+                <view class="typing-dot"></view>
+                <view class="typing-dot"></view>
+                <view class="typing-dot"></view>
+              </view>
+              <view wx:elif="{{item.segments}}" class="msg-formatted">
+                <block wx:for="{{item.segments}}" wx:key="*this" wx:for-item="seg">
+                  <view wx:if="{{seg.type === 'heading'}}" class="msg-heading">
+                    <text wx:for="{{seg.inlines}}" wx:key="*this" wx:for-item="part" class="{{part.style === 'b' ? 'msg-bold' : ''}}">{{part.text}}</text>
+                  </view>
+                  <view wx:elif="{{seg.type === 'list'}}" class="msg-list-item">
+                    <text class="msg-bullet">• </text>
+                    <text wx:for="{{seg.inlines}}" wx:key="*this" wx:for-item="part" class="{{part.style === 'b' ? 'msg-bold' : ''}}">{{part.text}}</text>
+                  </view>
+                  <view wx:elif="{{seg.type === 'list-num'}}" class="msg-list-item">
+                    <text class="msg-num">{{seg.num}}. </text>
+                    <text wx:for="{{seg.inlines}}" wx:key="*this" wx:for-item="part" class="{{part.style === 'b' ? 'msg-bold' : ''}}">{{part.text}}</text>
+                  </view>
+                  <view wx:elif="{{seg.type === 'spacer'}}" class="msg-spacer"></view>
+                  <text wx:else class="msg-text">
+                    <text wx:for="{{seg.inlines}}" wx:key="*this" wx:for-item="part" class="{{part.style === 'b' ? 'msg-bold' : ''}}">{{part.text}}</text>
+                  </text>
+                </block>
+              </view>
+              <text wx:else>{{item.content}}</text>
+            </view>
+          </view>
+        </block>
+        <view id="scroll-bottom" style="height: 40rpx;"></view>
+      </view>
+    </scroll-view>
+    <view class="quick-qs">
+      <text class="quick-q" bindtap="askQuick" data-text="我熬夜怎么调理？">熬夜调理</text>
+      <text class="quick-q" bindtap="askQuick" data-text="我脾胃不好吃什么？">脾胃调养</text>
+      <text class="quick-q" bindtap="askQuick" data-text="春季养生怎么做？">春季养生</text>
+      <text class="quick-q" bindtap="askQuick" data-text="亳菊有什么功效？">亳菊功效</text>
+      <text class="quick-q" bindtap="askQuick" data-text="五禽戏怎么练？">五禽戏</text>
+    </view>
+    <view class="input-area">
+      <view class="voice-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord">
+        <text>{{recording ? '■' : '🎤'}}</text>
+      </view>
+      <input class="chat-input" value="{{inputValue}}" bindinput="onInput" placeholder="询问养生建议..." confirm-type="send" bindconfirm="sendMessage"/>
+      <button class="send-btn" bindtap="sendMessage">发送</button>
+    </view>
+  </block>
+
+  <!-- 奇遇记 -->
+  <scroll-view scroll-y class="chat-scroll" wx:if="{{currentTab === 'story'}}">
+    <view class="sub-content">
+      <view class="hero hero-purple fade-in">
+        <view class="hero-badge">📖 沉浸剧情</view>
+        <view class="hero-title"><text class="highlight">华佗</text>古风奇遇记</view>
+        <view class="hero-subtitle">跟随华佗游历亳州 · 选择决定结局</view>
+      </view>
+
+      <view class="story-card fade-in">
+        <view class="story-chapter">第一章：白芍园的清晨</view>
+        <view class="story-text">初春清晨，华佗邀你同游亳州白芍园。园中白芍盛开，晨露未干。华佗问道："今晨你可曾饮水，调理五脏六腑？"</view>
+        <view class="story-options">
+          <view class="story-opt" bindtap="storyChoice" data-idx="0">🌟 饮了温水一杯，顺带练了五禽戏</view>
+          <view class="story-opt" bindtap="storyChoice" data-idx="1">😅 刚起床直接出来了</view>
+          <view class="story-opt" bindtap="storyChoice" data-idx="2">🤔 还没吃早饭呢</view>
+        </view>
+      </view>
+
+      <view class="progress-card fade-in">
+        <view class="progress-icon">🗺️</view>
+        <view class="progress-info">
+          <view class="progress-title">剧情进度</view>
+          <view class="progress-sub">第1章/共5章 · 2个分支未探索</view>
+        </view>
+        <view class="progress-num">1/5</view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 脑洞答题 -->
+  <scroll-view scroll-y class="chat-scroll" wx:if="{{currentTab === 'quiz'}}">
+    <view class="sub-content">
+      <view class="hero hero-teal fade-in">
+        <view class="hero-badge">🎯 脑洞大挑战</view>
+        <view class="hero-title">养生<text class="highlight">冷知识</text>答题对战</view>
+      </view>
+
+      <view class="quiz-card fade-in">
+        <view class="quiz-header">
+          <text class="quiz-energy">⚡ 元气值 {{energyVal}}</text>
+          <view class="quiz-bar-bg"><view class="quiz-bar-fill" style="width:{{energyVal}}%"></view></view>
+        </view>
+        <view class="quiz-q">{{brainQ.q}}</view>
+        <view class="quiz-options">
+          <view class="quiz-opt {{brainAnswered === idx ? (idx === brainQ.ans ? 'right' : 'wrong') : ''}}"
+                wx:for="{{brainQ.opts}}" wx:key="*this" wx:for-index="idx"
+                bindtap="brainAnswer" data-idx="{{idx}}">
+            {{item}}
+          </view>
+        </view>
+      </view>
+
+      <view class="game-grid fade-in">
+        <view class="game-card" bindtap="placeholderTap" data-msg="好友对战功能开发中">
+          <view class="game-card-icon">👥</view>
+          <view class="game-card-name">好友对战</view>
+          <view class="game-card-desc">邀请好友同时答题竞速</view>
+          <view class="game-hot-badge">热</view>
+        </view>
+        <view class="game-card" bindtap="placeholderTap" data-msg="排行榜功能开发中">
+          <view class="game-card-icon">🏅</view>
+          <view class="game-card-name">今日排行</view>
+          <view class="game-card-desc">元气值榜单兑换专属茶方</view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 修行闯关 -->
+  <scroll-view scroll-y class="chat-scroll" wx:if="{{currentTab === 'dungeon'}}">
+    <view class="sub-content">
+      <view class="hero hero-gold fade-in">
+        <view class="hero-badge">⚔️ 修行闯关</view>
+        <view class="hero-title"><text class="highlight">秘境探险</text>卡牌收集</view>
+        <view class="hero-subtitle">闯过五关 · 解锁华佗真传 · 集齐道地药材卡牌</view>
+      </view>
+
+      <view class="dungeon-map fade-in">
+        <view class="dungeon-title">🗺️ 闯关进度</view>
+        <view class="stages-row">
+          <view class="stage-node {{stage.unlocked ? (stage.current ? 'current' : 'unlocked') : 'locked'}}"
+                wx:for="{{dungeonStages}}" wx:key="id" bindtap="enterStage" data-idx="{{idx}}">
+            <view class="stage-circle">{{stage.unlocked ? stage.emoji : '🔒'}}</view>
+            <view class="stage-name">{{stage.name}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="battle-card fade-in" wx:if="{{currentStage}}">
+        <view class="battle-header">
+          <view class="battle-tag">{{currentStage.emoji}} {{currentStage.name}}</view>
+          <view class="battle-live" wx:if="{{currentStage.current}}"><view class="live-dot"></view>当前关卡</view>
+        </view>
+        <view class="battle-desc">{{currentStage.desc}}</view>
+        <view class="battle-rewards">🎁 通关奖励：{{currentStage.reward}}</view>
+        <button class="open-box-btn" bindtap="startBattle"
+                style="background:var(--accent1);width:100%;margin-top:20rpx"
+                wx:if="{{currentStage.unlocked}}">⚔️ 进入关卡</button>
+        <button class="open-box-btn" bindtap="placeholderTap" data-msg="请先完成前置关卡"
+                style="background:var(--border);width:100%;margin-top:20rpx;color:var(--text-sub)" wx:else>🔒 关卡未解锁</button>
+      </view>
+
+      <view class="stats-mini fade-in">
+        <view class="stat-mini-item"><view class="stat-mini-val">{{dungeonCleared}}</view><view class="stat-mini-label">已通关</view></view>
+        <view class="stat-mini-item"><view class="stat-mini-val">{{cardCount}}</view><view class="stat-mini-label">卡牌收集</view></view>
+        <view class="stat-mini-item"><view class="stat-mini-val">{{totalPower}}</view><view class="stat-mini-label">养生战力</view></view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
