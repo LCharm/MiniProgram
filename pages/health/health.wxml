@@ -88,6 +88,6 @@
       </view>
       <button class="open-box-btn" bindtap="goToQuiz" style="margin-top:24rpx">前往测评</button>
     </view>
-    <view style="height:40rpx;"></view>
+    <view style="height:160rpx;"></view>
   </scroll-view>
 </view>

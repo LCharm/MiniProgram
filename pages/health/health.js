@@ -268,7 +268,7 @@ Page({
   },
 
   goTongue() {
-    wx.navigateTo({ url: '/pages/health/tongue/tongue' });
+    wx.showToast({ title: '舌象识别功能开发中', icon: 'none' });
   },
 
   goReport() {
@@ -276,7 +276,7 @@ Page({
   },
 
   goStation() {
-    wx.navigateTo({ url: '/pages/health/station/station' });
+    wx.showToast({ title: '养生驿站功能开发中', icon: 'none' });
   },
 
   onShareAppMessage() {

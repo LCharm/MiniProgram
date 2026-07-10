@@ -87,38 +87,13 @@
         </view>
       </view>
 
-      <view class="material-workshop fade-in">
-        <view class="workshop-title">🌿 选择药材食材（最多3味）</view>
-        <view class="materials-grid">
-          <view class="material-item {{item.selected ? 'active' : ''}}"
-                wx:for="{{ingredients}}" wx:key="id"
-                bindtap="toggleIngredient" data-id="{{item.id}}">
-            <view class="material-icon">{{item.icon}}</view>
-            <view class="material-name">{{item.name}}</view>
-          </view>
+      <view class="nav-card fade-in" bindtap="goToCreate">
+        <view class="nav-card-icon">🧪</view>
+        <view class="nav-card-info">
+          <view class="nav-card-title">AI 智能调配</view>
+          <view class="nav-card-desc">选择药材、季节、人群，AI 为你生成专属茶方</view>
         </view>
-      </view>
-
-      <view class="action-area fade-in">
-        <view class="selected-count">已选: {{selectedCount}}/3</view>
-        <button class="generate-btn {{selectedCount > 0 ? '' : 'disabled'}}" bindtap="generateRecipe">{{isGenerating ? 'AI 调配中...' : '🤖 AI 智能生成专属配方'}}</button>
-      </view>
-
-      <view class="recipe-result fade-in" wx:if="{{showResult}}">
-        <view class="recipe-card">
-          <view class="recipe-badge">AI 原创配方</view>
-          <view class="recipe-name">{{recipeData.name}}</view>
-          <view class="recipe-tags">
-            <text class="tag" wx:for="{{recipeData.tags}}" wx:key="*this">{{item}}</text>
-          </view>
-          <view class="recipe-desc">{{recipeData.desc}}</view>
-          <view class="recipe-divider"></view>
-          <view class="recipe-details">
-            <view class="detail-row"><text class="label">配料比：</text><text class="value">{{recipeData.formula}}</text></view>
-            <view class="detail-row"><text class="label">适宜：</text><text class="value">{{recipeData.suitable}}</text></view>
-          </view>
-          <button class="save-btn {{recipeData.isCollected ? 'collected' : ''}}" bindtap="saveRecipe">{{recipeData.isCollected ? '取消收藏' : '收藏配方 (+10灵力)'}}</button>
-        </view>
+        <view class="nav-card-arrow">›</view>
       </view>
     </block>
 

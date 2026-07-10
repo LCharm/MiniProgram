@@ -3,6 +3,8 @@
     "pages/health/health",
     "pages/quiz/quiz",
     "pages/tea/tea",
+    "pages/tea/create/create",
+    "pages/health/report/report",
     "pages/huatuo/huatuo",
     "pages/user/user",
     "pages/user/settings/settings"

@@ -1,6 +1,9 @@
 # 微信小程序
 project.private.config.json
 
+# 后端（不上传）
+qcminip_backend/
+
 # 依赖
 node_modules/
 

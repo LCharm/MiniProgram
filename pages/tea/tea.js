@@ -19,22 +19,6 @@ Page({
       { id: 'night', label: '熬夜', emoji: '🌙' }
     ],
 
-    // AI配茶
-    ingredients: [
-      { id: '1', name: '亳菊', icon: '🌼', selected: false },
-      { id: '2', name: '枸杞', icon: '🔴', selected: false },
-      { id: '3', name: '陈皮', icon: '🍊', selected: false },
-      { id: '4', name: '决明子', icon: '🫘', selected: false },
-      { id: '5', name: '金银花', icon: '🌿', selected: false },
-      { id: '6', name: '桑叶', icon: '🍃', selected: false },
-      { id: '7', name: '黄芪', icon: '🪵', selected: false },
-      { id: '8', name: '茯苓', icon: '🍄', selected: false }
-    ],
-    selectedCount: 0,
-    isGenerating: false,
-    showResult: false,
-    recipeData: null,
-
     // 消消乐
     cards: [],
     gameScore: 0,
@@ -72,6 +56,10 @@ Page({
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;
+    if (tab === 'formula') {
+      wx.navigateTo({ url: '/pages/tea/create/create' });
+      return;
+    }
     this.setData({ currentTab: tab });
     if (tab === 'game') {
       this.stopTimer();
@@ -95,101 +83,8 @@ Page({
 
   // ==================== AI配茶 ====================
 
-  toggleIngredient(e) {
-    if (this.data.isGenerating) return;
-
-    const id = e.currentTarget.dataset.id;
-    const items = this.data.ingredients;
-    let count = this.data.selectedCount;
-
-    const index = items.findIndex(item => item.id === id);
-    if (index > -1) {
-      if (!items[index].selected && count >= 3) {
-        wx.showToast({ title: '最多选择3味药材', icon: 'none' });
-        return;
-      }
-
-      items[index].selected = !items[index].selected;
-      count += items[index].selected ? 1 : -1;
-
-      this.setData({
-        ingredients: items,
-        selectedCount: count,
-        showResult: false
-      });
-    }
-  },
-
-  async generateRecipe() {
-    if (this.data.selectedCount === 0 || this.data.isGenerating) return;
-
-    this.setData({ isGenerating: true, showResult: false });
-
-    const selectedNames = this.data.ingredients
-      .filter(item => item.selected)
-      .map(item => item.name);
-
-    try {
-      const res = await request({
-        url: '/tea/generate',
-        method: 'POST',
-        data: { ingredients: selectedNames }
-      });
-
-      this.setData({
-        isGenerating: false,
-        showResult: true,
-        recipeData: {
-          name: res.name,
-          tags: res.tags || [],
-          desc: res.desc,
-          formula: res.formula,
-          suitable: res.suitable,
-          isCollected: false
-        }
-      });
-    } catch (err) {
-      console.error('配茶接口报错:', err);
-
-      const mockResult = {
-        name: `特调·${selectedNames.join('')}茶`,
-        tags: ['清热解毒', '护肝明目'],
-        desc: `根据你选择的【${selectedNames.join('、')}】，AI为你搭配了这套养生茶方。口感清甘，适合长期面对屏幕的打工人。`,
-        formula: `${selectedNames[0]}3g` + (selectedNames[1] ? `，${selectedNames[1]}5g` : '') + '，冰糖少许',
-        suitable: '经常熬夜、眼睛干涩、容易上火的人群'
-      };
-
-      this.setData({
-        isGenerating: false,
-        showResult: true,
-        recipeData: { ...mockResult, isCollected: false }
-      });
-    }
-  },
-
-  async saveRecipe() {
-    const recipe = this.data.recipeData;
-    const willCollect = !recipe.isCollected;
-
-    try {
-      await request({
-        url: '/tea/collectFormula',
-        method: 'POST',
-        data: { name: recipe.name, tags: recipe.tags, desc: recipe.desc, formula: recipe.formula, suitable: recipe.suitable, action: willCollect ? 'collect' : 'cancel' }
-      });
-    } catch (err) {
-      console.error('收藏接口报错:', err);
-    }
-
-    recipe.isCollected = willCollect;
-    this.setData({ recipeData: recipe });
-
-    wx.showModal({
-      title: willCollect ? '收藏成功' : '已取消收藏',
-      content: willCollect ? '灵力 +10\n可在「我的 → 收藏茶方」中查看' : '已从收藏列表中移除',
-      showCancel: false,
-      confirmText: '知道了',
-    });
+  goToCreate() {
+    wx.navigateTo({ url: '/pages/tea/create/create' });
   },
 
   // ==================== 消消乐 ====================
