@@ -1,4 +1,5 @@
 // pages/quiz/quiz.js - 中医体质分类与判定量表
+const { request } = require('../../utils/request.js');
 const quizData = require('../../utils/quizData.js');
 
 const CONST_EMOJI = {
@@ -139,7 +140,7 @@ Page({
     return '否';
   },
 
-  generateFinalReport() {
+  async generateFinalReport() {
     wx.showLoading({ title: '国标引擎计算中' });
 
     const ansDict = this.data.answerDict;
@@ -214,18 +215,20 @@ Page({
       date: new Date().toLocaleDateString()
     };
 
-    wx.setStorageSync('latestPhysicalResult', {
-      id: majorId,
-      name: majorName,
-      score: majorScore,
-      emoji: CONST_EMOJI[majorId],
-      date: resultData.date,
-      details: finalScores
-    });
-    wx.setStorageSync('quizCompletedToday', {
-      done: true,
-      date: new Date().toLocaleDateString()
-    });
+    // 发送到云端入库
+    try {
+      await request({
+        url: '/physical/submit',
+        method: 'POST',
+        data: {
+          name: majorName,
+          score: isPingHe ? finalScores['pinghe'] : highestBiasedScore,
+          details: finalScores
+        }
+      });
+    } catch (e) {
+      console.error('云端入库失败', e);
+    }
 
     wx.hideLoading();
     this.setData({ step: 'result', resultData });

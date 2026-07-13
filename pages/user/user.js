@@ -33,13 +33,18 @@ Page({
     this.loadLocalData();
   },
 
-  loadLocalData() {
-    const physical = wx.getStorageSync('latestPhysicalResult');
+  async loadLocalData() {
     const coupons = wx.getStorageSync('coupons') || [];
-    this.setData({
-      physicalType: physical ? physical.name : '',
-      couponCount: coupons.length
-    });
+    this.setData({ couponCount: coupons.length });
+
+    try {
+      const res = await request({ url: '/physical/latest' });
+      if (res) {
+        this.setData({ physicalType: res.name || '' });
+      }
+    } catch (e) {
+      this.setData({ physicalType: '' });
+    }
   },
 
   async handleLogin() {
@@ -96,16 +101,18 @@ Page({
     }
   },
 
-  goToPhysicalReport() {
-    const physical = wx.getStorageSync('latestPhysicalResult');
-    if (physical) {
-      wx.showModal({
-        title: physical.name,
-        content: `转化分：${physical.score}\n测评日期：${physical.date}\n\n详细数据请查看健康报告`,
-        showCancel: false,
-        confirmText: '知道了'
-      });
-    } else {
+  async goToPhysicalReport() {
+    try {
+      const res = await request({ url: '/physical/latest' });
+      if (res) {
+        wx.showModal({
+          title: res.name,
+          content: `转化分：${res.score}\n测评日期：${res.date}\n\n详细数据请查看健康报告`,
+          showCancel: false,
+          confirmText: '知道了'
+        });
+      }
+    } catch (e) {
       wx.showToast({ title: '请先完成体质测评', icon: 'none' });
     }
   },
@@ -136,7 +143,7 @@ Page({
   },
 
   goToCollectedTeas() {
-    wx.showToast({ title: '收藏茶方功能开发中', icon: 'none' });
+    wx.navigateTo({ url: '/pages/tea/collect/collect' });
   },
 
   goToCardBook() {

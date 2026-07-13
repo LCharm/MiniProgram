@@ -1,4 +1,5 @@
 // pages/health/report/report.js - 体质养生报告页
+const { request } = require('../../../utils/request.js');
 const quizData = require('../../../utils/quizData.js');
 
 const CONST_EMOJI = {
@@ -83,16 +84,21 @@ Page({
     details: [],
   },
 
-  onLoad() {
+  async onLoad() {
     const app = getApp();
     this.setData({ currentTheme: app.globalData.theme });
 
-    const report = wx.getStorageSync('latestPhysicalResult');
-    if (report) {
-      const rec = RECOMMENDATIONS[report.id] || RECOMMENDATIONS.pinghe;
-      const details = this.buildDetails(report.details || {}, report.id);
-      const tip = CONST_TIPS[report.id] || CONST_TIPS.pinghe;
-      this.setData({ report, rec, details, tip });
+    try {
+      const res = await request({ url: '/physical/latest' });
+      if (res) {
+        const report = { ...res, emoji: CONST_EMOJI[res.id] || '💧' };
+        const rec = RECOMMENDATIONS[res.id] || RECOMMENDATIONS.pinghe;
+        const details = this.buildDetails(res.details || {}, res.id);
+        const tip = CONST_TIPS[res.id] || CONST_TIPS.pinghe;
+        this.setData({ report, rec, details, tip });
+      }
+    } catch (e) {
+      console.error('获取报告失败', e);
     }
   },
 

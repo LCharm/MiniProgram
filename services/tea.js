@@ -16,14 +16,14 @@ const aiCreateFormula = (materialIds, season, crowd) =>
     data: { materialIds, season, crowd },
   });
 
-const collectFormula = (formulaId, status) =>
+const collectFormula = (data) =>
   request({
-    url: '/tea/collectFormula',
+    url: '/tea/collect',
     method: 'POST',
-    data: { formulaId, status },
+    data,
   });
 
-const getMyCollect = () => request({ url: '/tea/getMyCollect' });
+const getMyCollect = () => request({ url: '/tea/myCollect' });
 
 const setDrinkRemind = (formulaId, remindTime) =>
   request({

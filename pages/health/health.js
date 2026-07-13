@@ -1,4 +1,5 @@
 // pages/health/health.js - AI体质养生管家首页
+const { request } = require('../../utils/request.js');
 const { submitClock, getSolarTermInfo } = require('../../services/health');
 const { getDailyTasks, openBlindBox, getUserRank } = require('../../services/game');
 const app = getApp();
@@ -9,6 +10,11 @@ const DEFAULT_TASKS = [
   { id: 'exercise', type: 'exercise', text: '今日运动30分钟', reward: '+25灵力', action: 'clock' },
   { id: 'quiz', type: 'quiz', text: '完成养生答题', reward: '+30灵力', action: 'navigate', url: '/pages/huatuo/huatuo' },
 ];
+
+const CONST_EMOJI = {
+  pinghe: '✨', qixu: '😮‍💨', yangxu: '🥶', yinxu: '🔥',
+  tanshi: '💧', shire: '🌡️', xueyu: '🫀', qiyu: '😔', tebing: '🤧'
+};
 
 const RECOMMENDATIONS = {
   pinghe: {
@@ -115,14 +121,18 @@ Page({
     }
   },
 
-  loadReport() {
+  async loadReport() {
     try {
-      const report = wx.getStorageSync('latestPhysicalResult');
-      if (report) {
-        const rec = RECOMMENDATIONS[report.id] || RECOMMENDATIONS.pinghe;
+      const res = await request({ url: '/physical/latest' });
+      if (res) {
+        const rec = RECOMMENDATIONS[res.id] || RECOMMENDATIONS.pinghe;
+        const report = { ...res, emoji: CONST_EMOJI[res.id] || '💧' };
         this.setData({ report, rec });
       }
-    } catch (e) {}
+    } catch (e) {
+      // 暂无报告或网络异常，保持空状态
+      this.setData({ report: null, rec: null });
+    }
   },
 
   ensureTaskType(tasks) {

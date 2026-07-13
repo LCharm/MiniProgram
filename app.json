@@ -4,6 +4,7 @@
     "pages/quiz/quiz",
     "pages/tea/tea",
     "pages/tea/create/create",
+    "pages/tea/collect/collect",
     "pages/health/report/report",
     "pages/huatuo/huatuo",
     "pages/user/user",

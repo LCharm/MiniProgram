@@ -1,10 +1,12 @@
-<view class="container">
+<view class="app-shell" data-theme="{{currentTheme}}">
   <view class="section">
     <view class="title">1. 选择核心药材 (最多3种)</view>
-    <view class="grid">
-      <view class="item {{item.selected ? 'active' : ''}}" wx:for="{{materials}}" wx:key="id" bindtap="toggleMaterial" data-id="{{item.id}}">
-        <view class="icon">{{item.icon}}</view>
-        <view class="name">{{item.name}}</view>
+    <view class="material-grid">
+      <view class="m-chip {{item.selected ? 'active' : ''}}"
+            wx:for="{{materials}}" wx:key="id"
+            bindtap="toggleMaterial" data-id="{{item.id}}">
+        <view class="m-name">{{item.name}}</view>
+        <view class="m-desc">{{item.desc}}</view>
       </view>
     </view>
   </view>
@@ -12,20 +14,18 @@
   <view class="section">
     <view class="title">2. 针对季节</view>
     <view class="chips">
-      <view class="chip {{season === 'spring' ? 'active' : ''}}" bindtap="setSeason" data-val="spring">春季</view>
-      <view class="chip {{season === 'summer' ? 'active' : ''}}" bindtap="setSeason" data-val="summer">夏季</view>
-      <view class="chip {{season === 'autumn' ? 'active' : ''}}" bindtap="setSeason" data-val="autumn">秋季</view>
-      <view class="chip {{season === 'winter' ? 'active' : ''}}" bindtap="setSeason" data-val="winter">冬季</view>
+      <view class="chip {{season === item.val ? 'active' : ''}}"
+            wx:for="{{seasons}}" wx:key="val"
+            bindtap="setSeason" data-val="{{item.val}}">{{item.label}}</view>
     </view>
   </view>
 
   <view class="section">
     <view class="title">3. 适用人群</view>
     <view class="chips">
-      <view class="chip {{crowd === '上班族' ? 'active' : ''}}" bindtap="setCrowd" data-val="上班族">上班族</view>
-      <view class="chip {{crowd === '学生党' ? 'active' : ''}}" bindtap="setCrowd" data-val="学生党">学生党</view>
-      <view class="chip {{crowd === '中老年' ? 'active' : ''}}" bindtap="setCrowd" data-val="中老年">中老年</view>
-      <view class="chip {{crowd === '女性调理' ? 'active' : ''}}" bindtap="setCrowd" data-val="女性调理">女性调理</view>
+      <view class="chip {{crowd === item ? 'active' : ''}}"
+            wx:for="{{crowds}}" wx:key="*this"
+            bindtap="setCrowd" data-val="{{item}}">{{item}}</view>
     </view>
   </view>
 
@@ -44,6 +44,16 @@
       <view class="divider"></view>
       <view class="r-row"><text class="label">配料：</text><text class="val">{{result.formula}}</text></view>
       <view class="r-row"><text class="label">适宜：</text><text class="val">{{result.suitable}}</text></view>
+      <view class="r-row" wx:if="{{result.contraindications}}">
+        <text class="label" style="color: #ff6b9d;">禁忌：</text>
+        <text class="val">{{result.contraindications}}</text>
+      </view>
+    </view>
+    <view class="collect-row">
+      <view class="collect-btn {{isCollected ? 'collected' : ''}}" bindtap="toggleCollect">
+        <text class="collect-icon">{{isCollected ? '❤️' : '🤍'}}</text>
+        <text class="collect-text">{{isCollected ? '已收藏' : '收藏茶方'}}</text>
+      </view>
     </view>
   </view>
   <view style="height: 60rpx;"></view>
