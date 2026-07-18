@@ -3,24 +3,23 @@ const app = getApp();
 
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     themeIndex: 0,
     themes: [
-      { name: '默认', id: 'default', colors: ['#0f0f18', '#16213e'] },
-      { name: '暗夜', id: 'night', colors: ['#080810', '#12121e'] },
-      { name: '暖金棕', id: 'warm', colors: ['#120d08', '#241d14'] },
+      { name: '暖金棕', id: 'warm', colors: ['#1a1412', '#302621'] },
       { name: '白天', id: 'day', colors: ['#f2efe8', '#ffffff'] },
     ],
     nickName: '',
   },
 
   onLoad() {
-    const theme = app.globalData.theme || 'default';
+    const theme = app.globalData.theme || 'warm';
     const idx = this.data.themes.findIndex(t => t.id === theme);
     this.setData({
       currentTheme: theme,
       themeIndex: idx >= 0 ? idx : 0,
     });
+    app.updateNavigationBar(theme);
     const nick = wx.getStorageSync('userNickName') || '';
     this.setData({ nickName: nick });
   },

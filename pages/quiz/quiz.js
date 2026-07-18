@@ -1,6 +1,7 @@
-// pages/quiz/quiz.js - 中医体质分类与判定量表
+// pages/quiz/quiz.js - 中医体质分类与判定量表 + 神游古迹答题
 const { request } = require('../../utils/request.js');
 const quizData = require('../../utils/quizData.js');
+const { getLandmarkQuiz, settleLandmarkQuiz } = require('../../services/game.js');
 
 const CONST_EMOJI = {
   pinghe: '✨', qixu: '😮‍💨', yangxu: '🥶', yinxu: '🔥',
@@ -21,7 +22,7 @@ const CONST_TIPS = {
 
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     step: 'gender',
     userGender: '',
     selectedPhysical: null,
@@ -42,14 +43,123 @@ Page({
     ],
 
     // 结果页
-    resultData: null
+    resultData: null,
+
+    // 神游古迹（景点答题）
+    quizMode: 'constitution',   // 'constitution' | 'landmark'
+    landmarkId: null,
+    landmarkQuestions: [],
+    landmarkIdx: 0,
+    landmarkAnswers: [],        // { correct: bool, userIdx: int }
+    landmarkShowResult: false,  // 每题作答后短暂展示正误
+    landmarkResult: null,       // 结算结果
+    landmarkLoading: false,
+    landmarkSubmitting: false,
+  },
+
+  onLoad(options) {
+    if (options.landmark_id) {
+      this._enterLandmarkMode(Number(options.landmark_id));
+    }
   },
 
   onShow() {
     this.setData({ currentTheme: getApp().globalData.theme });
+    getApp().updateNavigationBar(getApp().globalData.theme);
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 });
+      this.getTabBar().setData({ selected: 1, currentTheme: getApp().globalData.theme });
     }
+    // 来自"现世秘境-神游古迹"的跳转（通过 storage 传参）
+    const landmarkId = wx.getStorageSync('quizLandmarkId');
+    if (landmarkId) {
+      wx.removeStorageSync('quizLandmarkId');
+      this._enterLandmarkMode(landmarkId);
+    }
+  },
+
+  _enterLandmarkMode(landmarkId) {
+    if (this._landmarkTimer) { clearTimeout(this._landmarkTimer); this._landmarkTimer = null; }
+    wx.setNavigationBarTitle({ title: '神游古迹' });
+    this.setData({
+      quizMode: 'landmark',
+      landmarkId,
+      landmarkQuestions: [],
+      landmarkIdx: 0,
+      landmarkAnswers: [],
+      landmarkShowResult: false,
+      landmarkResult: null,
+      landmarkLoading: true,
+    });
+    this._fetchLandmarkQuestions();
+  },
+
+  async _fetchLandmarkQuestions() {
+    try {
+      const data = await getLandmarkQuiz(this.data.landmarkId);
+      this.setData({ landmarkQuestions: data || [], landmarkLoading: false });
+    } catch (err) {
+      wx.showToast({ title: '题目加载失败', icon: 'none' });
+      this.setData({ landmarkLoading: false, quizMode: 'constitution' });
+    }
+  },
+
+  // ===== 神游古迹答题 =====
+  selectLandmarkAnswer(e) {
+    if (this.data.landmarkShowResult) return;
+    const userIdx = e.currentTarget.dataset.idx;
+    const question = this.data.landmarkQuestions[this.data.landmarkIdx];
+    if (!question) return;
+
+    const correct = userIdx === question.correct_index;
+    const answers = [...this.data.landmarkAnswers, { correct, userIdx }];
+
+    this.setData({ landmarkAnswers: answers, landmarkShowResult: true });
+
+    if (correct) {
+      // 答对 → 1.5s 后丝滑自动推进
+      this._landmarkTimer = setTimeout(() => {
+        this._advanceLandmark();
+      }, 1500);
+    }
+    // 答错 → 打断自动流转，用户手动点击"下一题"
+  },
+
+  nextLandmarkQuestion() {
+    if (this._landmarkTimer) {
+      clearTimeout(this._landmarkTimer);
+      this._landmarkTimer = null;
+    }
+    this._advanceLandmark();
+  },
+
+  _advanceLandmark() {
+    if (this.data.landmarkIdx < 2) {
+      this.setData({
+        landmarkIdx: this.data.landmarkIdx + 1,
+        landmarkShowResult: false,
+      });
+    } else {
+      this._settleLandmarkQuiz();
+    }
+  },
+
+  async _settleLandmarkQuiz() {
+    if (this.data.landmarkSubmitting) return;
+    const score = this.data.landmarkAnswers.filter(a => a.correct).length;
+
+    this.setData({ landmarkSubmitting: true });
+    try {
+      const res = await settleLandmarkQuiz(this.data.landmarkId, score);
+      this.setData({ landmarkResult: res, landmarkSubmitting: false });
+    } catch (err) {
+      wx.showToast({ title: err.message || '结算失败', icon: 'none' });
+      this.setData({ landmarkSubmitting: false });
+    }
+  },
+
+  exitLandmarkQuiz() {
+    wx.setNavigationBarTitle({ title: '体质测评' });
+    this.setData({ quizMode: 'constitution', landmarkResult: null });
   },
 
   selectGender(e) {
@@ -221,7 +331,7 @@ Page({
         url: '/physical/submit',
         method: 'POST',
         data: {
-          name: majorName,
+          major_type: majorName,
           score: isPingHe ? finalScores['pinghe'] : highestBiasedScore,
           details: finalScores
         }

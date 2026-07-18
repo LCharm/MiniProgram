@@ -169,6 +169,25 @@
 .formula-brew.accent { border-top-color: rgba(168,85,247,0.15); }
 .brew-label { color: var(--accent1); font-weight: 600; }
 .brew-label.accent { color: var(--accent4, #a855f7); }
+.formula-actions { display: flex; justify-content: flex-end; margin-top: 20rpx; }
+.btn-craft {
+  font-size: 24rpx; padding: 12rpx 32rpx; border-radius: 24rpx;
+  background: var(--accent1); color: #fff; border: none; font-weight: 600;
+  line-height: 1.3;
+}
+.btn-craft::after { border: none; }
+.btn-disabled {
+  font-size: 24rpx; padding: 12rpx 32rpx; border-radius: 24rpx;
+  background: var(--bg); color: var(--text-sub);
+  border: 2rpx solid var(--border); font-weight: 500;
+  line-height: 1.3;
+}
+.btn-disabled::after { border: none; }
+.btn-none {
+  font-size: 22rpx; padding: 12rpx 32rpx; border-radius: 24rpx;
+  background: var(--bg); color: var(--text-sub);
+  border: 2rpx dashed var(--border); text-align: center;
+}
 
 /* ===== AI配茶 ===== */
 .material-workshop {
@@ -358,7 +377,8 @@
   border-color: var(--green);
   opacity: 0.6;
 }
-.card-icon { font-size: 44rpx; margin-bottom: 6rpx; }
+.card-icon-text { width: 56rpx; height: 56rpx; border-radius: 12rpx; background: rgba(232, 168, 56, 0.12); color: var(--accent1); font-size: 30rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 6rpx; }
+.card-icon-img { width: 56rpx; height: 56rpx; border-radius: 12rpx; margin-bottom: 6rpx; }
 .card-name { font-size: 20rpx; font-weight: bold; color: var(--text); }
 
 .game-start-btn {
@@ -504,3 +524,116 @@
   align-items: center;
   justify-content: center;
 }
+
+.formula-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx;
+  gap: 16rpx;
+}
+.formula-empty .empty-icon { font-size: 80rpx; }
+.formula-empty .empty-text { font-size: 26rpx; color: var(--text-sub); }
+
+/* ===== 熬制全屏动画遮罩 ===== */
+.brew-mask {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 15, 24, 0.92);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brew-cauldron {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28rpx;
+  position: relative;
+}
+.brew-glow {
+  width: 180rpx; height: 180rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,168,56,0.35) 0%, transparent 70%);
+  position: absolute;
+  top: 40rpx;
+  animation: pulseGlow 1.2s ease-in-out infinite alternate;
+}
+.brew-pot {
+  font-size: 88rpx;
+  position: relative;
+  z-index: 1;
+}
+.brew-steam {
+  position: absolute;
+  top: -30rpx;
+  display: flex;
+  gap: 24rpx;
+  justify-content: center;
+}
+.steam-particle {
+  width: 12rpx; height: 36rpx;
+  background: rgba(232,168,56,0.5);
+  border-radius: 6rpx;
+  animation: steamRise 1.8s ease-out infinite;
+}
+.steam-particle.s1 { animation-delay: 0s; }
+.steam-particle.s2 { animation-delay: 0.6s; }
+.steam-particle.s3 { animation-delay: 1.2s; }
+.brew-text {
+  font-size: 28rpx;
+  color: var(--accent1);
+  font-weight: 600;
+  letter-spacing: 4rpx;
+  z-index: 1;
+}
+
+@keyframes pulseGlow {
+  from { transform: scale(0.85); opacity: 0.5; }
+  to   { transform: scale(1.15); opacity: 1; }
+}
+
+@keyframes steamRise {
+  0%   { transform: translateY(0) scaleY(1); opacity: 0.7; }
+  100% { transform: translateY(-80rpx) scaleY(3); opacity: 0; }
+}
+
+/* ===== 熬制成功结算弹窗 ===== */
+.brew-success-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brew-success-modal {
+  background: var(--card);
+  border: 2rpx solid var(--accent1);
+  border-radius: var(--radius);
+  padding: 48rpx 40rpx;
+  margin: 0 60rpx;
+  text-align: center;
+  width: 80%;
+}
+.bs-emoji { font-size: 80rpx; margin-bottom: 16rpx; }
+.bs-title { font-size: 36rpx; font-weight: 800; color: var(--accent1); margin-bottom: 16rpx; }
+.bs-name { font-size: 30rpx; font-weight: 700; color: var(--text); margin-bottom: 8rpx; }
+.bs-effect { font-size: 24rpx; color: var(--text-sub); margin-bottom: 20rpx; }
+.bs-desc { font-size: 22rpx; color: var(--text-sub); margin-bottom: 32rpx; }
+.bs-btn {
+  margin: 0;
+  background: var(--accent1);
+  color: #0f0f18;
+  font-weight: 800;
+  font-size: 30rpx;
+  border-radius: 40rpx;
+  width: 100% !important;
+  height: 80rpx;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bs-btn::after { border: none; }

@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "blind-box": "/components/box/box"
+  },
   "navigationBarTitleText": ""
 }

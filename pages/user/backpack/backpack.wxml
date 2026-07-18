@@ -1,0 +1,96 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll-content">
+
+    <!-- 子标签切换 -->
+    <view class="sub-tabs fade-in">
+      <view class="sub-tab {{currentTab === 'herbs' ? 'active' : ''}}" bindtap="switchTab" data-tab="herbs">
+        🌿 我的药材 <text class="sub-tab-count">({{herbs.length}})</text>
+      </view>
+      <view class="sub-tab {{currentTab === 'vouchers' ? 'active' : ''}}" bindtap="switchTab" data-tab="vouchers">
+        🎫 我的卡券 <text class="sub-tab-count">({{vouchers.length}})</text>
+      </view>
+      <view class="sub-tab {{currentTab === 'props' ? 'active' : ''}}" bindtap="switchTab" data-tab="props">
+        🎒 我的道具 <text class="sub-tab-count">({{props.length}})</text>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading-text">加载中...</view>
+
+    <!-- 药材 Tab -->
+    <view wx:elif="{{currentTab === 'herbs'}}">
+      <view wx:if="{{herbs.length === 0}}" class="empty-tip">暂无药材，去盲盒或秘境获取吧</view>
+      <view class="backpack-grid">
+        <view class="backpack-card {{item.tier === 'rare' ? 'rare' : ''}}" wx:for="{{herbs}}" wx:key="item_id">
+          <image class="bp-card-icon" src="{{item.icon_url}}" mode="aspectFit" wx:if="{{item.icon_url}}"></image>
+          <view class="bp-card-emoji" wx:else>🌿</view>
+          <view class="bp-card-name">{{item.name}}</view>
+          <view class="bp-card-desc">{{item.desc}}</view>
+          <view class="bp-card-qty">×{{item.quantity}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 卡券 Tab -->
+    <view wx:elif="{{currentTab === 'vouchers'}}">
+      <view wx:if="{{vouchers.length === 0}}" class="empty-tip">暂无卡券，开盲盒有机会获得</view>
+      <view class="backpack-list">
+        <view class="bp-list-item" wx:for="{{vouchers}}" wx:key="item_id">
+          <view class="bp-list-emoji">🎫</view>
+          <view class="bp-list-info">
+            <view class="bp-list-name">{{item.name}}</view>
+            <view class="bp-list-desc">{{item.desc}}</view>
+            <view class="bp-list-date">获得于 {{item.acquired_at}}</view>
+          </view>
+          <view class="bp-list-qty">×{{item.quantity}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 道具 Tab（含成品茶饮 brewed_tea 兑换实物入口） -->
+    <view wx:else>
+      <view wx:if="{{props.length === 0}}" class="empty-tip">暂无道具</view>
+      <view class="backpack-list">
+        <view class="bp-list-item {{item.item_type === 'brewed_tea' ? 'brewed-tea' : ''}}"
+              wx:for="{{props}}" wx:key="item_id">
+          <view class="bp-list-emoji">{{item.icon || '📦'}}</view>
+          <view class="bp-list-info">
+            <view class="bp-list-name">{{item.name}}</view>
+            <view class="bp-list-date" wx:if="{{item.effect}}">功效：{{item.effect}}</view>
+            <view class="bp-list-date" wx:else>获得于 {{item.acquired_at}}</view>
+          </view>
+          <view class="bp-list-qty">×{{item.quantity}}</view>
+          <button class="redeem-btn"
+                  wx:if="{{item.item_type === 'brewed_tea'}}"
+                  bindtap="openRedeemModal"
+                  data-item="{{item}}">兑换实物</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 兑换收货地址 Modal -->
+    <view class="redeem-overlay" wx:if="{{showRedeemModal}}" bindtap="closeRedeemModal">
+      <view class="redeem-modal" catchtap="">
+        <view class="redeem-modal-title">📮 兑换实物</view>
+        <view class="redeem-item-name" wx:if="{{currentRedeemItem}}">
+          {{currentRedeemItem.name}} ×{{currentRedeemItem.quantity}}
+        </view>
+
+        <view class="redeem-form">
+          <input class="redeem-input" placeholder="收货人姓名"
+                 value="{{redeemForm.name}}" bindinput="handleInput" data-field="name"/>
+          <input class="redeem-input" placeholder="手机号码" type="number" maxlength="11"
+                 value="{{redeemForm.phone}}" bindinput="handleInput" data-field="phone"/>
+          <textarea class="redeem-textarea" placeholder="详细收货地址"
+                    value="{{redeemForm.address}}" bindinput="handleInput" data-field="address"/>
+        </view>
+
+        <view class="redeem-actions">
+          <button class="redeem-cancel" bindtap="closeRedeemModal">取消</button>
+          <button class="redeem-confirm" bindtap="submitRedeem">确认发货</button>
+        </view>
+      </view>
+    </view>
+
+    <view style="height: 80rpx;"></view>
+  </scroll-view>
+</view>

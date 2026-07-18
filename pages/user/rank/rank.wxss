@@ -1,0 +1,72 @@
+/* pages/user/rank/rank.wxss - 总战力排行榜 */
+
+.scroll-content {
+  height: 100vh;
+  background: var(--bg);
+}
+
+/* 我的排名卡片 */
+.my-rank-card {
+  margin: 16rpx; padding: 24rpx;
+  background: var(--card); border-radius: var(--radius);
+  border: 2rpx solid var(--accent2);
+}
+.my-rank-badge {
+  font-size: 22rpx; color: var(--accent2); font-weight: 700; margin-bottom: 16rpx;
+}
+.my-rank-body { display: flex; align-items: center; gap: 16rpx; }
+.my-rank-avatar { width: 80rpx; height: 80rpx; border-radius: 50%; overflow: hidden; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 40rpx; flex-shrink: 0; }
+.my-avatar-img { width: 100%; height: 100%; }
+.my-avatar-placeholder { font-size: 40rpx; }
+.my-rank-info { flex: 1; min-width: 0; }
+.my-rank-name { font-size: 28rpx; font-weight: 700; display: flex; align-items: center; gap: 8rpx; color: var(--text); }
+.my-rank-score { font-size: 22rpx; color: var(--text-sub); margin-top: 4rpx; }
+.my-rank-num { text-align: center; flex-shrink: 0; }
+.my-rank-label { font-size: 20rpx; color: var(--text-sub); }
+.my-rank-value { font-size: 40rpx; font-weight: 800; color: var(--accent2); }
+
+/* 榜单 */
+.rank-list { margin: 0 16rpx 16rpx; }
+.rank-section-title { font-size: 26rpx; font-weight: 700; margin-bottom: 12rpx; padding: 0 4rpx; color: var(--text); }
+.rank-loading, .rank-empty { text-align: center; padding: 60rpx 0; color: var(--text-sub); font-size: 24rpx; }
+
+.rank-item {
+  display: flex; align-items: center; gap: 12rpx;
+  padding: 18rpx 16rpx; margin-bottom: 8rpx;
+  background: var(--card); border-radius: 16rpx;
+  border: 2rpx solid var(--border);
+}
+.rank-item.is-me { border-color: var(--accent1); background: rgba(205, 168, 105, 0.06); }
+
+.rank-idx {
+  width: 56rpx; flex-shrink: 0;
+  text-align: center; font-size: 28rpx; font-weight: 700; color: var(--text);
+}
+.rank-idx.top-1, .rank-idx.top-2, .rank-idx.top-3 { font-size: 36rpx; }
+
+.rank-avatar {
+  width: 56rpx; height: 56rpx; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  background: var(--surface); display: flex; align-items: center; justify-content: center;
+}
+.rank-avatar-img { width: 100%; height: 100%; }
+.rank-avatar-placeholder { font-size: 28rpx; }
+
+.rank-name { flex: 1; min-width: 0; font-size: 24rpx; font-weight: 600; display: flex; align-items: center; gap: 8rpx; color: var(--text); }
+.rank-name text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.rank-score { font-size: 22rpx; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+
+.tier-badge {
+  display: inline-block; flex-shrink: 0;
+  padding: 2rpx 14rpx;
+  font-size: 18rpx; font-weight: 700;
+  color: var(--accent1);
+  background: var(--surface);
+  border: 1px solid rgba(205, 168, 105, 0.35);
+  border-radius: 20rpx;
+}
+.rank-me-tag {
+  font-size: 18rpx; color: #1a1412; background: var(--accent1);
+  padding: 2rpx 10rpx; border-radius: 20rpx; font-weight: 700;
+  flex-shrink: 0;
+}

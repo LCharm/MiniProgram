@@ -5,10 +5,17 @@
 .material-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20rpx; }
 .m-chip { background: var(--card); border: 2rpx solid var(--border); border-radius: 16rpx; padding: 24rpx 12rpx; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 .m-chip.active { background: rgba(232, 168, 56, 0.1); border-color: var(--accent1); transform: translateY(-4rpx); }
+.m-icon-text { width: 56rpx; height: 56rpx; border-radius: 12rpx; background: rgba(232, 168, 56, 0.12); color: var(--accent1); font-size: 32rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 12rpx; }
+.m-chip.active .m-icon-text { background: rgba(232, 168, 56, 0.22); }
+.m-chip.locked .m-icon-text { background: rgba(128, 128, 128, 0.12); color: var(--text-sub); }
+.m-icon-img { width: 56rpx; height: 56rpx; border-radius: 12rpx; margin-bottom: 12rpx; }
 .m-name { font-size: 28rpx; font-weight: 800; color: var(--text); margin-bottom: 8rpx; }
 .m-chip.active .m-name { color: var(--accent1); }
 .m-desc { font-size: 20rpx; color: var(--text-sub); }
 .m-chip.active .m-desc { color: rgba(232, 168, 56, 0.8); }
+.m-chip.locked { opacity: 0.45; filter: grayscale(0.6); }
+.m-chip.locked .m-name { color: var(--text-sub); }
+.m-chip.locked .m-desc { color: var(--text-sub); font-size: 18rpx; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 24rpx; }
 .chip { background: var(--card); border: 2rpx solid var(--border); padding: 12rpx 36rpx; border-radius: 40rpx; font-size: 26rpx; transition: all 0.2s; color: var(--text-sub); }

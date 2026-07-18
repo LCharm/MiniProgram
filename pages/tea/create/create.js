@@ -3,7 +3,7 @@ const { aiCreateFormula, collectFormula } = require('../../../services/tea.js');
 
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     materials: [],
     seasons: [],
     crowds: [],
@@ -18,11 +18,17 @@ Page({
   async onLoad() {
     const app = getApp();
     this.setData({ currentTheme: app.globalData.theme });
+    app.updateNavigationBar(app.globalData.theme);
 
     wx.showLoading({ title: '加载配置中' });
     try {
       const config = await request({ url: '/api/config/teaOptions' });
-      const materials = (config.materials || []).map(m => ({ ...m, selected: false }));
+      const basicHerbs = (config.basic_herbs || []).map(m => ({ ...m, selected: false, locked: false }));
+      const rareHerbs = (config.rare_herbs || []).map(m => ({
+        ...m, selected: false,
+        locked: m.status === 'locked',
+      }));
+      const materials = [...basicHerbs, ...rareHerbs];
 
       this.setData({
         materials,
@@ -36,10 +42,12 @@ Page({
       wx.showToast({ title: '网络异常，使用默认配置', icon: 'none' });
       this.setData({
         materials: [
-          { id: 'boju', name: '亳菊', desc: '散风清热', selected: false },
-          { id: 'gouqi', name: '枸杞', desc: '滋补肝肾', selected: false },
-          { id: 'chenpi', name: '陈皮', desc: '理气健脾', selected: false },
-          { id: 'juemingzi', name: '决明子', desc: '清肝明目', selected: false }
+          { id: 'boju', name: '亳菊', label: '菊', icon_url: '', desc: '散风清热', selected: false, locked: false },
+          { id: 'gouqi', name: '枸杞', label: '杞', icon_url: '', desc: '滋补肝肾', selected: false, locked: false },
+          { id: 'chenpi', name: '陈皮', label: '陈皮', icon_url: '', desc: '理气健脾', selected: false, locked: false },
+          { id: 'juemingzi', name: '决明子', label: '决明', icon_url: '', desc: '清肝明目', selected: false, locked: false },
+          { id: 'renshen', name: '人参', label: '人参', icon_url: '', desc: '大补元气', selected: false, locked: true, unlock_tips: '盲盒抽取或秘境闯关获取' },
+          { id: 'lingzhi', name: '灵芝', label: '灵芝', icon_url: '', desc: '补气安神', selected: false, locked: true, unlock_tips: '盲盒抽取或秘境闯关获取' },
         ],
         seasons: [
           { val: 'spring', label: '春季' },
@@ -59,10 +67,22 @@ Page({
   toggleMaterial(e) {
     const id = e.currentTarget.dataset.id;
     const materials = this.data.materials;
-    const count = materials.filter(m => m.selected).length;
     const index = materials.findIndex(item => item.id === id);
+    const item = materials[index];
 
-    if (!materials[index].selected && count >= 3) {
+    // 钩子：锁定药材弹窗引导至游戏系统
+    if (item.locked) {
+      wx.showModal({
+        title: '🔒 ' + item.name,
+        content: item.unlock_tips || '需通过盲盒抽取或秘境闯关解锁',
+        showCancel: false,
+        confirmText: '知道了'
+      });
+      return;
+    }
+
+    const count = materials.filter(m => m.selected).length;
+    if (!item.selected && count >= 3) {
       wx.showToast({ title: '最多选择3种药材', icon: 'none' });
       return;
     }

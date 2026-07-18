@@ -1,0 +1,69 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+
+  <!-- 主页面 -->
+  <scroll-view scroll-y class="main-scroll">
+    <view class="hero hero-purple fade-in">
+      <view class="hero-badge">📖 沉浸剧情</view>
+      <view class="hero-title"><text class="highlight">华佗</text>古风奇遇记</view>
+      <view class="hero-subtitle">跟随华佗游历亳州 · 选择决定结局</view>
+    </view>
+
+    <view class="story-card fade-in" wx:if="{{chapter}}">
+      <view class="story-chapter">{{chapter.title}}</view>
+      <view class="story-text">{{chapter.background_desc}}</view>
+
+      <view class="story-options" wx:if="{{endings.length > 0}}">
+        <view
+          class="story-opt {{item.unlocked ? 'opt-unlocked' : ''}}"
+          wx:for="{{endings}}"
+          wx:key="id"
+          bindtap="handleChoice"
+          data-id="{{item.id}}"
+        >
+          <view class="opt-content">
+            <text class="opt-label">{{item.choice_label}}</text>
+            <text class="opt-type" wx:if="{{item.unlocked}}">✓ 已解锁</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载态 -->
+    <view class="loading-card fade-in" wx:if="{{!chapter}}">
+      <view class="loading-text">正在加载章节...</view>
+    </view>
+
+    <!-- 底部消耗提示 -->
+    <view class="cost-bar fade-in" wx:if="{{chapter}}">
+      <text class="cost-text">本次探索消耗：</text>
+      <text class="cost-val">{{cost === 0 ? '🆓 免费' : '⚡ ' + cost + ' 灵力'}}</text>
+    </view>
+
+    <view style="height: 80rpx;"></view>
+  </scroll-view>
+
+  <!-- 结果模态框 -->
+  <view class="modal-mask" wx:if="{{showResultModal}}" catchtouchmove="preventScroll">
+    <view class="modal-card fade-in">
+      <!-- 药材展示 -->
+      <view class="reward-section {{isEmpty ? 'reward-empty' : ''}}">
+        <view class="reward-glow" wx:if="{{!isEmpty}}"></view>
+        <view class="reward-icon">{{isEmpty ? '😔' : (rewardTier === 'SSR' ? '✨' : (rewardTier === 'SR' ? '💎' : '🌿'))}}</view>
+        <view class="reward-name" wx:if="{{!isEmpty}}">获得 <text class="reward-tier {{rewardTier}}">{{rewardTier}} 级</text> {{rewardName}}</view>
+        <view class="reward-name reward-empty-text" wx:else>一无所获</view>
+      </view>
+
+      <!-- AI 剧情文本 -->
+      <view class="story-box" bindtap="skipTypewriter">
+        <text class="story-content">{{displayStory}}</text>
+        <text class="story-cursor" wx:if="{{isTyping}}">|</text>
+        <text class="skip-hint" wx:if="{{isTyping}}">点击跳过</text>
+      </view>
+
+      <!-- 关闭按钮 -->
+      <view class="modal-close-btn {{isTyping ? 'btn-disabled' : ''}}" bindtap="closeModal" wx:if="{{!isTyping}}">
+        🎒 收入背包
+      </view>
+    </view>
+  </view>
+</view>

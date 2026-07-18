@@ -1,5 +1,97 @@
 <view class="app-shell" data-theme="{{currentTheme}}">
-  <scroll-view scroll-y class="scroll-content">
+
+  <!-- ═══════════ 神游古迹：景点答题 ═══════════ -->
+  <block wx:if="{{quizMode === 'landmark'}}">
+    <scroll-view scroll-y class="scroll-content lm-scroll-bg">
+
+      <!-- 加载中 -->
+      <view class="lm-quiz-card" wx:if="{{landmarkLoading}}">
+        <view class="lm-loading">
+          <view class="lm-loading-dot"></view>
+          <text>正在加载题目...</text>
+        </view>
+      </view>
+
+      <!-- 答题中 -->
+      <block wx:elif="{{!landmarkResult}}">
+        <view class="lm-stepper fade-in">
+          <view class="lm-stepper-dot {{landmarkIdx >= 0 ? 'active' : ''}}"></view>
+          <view class="lm-stepper-line {{landmarkIdx >= 1 ? 'active' : ''}}"></view>
+          <view class="lm-stepper-dot {{landmarkIdx >= 1 ? 'active' : ''}}"></view>
+          <view class="lm-stepper-line {{landmarkIdx >= 2 ? 'active' : ''}}"></view>
+          <view class="lm-stepper-dot {{landmarkIdx >= 2 ? 'active' : ''}}"></view>
+        </view>
+        <view class="lm-stepper-label">神游古迹 · 第{{landmarkIdx + 1}}问</view>
+
+        <view class="lm-quiz-card lm-card-stacked fade-in" wx:if="{{landmarkQuestions[landmarkIdx]}}">
+          <view class="lm-question">{{landmarkQuestions[landmarkIdx].content}}</view>
+
+          <view class="lm-options">
+            <view
+              class="lm-opt {{landmarkShowResult ? (idx === landmarkQuestions[landmarkIdx].correct_index ? 'lm-correct' : (idx === landmarkAnswers[landmarkAnswers.length - 1].userIdx ? 'lm-wrong' : '')) : ''}}"
+              wx:for="{{landmarkQuestions[landmarkIdx].options}}"
+              wx:key="*this"
+              wx:for-index="idx"
+              bindtap="selectLandmarkAnswer"
+              data-idx="{{idx}}"
+            >
+              <text class="lm-opt-key">{{['A','B','C'][idx]}}</text>
+              <text>{{item}}</text>
+              <text class="lm-opt-icon" wx:if="{{landmarkShowResult}}">{{idx === landmarkQuestions[landmarkIdx].correct_index ? ' ✓' : (idx === landmarkAnswers[landmarkAnswers.length - 1].userIdx ? ' ✗' : '')}}</text>
+            </view>
+          </view>
+
+          <view class="lm-hint">
+            <text>💡 答对 2 题即可获得现世药材奖励</text>
+          </view>
+
+          <view class="lm-explanation" wx:if="{{landmarkShowResult}}">
+            <view class="lm-explanation-dot {{landmarkAnswers[landmarkAnswers.length - 1].correct ? 'lm-exp-correct' : 'lm-exp-wrong'}}"></view>
+            <text>{{landmarkQuestions[landmarkIdx].explanation}}</text>
+          </view>
+
+          <button
+            class="lm-next-btn"
+            wx:if="{{landmarkShowResult && !landmarkAnswers[landmarkAnswers.length - 1].correct}}"
+            bindtap="nextLandmarkQuestion"
+          >{{landmarkIdx < 2 ? '下一题' : '查看结果'}}</button>
+        </view>
+
+        <view class="lm-watermark">神游</view>
+      </block>
+
+      <!-- 结算结果 -->
+      <view class="lm-result" wx:else>
+        <view class="lm-stamp {{landmarkResult.is_pass ? 'lm-stamp-pass' : 'lm-stamp-fail'}}">
+          <text>{{landmarkResult.is_pass ? '吉' : '憾'}}</text>
+        </view>
+        <view class="lm-result-status">{{landmarkResult.is_pass ? '通关成功' : '未能通过'}}</view>
+        <view class="lm-result-score">答对 <text class="lm-score-num">{{landmarkResult.score}}</text> / 3 题</view>
+
+        <view class="lm-result-cost">消耗灵力 <text class="lm-cost-num">{{landmarkResult.cost}}</text></view>
+
+        <view wx:if="{{landmarkResult.rewards.length > 0}}" class="lm-reward-card lm-reward-glow">
+          <view class="lm-reward-label">获得奖励</view>
+          <view class="lm-reward-item" wx:for="{{landmarkResult.rewards}}" wx:key="id">
+            <text class="lm-reward-tier {{item.tier}}">{{item.tier}}</text>
+            <text class="lm-reward-name">{{item.name}}</text>
+          </view>
+        </view>
+        <view wx:else class="lm-fail-encourage">
+          <text class="lm-fail-text">医理深奥，大侠请重头来过</text>
+        </view>
+
+        <button class="lm-retry-btn" bindtap="exitLandmarkQuiz">返回体质测评</button>
+
+        <view class="lm-watermark">神游</view>
+      </view>
+
+      <view style="height: 160rpx;"></view>
+    </scroll-view>
+  </block>
+
+  <!-- ═══════════ 体质辨识（原有） ═══════════ -->
+  <scroll-view scroll-y class="scroll-content" wx:else>
 
     <view style="padding: 24rpx 24rpx 0;">
       <view class="hero fade-in">

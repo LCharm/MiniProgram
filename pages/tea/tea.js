@@ -1,25 +1,36 @@
 // pages/tea/tea.js - AI智能配茶坊 + 消消乐 + 推荐茶方 + 创意赛
 const { request } = require('../../utils/request');
+const { matchStart, matchSettle } = require('../../services/game');
+const { getFormulaBySymptom, getHotFormula, brewTea } = require('../../services/tea');
+const { getBackpack } = require('../../services/user');
 
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     currentTab: 'home',
 
     // 推荐茶方
     activeSymptom: '',
+    formulas: [],
+    userHerbs: {},
     symptomTags: [
-      { id: 'sleep', label: '助眠', emoji: '😴' },
-      { id: 'damp', label: '祛湿', emoji: '💦' },
-      { id: 'fire', label: '清火', emoji: '🔥' },
-      { id: 'spleen', label: '健脾', emoji: '🍃' },
-      { id: 'blood', label: '气血', emoji: '🩸' },
-      { id: 'light', label: '轻畅', emoji: '🧘' },
-      { id: 'throat', label: '润喉', emoji: '😮‍💨' },
-      { id: 'night', label: '熬夜', emoji: '🌙' }
+      { id: '助眠', label: '助眠', emoji: '😴' },
+      { id: '祛湿', label: '祛湿', emoji: '💦' },
+      { id: '清火', label: '清火', emoji: '🔥' },
+      { id: '健脾', label: '健脾', emoji: '🍃' },
+      { id: '气血', label: '气血', emoji: '🩸' },
+      { id: '轻畅', label: '轻畅', emoji: '🧘' },
+      { id: '润喉', label: '润喉', emoji: '😮‍💨' },
+      { id: '熬夜', label: '熬夜', emoji: '🌙' }
     ],
 
+    // 熬制状态
+    isBrewing: false,
+    showSuccessModal: false,
+    brewResult: null,
+
     // 消消乐
+    sessionId: '',
     cards: [],
     gameScore: 0,
     gameTimer: 60,
@@ -29,10 +40,12 @@ Page({
     flippedIndices: [],
     isLocked: false,
     showCouponModal: false,
-    couponReward: ''
+    couponReward: '',
+    settleResult: null
   },
 
   _timerInterval: null,
+  _brewTimer: null,
 
   onLoad() {
     this.setData({ currentTheme: getApp().globalData.theme });
@@ -41,9 +54,12 @@ Page({
 
   onShow() {
     this.setData({ currentTheme: getApp().globalData.theme });
+    getApp().updateNavigationBar(getApp().globalData.theme);
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2 });
+      this.getTabBar().setData({ selected: 2, currentTheme: getApp().globalData.theme });
     }
+    // 每次切回页面刷新库存与配方
+    this.refreshFormulas();
   },
 
   onHide() {
@@ -52,6 +68,7 @@ Page({
 
   onUnload() {
     this.stopTimer();
+    if (this._brewTimer) clearTimeout(this._brewTimer);
   },
 
   switchTab(e) {
@@ -63,22 +80,120 @@ Page({
     this.setData({ currentTab: tab });
     if (tab === 'game') {
       this.stopTimer();
-      this.setData({ gameRunning: false, gameOver: false });
+      this.setData({ sessionId: '', gameRunning: false, gameOver: false });
       this.initGame();
     }
   },
 
-  // ==================== 推荐茶方 ====================
+  // ==================== 推荐茶方：聚合请求 + 状态计算 ====================
+
+  async refreshFormulas() {
+    const symptom = this.data.activeSymptom;
+    try {
+      const [res, backpack] = await Promise.all([
+        symptom ? getFormulaBySymptom(symptom) : getHotFormula(),
+        getBackpack().catch(() => ({ herbs: [] })),
+      ]);
+      const data = res.data || res;
+      if (data && data.formulas) {
+        const herbMap = {};
+        (backpack.herbs || []).forEach(h => { herbMap[h.item_id || h.id] = h.quantity || 0; });
+        console.log("=== 背包库存 herbMap ===", JSON.stringify(herbMap));
+        const formulas = data.formulas.map(f => {
+          const req = f.recipe_req || {};
+          const reqEntries = Object.entries(req);
+          const hasRecipeReq = reqEntries.length > 0;
+          const isCraftable = hasRecipeReq &&
+            reqEntries.every(([hid, qty]) => (herbMap[hid] || 0) >= qty);
+          return {
+            ...f,
+            formulaIdStr: String(f.id),
+            herbList: (f.herbs || '').split(','),
+            isCraftable,
+            hasRecipeReq,
+            recipe_req: req,
+          };
+        });
+        console.log("=== 组装后的茶方数据 ===", formulas.map(f => ({
+          id: f.id, name: f.name, recipe_req: f.recipe_req,
+          isCraftable: f.isCraftable,
+        })));
+        this.setData({ formulas, userHerbs: herbMap });
+      } else {
+        this.setData({ formulas: [], userHerbs: {} });
+      }
+    } catch (e) {
+      // 网络异常保持现有数据
+    }
+  },
 
   toggleSymptom(e) {
     const id = e.currentTarget.dataset.id;
-    this.setData({
-      activeSymptom: this.data.activeSymptom === id ? '' : id
-    });
+    const next = this.data.activeSymptom === id ? '' : id;
+    this.setData({ activeSymptom: next });
+    this.refreshFormulas();
   },
 
   viewAllFormulas() {
     wx.showToast({ title: '更多茶方开发中', icon: 'none' });
+  },
+
+  // ==================== 熬制交互 ====================
+
+  handleBrew(e) {
+    const id = e.currentTarget.dataset.id;
+    // dataset 值一律为字符串，需显式比较
+    const isCraftable = e.currentTarget.dataset.craftable === 'true';
+
+    if (!isCraftable) {
+      // 不可熬制 → 跳转盲盒/秘境
+      wx.showModal({
+        title: '药材不足',
+        content: '背包药材不够合成此茶方，前往盲盒或秘境获取更多药材',
+        confirmText: '去获取',
+        cancelText: '稍后',
+        success: (res) => {
+          if (res.confirm) {
+            wx.switchTab({ url: '/pages/index/index' });
+          }
+        }
+      });
+      return;
+    }
+
+    // 可熬制 → 启动全屏动画 + 调接口
+    this.setData({ isBrewing: true });
+
+    const formulaId = parseInt(id, 10);
+    const start = Date.now();
+
+    brewTea(formulaId).then(res => {
+      // 强制动画播放至少 1.5 秒
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, 1500 - elapsed);
+      this._brewTimer = setTimeout(() => {
+        this.setData({ isBrewing: false });
+        const result = (res.data || res).data || (res.data || res);
+        this.setData({
+          showSuccessModal: true,
+          brewResult: {
+            name: result.name || '',
+            effect: result.effect || '',
+            itemId: result.brew_item_id || '',
+          },
+        });
+        this.refreshFormulas();
+      }, remaining);
+    }).catch(err => {
+      this.setData({ isBrewing: false });
+      if (this._brewTimer) clearTimeout(this._brewTimer);
+      const detail = (err.data || err).detail || '库存不足';
+      wx.showToast({ title: detail, icon: 'none', duration: 2000 });
+    });
+  },
+
+  closeSuccessModal() {
+    this.setData({ showSuccessModal: false, brewResult: null });
   },
 
   // ==================== AI配茶 ====================
@@ -93,10 +208,10 @@ Page({
     this.stopTimer();
 
     const baseHerbs = [
-      { id: 1, name: '亳菊', icon: '🌼' }, { id: 2, name: '枸杞', icon: '🔴' },
-      { id: 3, name: '陈皮', icon: '🍊' }, { id: 4, name: '黄芪', icon: '🪵' },
-      { id: 5, name: '金银花', icon: '🌿' }, { id: 6, name: '决明子', icon: '🫘' },
-      { id: 7, name: '桑叶', icon: '🍃' }, { id: 8, name: '茯苓', icon: '🍄' }
+      { id: 1, name: '亳菊', label: '菊', icon_url: '' }, { id: 2, name: '枸杞', label: '杞', icon_url: '' },
+      { id: 3, name: '陈皮', label: '陈皮', icon_url: '' }, { id: 4, name: '黄芪', label: '黄芪', icon_url: '' },
+      { id: 5, name: '金银花', label: '银花', icon_url: '' }, { id: 6, name: '决明子', label: '决明', icon_url: '' },
+      { id: 7, name: '桑叶', label: '桑叶', icon_url: '' }, { id: 8, name: '茯苓', label: '茯苓', icon_url: '' }
     ];
 
     let deck = [...baseHerbs, ...baseHerbs].map((item, index) => ({
@@ -123,18 +238,33 @@ Page({
     });
   },
 
-  startGame() {
+  async startGame() {
     if (this.data.gameRunning) return;
 
-    this.setData({
-      gameScore: 0,
-      gameTimer: 60,
-      gameRunning: true,
-      gameOver: false
-    });
+    try {
+      const res = await matchStart();
+      if (!res || !res.session_id) {
+        wx.showToast({ title: '对局创建失败，请重试', icon: 'none' });
+        return;
+      }
+      const sessionId = res.session_id;
+      const remainEnergy = res.remain_energy;
 
-    this.initGame();
-    this.startTimer();
+      this.setData({
+        sessionId,
+        gameScore: 0,
+        gameTimer: 60,
+        gameRunning: true,
+        gameOver: false,
+        settleResult: null
+      });
+
+      this.initGame();
+      this.startTimer();
+    } catch (err) {
+      console.error('对局启动失败', err);
+      wx.showToast({ title: '网络异常，请重试', icon: 'none' });
+    }
   },
 
   startTimer() {
@@ -238,32 +368,56 @@ Page({
       wx.showModal({
         title: '游戏结束',
         content: `获得 ${score} 积分\n满50积分即可兑换9折券，继续加油！`,
-        showCancel: false,
+        showCancel: true,
+        cancelText: '退出',
         confirmText: '再来一局',
-        success: () => { this.startGame(); }
+        success: (res) => {
+          if (res.confirm) {
+            this.startGame();
+          } else {
+            this.setData({ sessionId: '' });
+            this.initGame();
+          }
+        }
       });
     }
   },
 
-  claimCoupon() {
-    const coupons = wx.getStorageSync('coupons') || [];
-    coupons.push({
-      type: this.data.couponReward,
-      date: new Date().toLocaleDateString(),
-      score: this.data.gameScore
-    });
-    wx.setStorageSync('coupons', coupons);
+  async claimCoupon() {
+    const { sessionId, gameScore } = this.data;
 
-    wx.showModal({
-      title: '领取成功',
-      content: `恭喜获得「${this.data.couponReward}」\n已发放至「我的 → 背包」`,
-      showCancel: false,
-      confirmText: '好的',
-      success: () => {
-        this.setData({ showCouponModal: false });
-        this.initGame();
-      }
-    });
+    if (!sessionId) {
+      wx.showToast({ title: '对局信息异常', icon: 'none' });
+      this.setData({ showCouponModal: false });
+      this.initGame();
+      return;
+    }
+
+    try {
+      const res = await matchSettle(sessionId, gameScore);
+      const earned = (res && res.earned_points) || 0;
+
+      this.setData({
+        settleResult: res,
+        sessionId: ''
+      });
+
+      wx.showModal({
+        title: '领取成功',
+        content: `恭喜获得「${this.data.couponReward}」\n灵力 +${earned}\n已发放至「我的 → 背包」`,
+        showCancel: false,
+        confirmText: '好的',
+        success: () => {
+          this.setData({ showCouponModal: false });
+          this.initGame();
+        }
+      });
+    } catch (err) {
+      console.error('结算失败', err);
+      wx.showToast({ title: '结算异常，请重试', icon: 'none' });
+      this.setData({ showCouponModal: false });
+      this.initGame();
+    }
   },
 
   closeCouponModal() {

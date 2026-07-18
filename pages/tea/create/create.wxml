@@ -2,11 +2,12 @@
   <view class="section">
     <view class="title">1. 选择核心药材 (最多3种)</view>
     <view class="material-grid">
-      <view class="m-chip {{item.selected ? 'active' : ''}}"
+      <view class="m-chip {{item.selected ? 'active' : ''}} {{item.locked ? 'locked' : ''}}"
             wx:for="{{materials}}" wx:key="id"
             bindtap="toggleMaterial" data-id="{{item.id}}">
+        <view class="m-icon-text">{{item.label}}</view>
         <view class="m-name">{{item.name}}</view>
-        <view class="m-desc">{{item.desc}}</view>
+        <view class="m-desc">{{item.locked ? item.unlock_tips || '需解锁后使用' : item.desc}}</view>
       </view>
     </view>
   </view>

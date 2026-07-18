@@ -2,20 +2,23 @@
 const { login } = require('./utils/request');
 
 const NAV_BAR_CONFIG = {
-  default: { bg: '#0f0f18', text: '#ffffff' },
-  night:   { bg: '#080810', text: '#ffffff' },
-  warm:    { bg: '#120d08', text: '#ffffff' },
-  day:     { bg: '#f2efe8', text: '#000000' },
+  warm: { bg: '#1a1412', text: '#ffffff' },
+  day:  { bg: '#f2efe8', text: '#000000' },
 };
 
 App({
   globalData: {
     userInfo: null,
     isVip: false,
-    theme: 'default',
+    theme: 'warm',
   },
 
   onLaunch() {
+    // 清除旧版本客户端本地背包缓存，资产写入权已收归后端
+    ['backpack', 'backpackItems', 'coupons'].forEach(k => {
+      try { wx.removeStorageSync(k); } catch (e) {}
+    });
+
     const saved = wx.getStorageSync('userTheme');
     if (saved && NAV_BAR_CONFIG[saved]) {
       this.globalData.theme = saved;
@@ -41,15 +44,21 @@ App({
 
   /** 切换主题 */
   switchTheme(themeName) {
-    if (!NAV_BAR_CONFIG[themeName]) return;
+    if (!NAV_BAR_CONFIG[themeName] || (themeName !== 'warm' && themeName !== 'day')) return;
     this.globalData.theme = themeName;
     wx.setStorageSync('userTheme', themeName);
     this.updateNavigationBar(themeName);
   },
 
+  /** 供框架内部调用的主题样式获取 */
+  getThemeStyle() {
+    const theme = this.globalData.theme || 'warm';
+    return { theme, ...(NAV_BAR_CONFIG[theme] || NAV_BAR_CONFIG.warm) };
+  },
+
   /** 根据主题修改原生导航栏 */
   updateNavigationBar(theme) {
-    const cfg = NAV_BAR_CONFIG[theme] || NAV_BAR_CONFIG.default;
+    const cfg = NAV_BAR_CONFIG[theme] || NAV_BAR_CONFIG.warm;
     wx.setNavigationBarColor({
       frontColor: cfg.text,
       backgroundColor: cfg.bg,

@@ -52,6 +52,10 @@
   border-radius: 40rpx;
   font-weight: 700;
 }
+/* 白天主题：白银徽章白字浅底看不清，加暗色描边 */
+.app-shell[data-theme="day"] .rank-level[data-rank="白银药师"] {
+  -webkit-text-stroke: 1.5rpx rgba(0, 0, 0, 0.55);
+}
 .xp-bar-bg {
   height: 16rpx;
   background: var(--border);
@@ -83,6 +87,9 @@
 
 /* 白银药师 — 锡制药罐 */
 .stage.rank-silver { color: #F2F3F5; }
+.app-shell[data-theme="day"] .stage.rank-silver {
+  -webkit-text-stroke: 1.5rpx rgba(19, 19, 19, 0.2);
+}
 .stage.rank-silver.done .stage-dot,
 .stage.rank-silver.current .stage-dot { background: #C8C9CB; border-color: #E0E2E5; box-shadow: 0 0 8px rgba(224,226,229,0.5); }
 .stage.rank-silver.locked .stage-dot { background: transparent; border-color: #B0B3B8; }

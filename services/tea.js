@@ -1,13 +1,13 @@
 // services/tea.js - 亳州花茶AI配方生成器 业务逻辑
 const { request } = require('../utils/request');
 
-const getHotFormula = () => request({ url: '/tea/getHotFormula' });
+const getHotFormula = () => request({ url: '/tea/formulas' });
 
 const getFormulaBySymptom = (symptomType) =>
-  request({ url: '/tea/getFormulaBySymptom', data: { symptomType } });
+  request({ url: '/tea/formulas', data: { symptom: symptomType } });
 
 const getFormulaByPhysical = (physicalType) =>
-  request({ url: '/tea/getFormulaByPhysical', data: { physicalType } });
+  request({ url: '/tea/formulas', data: { symptom: physicalType } });
 
 const aiCreateFormula = (materialIds, season, crowd) =>
   request({
@@ -45,6 +45,17 @@ const submitContest = (params) =>
 
 const getContestList = () => request({ url: '/tea/getContestList' });
 
+const getBrewedList = () => request({ url: '/tea/brewed' });
+
+const brewTea = (formulaId) =>
+  request({ url: '/tea/brew', method: 'POST', data: { formula_id: formulaId } });
+
+const redeemItem = (itemId, recipientName, phone, address) =>
+  request({
+    url: '/shop/redeem', method: 'POST',
+    data: { item_id: itemId, recipient_name: recipientName, phone, address },
+  });
+
 module.exports = {
   getHotFormula,
   getFormulaBySymptom,
@@ -57,4 +68,7 @@ module.exports = {
   getUserMaterialPieces,
   submitContest,
   getContestList,
+  getBrewedList,
+  brewTea,
+  redeemItem,
 };

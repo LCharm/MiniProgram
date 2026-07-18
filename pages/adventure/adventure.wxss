@@ -1,0 +1,416 @@
+.app-shell {
+  height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-scroll {
+  flex: 1;
+  padding: 0 24rpx;
+}
+
+/* ================================================
+   Hero 区 —— 暖色主题（默认）：乌木 → 暗金红
+   ================================================ */
+.hero {
+  margin: 20rpx 0 16rpx;
+  border-radius: var(--radius);
+  padding: 36rpx 28rpx 32rpx;
+  position: relative;
+  overflow: hidden;
+}
+.hero-purple {
+  background: linear-gradient(135deg, #231B18 0%, #3A2A22 100%);
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(212, 175, 111, 0.12);
+  color: #cda869;
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 4rpx 20rpx;
+  border-radius: 40rpx;
+  margin-bottom: 16rpx;
+}
+
+.hero-title {
+  font-size: 44rpx;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #D8D3C9;
+}
+.highlight { color: #cda869; }
+
+.hero-subtitle {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 10rpx;
+}
+
+/* Hero —— 白天主题覆盖：冷紫渐变 */
+.app-shell[data-theme="day"] .hero-purple {
+  background: linear-gradient(135deg, #2d1b4e 0%, #1e1a30 100%);
+}
+.app-shell[data-theme="day"] .hero-badge {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+.app-shell[data-theme="day"] .hero-title {
+  color: #f0e8d8;
+}
+.app-shell[data-theme="day"] .highlight {
+  color: #e8a838;
+}
+.app-shell[data-theme="day"] .hero-subtitle {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ================================================
+   故事卡片
+   ================================================ */
+.story-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 40rpx 32rpx;
+  border: 1rpx solid rgba(212, 175, 111, 0.12);
+  margin-bottom: 16rpx;
+}
+
+.story-chapter {
+  font-size: 26rpx;
+  color: #cda869;
+  font-weight: 700;
+  margin-bottom: 20rpx;
+  letter-spacing: 3rpx;
+}
+
+.story-text {
+  font-size: 28rpx;
+  line-height: 2;
+  color: #D8D3C9;
+  margin-bottom: 32rpx;
+}
+
+/* 白天主题覆盖 */
+.app-shell[data-theme="day"] .story-card {
+  border: 2rpx solid var(--border);
+}
+.app-shell[data-theme="day"] .story-chapter {
+  color: var(--accent4);
+}
+.app-shell[data-theme="day"] .story-text {
+  color: var(--text);
+}
+
+/* ================================================
+   选项按钮
+   ================================================ */
+.story-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.story-opt {
+  padding: 22rpx 24rpx;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1rpx solid rgba(212, 175, 111, 0.08);
+  border-radius: 16rpx;
+  transition: all 0.2s;
+}
+.story-opt:active {
+  background: rgba(205, 168, 105, 0.12);
+  border-color: rgba(205, 168, 105, 0.35);
+}
+
+/* 已解锁 —— 更深的内凹感 */
+.opt-unlocked {
+  border-color: rgba(212, 175, 111, 0.05);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.opt-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.opt-label {
+  font-size: 26rpx;
+  color: #D8D3C9;
+  flex: 1;
+}
+.opt-type {
+  font-size: 22rpx;
+  color: rgba(205, 168, 105, 0.35);
+  font-weight: 400;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+/* 白天主题覆盖 */
+.app-shell[data-theme="day"] .story-opt {
+  background: var(--surface);
+  border: 2rpx solid var(--border);
+}
+.app-shell[data-theme="day"] .story-opt:active {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: var(--accent4);
+}
+.app-shell[data-theme="day"] .opt-unlocked {
+  border-color: var(--border);
+  background: rgba(168, 85, 247, 0.04);
+}
+.app-shell[data-theme="day"] .opt-label {
+  color: var(--text);
+}
+.app-shell[data-theme="day"] .opt-type {
+  color: var(--text-sub);
+}
+
+/* ================================================
+   加载态
+   ================================================ */
+.loading-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 80rpx 28rpx;
+  text-align: center;
+  border: 1rpx solid rgba(212, 175, 111, 0.12);
+}
+.app-shell[data-theme="day"] .loading-card {
+  border: 2rpx solid var(--border);
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: var(--text-sub);
+}
+
+/* ================================================
+   消耗提示
+   ================================================ */
+.cost-bar {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24rpx 28rpx;
+  border: 1rpx solid rgba(212, 175, 111, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+.app-shell[data-theme="day"] .cost-bar {
+  border: 2rpx solid var(--border);
+}
+
+.cost-text {
+  font-size: 24rpx;
+  color: var(--text-sub);
+}
+.cost-val {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--accent1);
+}
+
+/* ================================================
+   模态框遮罩
+   ================================================ */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(10, 10, 20, 0.85);
+  backdrop-filter: blur(12rpx);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================================================
+   模态卡片
+   ================================================ */
+.modal-card {
+  width: 640rpx;
+  max-height: 90vh;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1rpx solid rgba(212, 175, 111, 0.12);
+  padding: 40rpx 32rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+.app-shell[data-theme="day"] .modal-card {
+  border: 2rpx solid var(--border);
+}
+
+/* ================================================
+   奖励展示区
+   ================================================ */
+.reward-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 28rpx;
+  padding: 36rpx 0 28rpx;
+}
+
+.reward-glow {
+  position: absolute;
+  top: -20rpx;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(205, 168, 105, 0.3), transparent 70%);
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+.reward-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+  filter: drop-shadow(0 0 12rpx rgba(205, 168, 105, 0.4));
+}
+
+.reward-name {
+  position: relative;
+  z-index: 1;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.reward-tier {
+  font-weight: 800;
+}
+.reward-tier.SSR {
+  color: #ff6b9d;
+  text-shadow: 0 0 8rpx rgba(255, 107, 157, 0.4);
+}
+.reward-tier.SR {
+  color: #cda869;
+  text-shadow: 0 0 8rpx rgba(205, 168, 105, 0.35);
+}
+.reward-tier.R {
+  color: var(--accent2);
+}
+.reward-tier.N {
+  color: var(--green);
+}
+.app-shell[data-theme="day"] .reward-tier.SR {
+  color: var(--accent4);
+  text-shadow: 0 0 8rpx rgba(168, 85, 247, 0.4);
+}
+
+.reward-empty .reward-icon {
+  font-size: 64rpx;
+  filter: none;
+  opacity: 0.7;
+}
+.reward-empty-text {
+  color: var(--text-sub);
+  font-size: 26rpx;
+  font-weight: 400;
+}
+
+/* ================================================
+   剧情文本框（模态框内）
+   ================================================ */
+.story-box {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--card);
+  border: 1rpx solid rgba(212, 175, 111, 0.12);
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  min-height: 180rpx;
+  position: relative;
+  margin-bottom: 28rpx;
+}
+.app-shell[data-theme="day"] .story-box {
+  border: 2rpx solid var(--border);
+}
+
+.story-content {
+  font-size: 26rpx;
+  line-height: 1.8;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.story-cursor {
+  font-size: 26rpx;
+  color: #cda869;
+  animation: cursorBlink 0.6s step-end infinite;
+}
+.app-shell[data-theme="day"] .story-cursor {
+  color: var(--accent4);
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.skip-hint {
+  position: absolute;
+  right: 20rpx;
+  bottom: 12rpx;
+  font-size: 18rpx;
+  color: var(--text-sub);
+  opacity: 0.5;
+}
+
+/* ================================================
+   关闭按钮
+   ================================================ */
+.modal-close-btn {
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #cda869, #b85440);
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 800;
+  border-radius: 24rpx;
+  transition: opacity 0.3s;
+}
+.app-shell[data-theme="day"] .modal-close-btn {
+  background: linear-gradient(135deg, var(--accent4), var(--accent3));
+}
+
+.btn-disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ================================================
+   通用动画
+   ================================================ */
+.fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}

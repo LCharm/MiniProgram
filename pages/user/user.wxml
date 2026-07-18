@@ -1,41 +1,66 @@
 <view class="app-shell" data-theme="{{currentTheme}}">
   <scroll-view scroll-y class="scroll-content">
 
-    <view class="profile-card fade-in">
-      <view class="avatar-area">
-        <open-data class="avatar-real" type="userAvatarUrl" wx:if="{{isLogin}}"></open-data>
-        <view class="avatar-placeholder" wx:else></view>
-        <view class="user-info">
-          <view class="nickname">{{isLogin ? '养生行者·小白' : '点击登录'}}</view>
-          <view class="user-physical" wx:if="{{isLogin && physicalType}}">{{physicalType}}</view>
+    <!-- ===== 顶部 Hero 渐变区 ===== -->
+    <view class="profile-hero fade-in">
+      <!-- 会员到期角标 -->
+      <view class="vip-corner {{isVip ? 'vip-active' : ''}}" wx:if="{{isLogin && memberExpiry}}">
+        ✦ {{isVip ? '会员尊享' : memberExpiry + ' 到期'}}
+      </view>
+
+      <!-- 头像 -->
+      <view class="hero-avatar">
+        <open-data class="avatar-img" type="userAvatarUrl" wx:if="{{isLogin}}"></open-data>
+        <view class="avatar-empty" wx:else></view>
+        <view class="avatar-ring"></view>
+      </view>
+
+      <view wx:if="{{isLogin}}">
+        <!-- 昵称 -->
+        <view class="hero-name">{{nickName || '养生行者'}}</view>
+
+        <!-- 体质标签 -->
+        <view wx:if="{{physicalType}}" class="physical-seal">
+          <text class="seal-emoji">{{physicalEmoji}}</text>
+          <text class="seal-text">{{physicalType}}</text>
+        </view>
+        <view wx:else class="physical-cta" bindtap="goToQuiz">
+          <text class="cta-text">立即测定体质 ➔</text>
         </view>
       </view>
-      <view class="member-badge" wx:if="{{isLogin}}">✦ 会员到期：{{memberExpiry || '2026/12/31'}}</view>
-      <button class="login-btn" wx:if="{{!isLogin}}" bindtap="handleLogin">微信一键登录</button>
-    </view>
 
-    <view class="stats-board fade-in">
-      <view class="stat-box">
-        <view class="stat-val highlight">{{isLogin ? totalPower : '--'}}</view>
-        <view class="stat-name">养生战力</view>
-      </view>
-      <view class="divider"></view>
-      <view class="stat-box">
-        <view class="stat-val highlight-green">{{isLogin ? spiritualEnergy : '--'}}</view>
-        <view class="stat-name">灵力值</view>
-      </view>
-      <view class="divider"></view>
-      <view class="stat-box">
-        <view class="stat-val">{{isLogin ? cardCount : '--'}}</view>
-        <view class="stat-name">卡牌收集</view>
-      </view>
-      <view class="divider"></view>
-      <view class="stat-box">
-        <view class="stat-val">{{isLogin ? checkinDays : '--'}}</view>
-        <view class="stat-name">打卡天数</view>
+      <!-- 未登录 -->
+      <view wx:else class="hero-login">
+        <view class="hero-name hero-name-dim">点击登录</view>
+        <view class="hero-sub">解锁专属体质报告</view>
+        <button class="login-btn" bindtap="handleLogin">微信一键登录</button>
       </view>
     </view>
 
+    <!-- ===== 悬浮数值面板 ===== -->
+    <view class="stats-float fade-in">
+      <view class="stat-item">
+        <view class="stat-num accent-gold">{{isLogin ? totalPower : '--'}}</view>
+        <view class="stat-label">养生战力</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-num accent-green">{{isLogin ? spiritualEnergy : '--'}}</view>
+        <view class="stat-label">灵力值</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-num">{{isLogin ? cardCount : '--'}}</view>
+        <view class="stat-label">卡牌收集</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-num">{{isLogin ? checkinDays : '--'}}</view>
+        <view class="stat-label">打卡天数</view>
+      </view>
+    </view>
+
+    <!-- ===== 菜单列表 ===== -->
     <view class="menu-list fade-in">
       <view class="menu-item" bindtap="goToPhysicalReport">
         <view class="menu-icon">📋</view>
@@ -68,7 +93,13 @@
       <view class="menu-item" bindtap="goToMemberCenter">
         <view class="menu-icon">⭐</view>
         <view class="menu-text">会员中心</view>
-        <view class="menu-badge highlight">灵力值兑换</view>
+        <view class="menu-badge highlight">敬请期待</view>
+        <view class="menu-arrow">›</view>
+      </view>
+      <view class="menu-item" bindtap="goToNearbyStation">
+        <view class="menu-icon">📍</view>
+        <view class="menu-text">附近养生驿站</view>
+        <view class="menu-badge highlight">敬请期待</view>
         <view class="menu-arrow">›</view>
       </view>
       <view class="menu-item" data-url="/pages/user/settings/settings" bindtap="goToSettings">

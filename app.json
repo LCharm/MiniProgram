@@ -8,7 +8,11 @@
     "pages/health/report/report",
     "pages/huatuo/huatuo",
     "pages/user/user",
-    "pages/user/settings/settings"
+    "pages/user/settings/settings",
+    "pages/user/rank/rank",
+    "pages/user/backpack/backpack",
+    "pages/user/cardBook/cardBook",
+    "pages/adventure/adventure"
   ],
   "window": {
     "backgroundTextStyle": "light",

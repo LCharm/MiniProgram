@@ -1,0 +1,89 @@
+<view class="box-root" data-theme="{{currentTheme}}">
+
+  <!-- ===== 盲盒主体 ===== -->
+  <view class="box-trigger {{isOpening ? 'shaking glowing' : ''}} {{boxOpenedToday ? 'opened' : ''}}" bindtap="onTapBox">
+    <view class="box-ribbon"></view>
+    <view class="box-body">
+      <view class="box-icon">{{isOpening ? '✨' : '🎁'}}</view>
+      <view class="box-label">{{isOpening ? '开启中...' : (boxOpenedToday ? '今日已开 · 明日再来' : '完成任务 · 开盲盒')}}</view>
+    </view>
+    <view class="box-sparkle" wx:if="{{isOpening}}">
+      <view class="sparkle-dot s1"></view>
+      <view class="sparkle-dot s2"></view>
+      <view class="sparkle-dot s3"></view>
+      <view class="sparkle-dot s4"></view>
+      <view class="sparkle-dot s5"></view>
+      <view class="sparkle-dot s6"></view>
+    </view>
+  </view>
+
+  <!-- ===== 结果弹窗 ===== -->
+  <view class="modal-overlay" wx:if="{{showResult}}" bindtap="closeResult">
+    <view class="modal-card pop-in" catchtap="">
+
+      <!-- herb: 图鉴翻转卡片 -->
+      <block wx:if="{{prizeData.type === 'herb'}}">
+        <view class="result-herb">
+          <view class="herb-glow-ring"></view>
+          <view class="herb-card-body">
+            <view class="herb-emblem">🌿</view>
+            <view class="herb-tier-tag" wx:if="{{prizeData.isFirstUnlock}}">首次解锁</view>
+            <view class="herb-name">{{prizeData.name}}</view>
+            <view class="herb-sub">已收录至秘境图鉴</view>
+          </view>
+        </view>
+        <view class="modal-btn" bindtap="closeResult">收下宝物</view>
+      </block>
+
+      <!-- voucher: 朱砂红票根 -->
+      <block wx:elif="{{prizeData.type === 'voucher'}}">
+        <view class="result-voucher">
+          <view class="voucher-stub"></view>
+          <view class="voucher-body">
+            <view class="voucher-seal">柒辰</view>
+            <view class="voucher-title">实体兑换券</view>
+            <view class="voucher-name">{{prizeData.name}}</view>
+            <view class="voucher-code">NO. {{prizeData.remainEnergy}}7</view>
+            <view class="voucher-hint">请至个人中心 · 背包查看兑换详情</view>
+          </view>
+        </view>
+        <view class="modal-btn" bindtap="closeResult">收入背包</view>
+      </block>
+
+      <!-- spirit: 灵力球 -->
+      <block wx:elif="{{prizeData.type === 'spirit'}}">
+        <view class="result-spirit">
+          <view class="spirit-orb">
+            <view class="spirit-inner">⚡</view>
+          </view>
+          <view class="spirit-name">{{prizeData.name}}</view>
+          <view class="spirit-remain">剩余灵力：{{prizeData.remainEnergy}}</view>
+        </view>
+        <view class="modal-btn" bindtap="closeResult">好的</view>
+      </block>
+
+      <!-- retry: 再抽一次 -->
+      <block wx:elif="{{prizeData.type === 'retry'}}">
+        <view class="result-retry">
+          <view class="retry-icon">🔄</view>
+          <view class="retry-title">{{prizeData.name}}</view>
+          <view class="retry-desc">运势流转，再试一次吧</view>
+        </view>
+        <view class="modal-btn primary" bindtap="onRetry">再抽一次</view>
+        <view class="modal-btn-ghost" bindtap="closeResult">先收着</view>
+      </block>
+
+      <!-- empty: 谢谢参与 -->
+      <block wx:else>
+        <view class="result-empty">
+          <view class="empty-leaf">🍂</view>
+          <view class="empty-title">谢谢参与</view>
+          <view class="empty-zen">莫强求，深呼吸，喝口枸杞水再战</view>
+        </view>
+        <view class="modal-btn" bindtap="closeResult">缘尽于此</view>
+      </block>
+
+    </view>
+  </view>
+
+</view>

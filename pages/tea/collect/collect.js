@@ -2,7 +2,7 @@ const { getMyCollect, collectFormula } = require('../../../services/tea.js');
 
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     list: [],
     loading: true,
     empty: false
@@ -15,6 +15,7 @@ Page({
 
   onShow() {
     this.setData({ currentTheme: getApp().globalData.theme });
+    getApp().updateNavigationBar(getApp().globalData.theme);
     this.fetchList();
   },
 

@@ -39,42 +39,38 @@
         <view class="section-more" bindtap="viewAllFormulas">全部 ›</view>
       </view>
 
-      <view class="tea-formula-card fade-in">
+      <view class="tea-formula-card fade-in" wx:for="{{formulas}}" wx:key="id" wx:for-item="f">
         <view class="formula-header">
           <view>
-            <view class="formula-name">亳菊助眠宁心茶</view>
-            <view class="formula-suit">适合：失眠烦躁 · 肝火旺盛</view>
+            <view class="formula-name">{{f.name}}</view>
+            <view class="formula-suit">适合：{{f.suitable}}</view>
           </view>
-          <view class="formula-badge">⭐推荐</view>
+          <view class="formula-badge">{{f.symptom}}</view>
         </view>
         <view class="formula-ingredients">
-          <view class="formula-ing">亳菊 5g</view>
-          <view class="formula-ing">酸枣仁 10g</view>
-          <view class="formula-ing">茯苓 8g</view>
-          <view class="formula-ing">甘草 3g</view>
+          <view class="formula-ing" wx:for="{{f.herbList}}" wx:key="*this" wx:for-item="h">{{h}}</view>
         </view>
         <view class="formula-brew">
-          <text class="brew-label">冲泡：</text>90°C水，焖泡5分钟\n<text class="brew-label">饮用：</text>睡前1小时，每日1杯\n<text class="brew-label">禁忌：</text>孕妇、脾胃虚寒者慎用
+          <text class="brew-label">功效：</text>{{f.effect}}\n<text class="brew-label">冲泡：</text>{{f.method}}\n<text class="brew-label">禁忌：</text>{{f.contraindications || '暂无特殊禁忌'}}
+        </view>
+        <view class="formula-actions">
+          <button class="btn-craft"
+            wx:if="{{f.isCraftable}}"
+            bindtap="handleBrew"
+            data-id="{{f.id}}"
+            data-craftable="{{f.isCraftable}}">立即熬制</button>
+          <button class="btn-disabled"
+            wx:elif="{{f.hasRecipeReq}}"
+            bindtap="handleBrew"
+            data-id="{{f.id}}"
+            data-craftable="{{f.isCraftable}}">缺失药材，去获取</button>
+          <view class="btn-none" wx:else>暂不支持合成</view>
         </view>
       </view>
 
-      <view class="tea-formula-card accent fade-in">
-        <view class="formula-header">
-          <view>
-            <view class="formula-name accent">熬夜护肝排毒茶</view>
-            <view class="formula-suit">适合：长期熬夜 · 眼睛干涩</view>
-          </view>
-          <view class="formula-badge accent">🔥爆款</view>
-        </view>
-        <view class="formula-ingredients accent">
-          <view class="formula-ing accent">决明子 8g</view>
-          <view class="formula-ing accent">枸杞 10g</view>
-          <view class="formula-ing accent">菊花 5g</view>
-          <view class="formula-ing accent">山楂 6g</view>
-        </view>
-        <view class="formula-brew accent">
-          <text class="brew-label accent">冲泡：</text>85°C水，焖泡8分钟\n<text class="brew-label accent">饮用：</text>下午或晚间饮用\n<text class="brew-label accent">功效：</text>清肝明目、排肝毒
-        </view>
+      <view class="formula-empty fade-in" wx:if="{{formulas.length === 0 && activeSymptom}}">
+        <view class="empty-icon">🍵</view>
+        <view class="empty-text">该分类暂无茶方，试试其他症状</view>
       </view>
     </block>
 
@@ -119,7 +115,7 @@
               <view class="card {{item.isFlipped || item.isMatched ? 'flipped' : ''}}">
                 <view class="card-face card-back"></view>
                 <view class="card-face card-front {{item.isMatched ? 'matched' : ''}}">
-                  <view class="card-icon">{{item.icon}}</view>
+                  <view class="card-icon-text">{{item.label}}</view>
                   <view class="card-name">{{item.name}}</view>
                 </view>
               </view>
@@ -208,6 +204,32 @@
       <view class="coupon-reward">🎁 {{couponReward}}</view>
       <view class="coupon-desc">已发放至「我的 → 优惠券」</view>
       <button class="coupon-btn" bindtap="claimCoupon">立即领取</button>
+    </view>
+  </view>
+
+  <!-- 熬制全屏动画遮罩 -->
+  <view class="brew-mask" wx:if="{{isBrewing}}">
+    <view class="brew-cauldron">
+      <view class="brew-glow"></view>
+      <view class="brew-pot">🫖</view>
+      <view class="brew-steam">
+        <view class="steam-particle s1"></view>
+        <view class="steam-particle s2"></view>
+        <view class="steam-particle s3"></view>
+      </view>
+      <view class="brew-text">熬制中...</view>
+    </view>
+  </view>
+
+  <!-- 熬制成功结算弹窗 -->
+  <view class="brew-success-overlay" wx:if="{{showSuccessModal}}" bindtap="closeSuccessModal">
+    <view class="brew-success-modal" catchtap="">
+      <view class="bs-emoji">🍵</view>
+      <view class="bs-title">熬制成功！</view>
+      <view class="bs-name" wx:if="{{brewResult}}">{{brewResult.name}}</view>
+      <view class="bs-effect" wx:if="{{brewResult.effect}}">{{brewResult.effect}}</view>
+      <view class="bs-desc">成品茶饮已收入背包，可在背包中兑换实物</view>
+      <button class="bs-btn" bindtap="closeSuccessModal">收入背包</button>
     </view>
   </view>
 </view>

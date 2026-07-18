@@ -2,17 +2,17 @@
 
 /* 全局 CSS 变量与重置 (无主题时的兜底值) */
 page {
-  --bg: #0f0f18;
-  --surface: #1a1a2e;
-  --card: #16213e;
-  --accent1: #e8a838; /* 国潮金 */
-  --accent2: #4ecdc4; /* 清新绿 */
-  --accent3: #ff6b9d; /* 活力粉 */
-  --accent4: #a855f7; /* 紫气 */
-  --text: #f0e8d8;
-  --text-sub: #a89880;
-  --border: rgba(232, 168, 56, 0.2);
-  --green: #6bcb77;
+  --bg: #1a1412;
+  --surface: #261d19;
+  --card: #302621;
+  --accent1: #cda869;
+  --accent2: #658266;
+  --accent3: #b85440;
+  --accent4: #6b5c7d;
+  --text: #e8ded1;
+  --text-sub: #9e8e7c;
+  --border: rgba(212, 175, 111, 0.15);
+  --green: #71985a;
   --radius: 16px;
 
   background-color: var(--bg);

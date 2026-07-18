@@ -1,7 +1,7 @@
 // pages/health/health.js - AI体质养生管家首页
 const { request } = require('../../utils/request.js');
-const { submitClock, getSolarTermInfo } = require('../../services/health');
-const { getDailyTasks, openBlindBox, getUserRank } = require('../../services/game');
+const { getSolarTermInfo } = require('../../services/health');
+const { getDailyTasks, completeTask, getUserRank } = require('../../services/game');
 const app = getApp();
 
 const DEFAULT_TASKS = [
@@ -75,7 +75,7 @@ const RECOMMENDATIONS = {
 
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     userInfo: null,
     rankInfo: null,
     dailyTasks: DEFAULT_TASKS,
@@ -104,8 +104,9 @@ Page({
 
   onShow() {
     this.setData({ currentTheme: app.globalData.theme });
+    app.updateNavigationBar(app.globalData.theme);
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 0 });
+      this.getTabBar().setData({ selected: 0, currentTheme: app.globalData.theme });
     }
     this.loadDailyTasks();
     this.loadReport();
@@ -118,6 +119,16 @@ Page({
     if (quizDone && quizDone.date === today && !this.data.todayClocks['quiz']) {
       const clocks = { ...this.data.todayClocks, quiz: true };
       this.setData({ todayClocks: clocks });
+    }
+  },
+
+  _mergeClocksFromTasks(tasks) {
+    const serverClocks = {};
+    (tasks || []).forEach(t => {
+      if (t.done) serverClocks[t.id || t.type] = true;
+    });
+    if (Object.keys(serverClocks).length) {
+      this.setData({ todayClocks: { ...this.data.todayClocks, ...serverClocks } });
     }
   },
 
@@ -201,6 +212,7 @@ Page({
         solarTerm,
         loading: false,
       });
+      this._mergeClocksFromTasks(tasks);
     } catch (e) {
       this.setData({
         dailyTasks: DEFAULT_TASKS,
@@ -214,11 +226,12 @@ Page({
       const tasks = await getDailyTasks();
       if (tasks && tasks.length) {
         this.setData({ dailyTasks: this.ensureTaskType(tasks) });
+        this._mergeClocksFromTasks(tasks);
       }
     } catch (e) {}
   },
 
-  handleTaskTap(e) {
+  async handleTaskTap(e) {
     const { type, label, action, url } = e.currentTarget.dataset;
     const key = type || String(e.currentTarget.dataset.id || '');
     if (!key) return;
@@ -237,15 +250,25 @@ Page({
       wx.showToast({ title: '已完成', icon: 'none' });
       return;
     }
-    const clocks = { ...this.data.todayClocks, [key]: true };
-    this.setData({ todayClocks: clocks });
 
-    try { submitClock(key, label); } catch (e) {}
-
-    wx.showToast({ title: '已打卡', icon: 'success' });
+    try {
+      await completeTask(key);
+      const clocks = { ...this.data.todayClocks, [key]: true };
+      this.setData({ todayClocks: clocks });
+      wx.showToast({ title: '已打卡', icon: 'success' });
+    } catch (err) {
+      if (err.code === 400) {
+        // 后端返回重复打卡，同步本地状态
+        const clocks = { ...this.data.todayClocks, [key]: true };
+        this.setData({ todayClocks: clocks });
+        wx.showToast({ title: '今日已完成', icon: 'none' });
+      } else {
+        wx.showToast({ title: '打卡失败，请重试', icon: 'none' });
+      }
+    }
   },
 
-  handleOpenBox() {
+  onBoxTapOpen() {
     const tasks = this.data.dailyTasks;
     const total = tasks.length;
     const doneCount = tasks.filter(t => this.data.todayClocks[t.type]).length;
@@ -253,20 +276,14 @@ Page({
       wx.showToast({ title: `${doneCount}/${total}，全部完成才能开盒`, icon: 'none' });
       return;
     }
+    this.selectComponent('#blindBox').open();
+  },
 
-    try { openBlindBox(); } catch (e) {}
-
-    const now = new Date().toLocaleDateString();
-    const items = wx.getStorageSync('backpackItems') || [];
-    items.push({ name: '亳菊茯苓茶体验装', qty: 1, source: '盲盒', date: now });
-    wx.setStorageSync('backpackItems', items);
-
-    wx.showModal({
-      title: '🎁 盲盒开启！',
-      content: '🎁 亳菊茯苓茶体验装 ×1\n ⚡ 灵力 +30',
-      showCancel: false,
-      confirmText: '太棒了！',
-    });
+  onBoxDone(e) {
+    if (e.detail && e.detail.success) {
+      this.fetchUserStats();
+      this.loadDailyTasks();
+    }
   },
 
   viewAllTasks() {

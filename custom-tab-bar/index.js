@@ -1,7 +1,7 @@
 Component({
   data: {
     selected: 0,
-    currentTheme: 'default',
+    currentTheme: 'warm',
   },
   lifetimes: {
     attached() {

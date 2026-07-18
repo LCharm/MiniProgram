@@ -14,17 +14,17 @@ const submitStagePass = (stageId, score) =>
 
 /** 开启盲盒 */
 const openBlindBox = () =>
-  request({ url: '/game/openBlindBox', method: 'POST' });
+  request({ url: '/game/openBox', method: 'POST', idempotent: true });
 
 /** 获取每日任务列表 */
-const getDailyTasks = () => request({ url: '/game/getDailyTasks' });
+const getDailyTasks = () => request({ url: '/game/task/list' });
 
-/** 提交任务完成 */
+/** 提交任务打卡 */
 const completeTask = (taskId) =>
   request({
-    url: '/game/completeTask',
+    url: '/game/task/complete',
     method: 'POST',
-    data: { taskId },
+    data: { task_id: taskId },
   });
 
 /** 发起 PK 挑战 */
@@ -36,11 +36,22 @@ const startPK = (targetUserId) =>
   });
 
 /** 获取排行榜 */
-const getRankList = (type = 'weekly') =>
-  request({ url: '/game/getRankList', data: { type } });
+const getRankList = () =>
+  request({ url: '/game/rank/list' });
 
 /** 获取用户卡牌图鉴 */
-const getCardBook = () => request({ url: '/game/getCardBook' });
+const getCardBook = () => request({ url: '/game/cardBook' });
+
+/** 对局开始：扣除灵力，获取 session_id */
+const matchStart = () => request({ url: '/game/match/start', method: 'POST' });
+
+/** 对局结算：提交 session_id + 分数 */
+const matchSettle = (sessionId, score) =>
+  request({
+    url: '/game/match/settle',
+    method: 'POST',
+    data: { session_id: sessionId, score },
+  });
 
 /** 合成药材碎片 */
 const synthesizeMaterial = (materialId) =>
@@ -58,6 +69,51 @@ const exchangePoints = (type, amount) =>
     data: { type, amount },
   });
 
+/** 获取脑洞答题题目（随机5题 + session_id） */
+const getBrainQuestions = () => request({ url: '/game/brain/questions' });
+
+/** 提交脑洞答题答案进行结算 */
+const settleBrainQuiz = (sessionId, answers) =>
+  request({
+    url: '/game/brain/settle',
+    method: 'POST',
+    data: { session_id: sessionId, answers },
+  });
+
+/** 获取现世秘境景点列表 */
+const getLandmarks = () => request({ url: '/landmarks' });
+
+/** 亲临打卡上传照片 */
+const checkinLandmark = (landmarkId, filePath) =>
+  new Promise((resolve, reject) => {
+    const token = wx.getStorageSync('access_token');
+    wx.uploadFile({
+      url: 'http://120.27.144.30:8080/landmarks/checkin',
+      filePath,
+      name: 'photo',
+      formData: { landmark_id: String(landmarkId) },
+      header: { 'Authorization': token ? `Bearer ${token}` : '' },
+      success: (res) => {
+        const body = JSON.parse(res.data);
+        if (body.code === 200) resolve(body.data);
+        else reject(body);
+      },
+      fail: reject,
+    });
+  });
+
+/** 神游古迹：获取景点随机3题 */
+const getLandmarkQuiz = (landmarkId) =>
+  request({ url: `/quiz/questions?landmark_id=${landmarkId}` });
+
+/** 神游古迹：答题结算 */
+const settleLandmarkQuiz = (landmarkId, score) =>
+  request({
+    url: '/quiz/settle',
+    method: 'POST',
+    data: { landmark_id: landmarkId, score },
+  });
+
 module.exports = {
   getUserRank,
   submitStagePass,
@@ -69,4 +125,12 @@ module.exports = {
   getCardBook,
   synthesizeMaterial,
   exchangePoints,
+  matchStart,
+  matchSettle,
+  getBrainQuestions,
+  settleBrainQuiz,
+  getLandmarks,
+  checkinLandmark,
+  getLandmarkQuiz,
+  settleLandmarkQuiz,
 };

@@ -1,22 +1,47 @@
 // pages/user/user.js - 个人中心
 const { request } = require('../../utils/request');
+const { getBackpack } = require('../../services/user');
+
+const PHYSICAL_EMOJI = {
+  '平和质': '✨', '气虚质': '😮‍💨', '阳虚质': '🥶', '阴虚质': '🔥',
+  '痰湿质': '💧', '湿热质': '🌡️', '血瘀质': '🫀', '气郁质': '😔', '特禀质': '🤧'
+};
 
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     isLogin: false,
+    nickName: '',
     totalPower: 0,
     spiritualEnergy: 0,
     currentRank: '暂无',
     physicalType: '',
+    physicalEmoji: '',
     cardCount: 0,
     checkinDays: 0,
     couponCount: 0,
-    memberExpiry: ''
+    memberExpiry: '',
+    isVip: false
   },
 
   onLoad() {
     this.setData({ currentTheme: getApp().globalData.theme });
+    this._syncNavBar();
+    this.setData({ nickName: wx.getStorageSync('userNickName') || '' });
+    const token = wx.getStorageSync('access_token');
+    if (token) {
+      this.setData({ isLogin: true });
+    }
+    this.loadLocalData();
+  },
+
+  onShow() {
+    this.setData({ currentTheme: getApp().globalData.theme });
+    this._syncNavBar();
+    this.setData({ nickName: wx.getStorageSync('userNickName') || '' });
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 4, currentTheme: getApp().globalData.theme });
+    }
     const token = wx.getStorageSync('access_token');
     if (token) {
       this.setData({ isLogin: true });
@@ -25,25 +50,34 @@ Page({
     this.loadLocalData();
   },
 
-  onShow() {
-    this.setData({ currentTheme: getApp().globalData.theme });
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 4 });
-    }
-    this.loadLocalData();
+  _syncNavBar() {
+    const isDay = getApp().globalData.theme === 'day';
+    wx.setNavigationBarColor({
+      frontColor: isDay ? '#000000' : '#ffffff',
+      backgroundColor: isDay ? '#f2efe8' : '#2d1b4e',
+    });
   },
 
   async loadLocalData() {
-    const coupons = wx.getStorageSync('coupons') || [];
-    this.setData({ couponCount: coupons.length });
-
     try {
       const res = await request({ url: '/physical/latest' });
       if (res) {
-        this.setData({ physicalType: res.name || '' });
+        const ptype = res.name || res.major_type || '';
+        this.setData({
+          physicalType: ptype,
+          physicalEmoji: PHYSICAL_EMOJI[ptype] || '💧'
+        });
       }
     } catch (e) {
-      this.setData({ physicalType: '' });
+      this.setData({ physicalType: '', physicalEmoji: '' });
+    }
+
+    try {
+      const backpack = await getBackpack();
+      const couponCount = (backpack && backpack.vouchers) ? backpack.vouchers.length : 0;
+      this.setData({ couponCount });
+    } catch (e) {
+      this.setData({ couponCount: 0 });
     }
   },
 
@@ -83,12 +117,15 @@ Page({
         method: 'POST',
         data: {}
       });
+      const expiry = res.member_expiry || '';
       this.setData({
         totalPower: res.total_power || 1050,
         spiritualEnergy: res.spiritual_energy || 320,
         currentRank: res.current_rank || '青铜二段',
         cardCount: res.card_count || 3,
-        checkinDays: res.checkin_days || 15
+        checkinDays: res.checkin_days || 15,
+        memberExpiry: expiry,
+        isVip: expiry ? new Date(expiry.replace(/\//g, '-')) > new Date() : false,
       });
     } catch (err) {
       this.setData({
@@ -96,7 +133,7 @@ Page({
         spiritualEnergy: 480,
         currentRank: '白银药师',
         cardCount: 3,
-        checkinDays: 15
+        checkinDays: 15,
       });
     }
   },
@@ -118,28 +155,7 @@ Page({
   },
 
   goToBackpack() {
-    const coupons = wx.getStorageSync('coupons') || [];
-    const items = wx.getStorageSync('backpackItems') || [];
-    let content = '';
-    if (coupons.length === 0 && items.length === 0) {
-      content = '背包空空如也\n\n完成每日任务开盲盒可获得道具\n完成消消乐闯关可获得花茶优惠券';
-    } else {
-      if (items.length > 0) {
-        const itemList = items.map((it, i) => `${i + 1}. ${it.name} ×${it.qty || 1} (${it.date})`).join('\n');
-        content += `🎒 道具 (${items.length}件)：\n${itemList}`;
-      }
-      if (coupons.length > 0) {
-        if (content) content += '\n\n';
-        const couponList = coupons.map((c, i) => `${i + 1}. ${c.type} (${c.date})`).join('\n');
-        content += `🎫 优惠券 (${coupons.length}张)：\n${couponList}`;
-      }
-    }
-    wx.showModal({
-      title: '🎒 我的背包',
-      content: content,
-      showCancel: false,
-      confirmText: '知道了'
-    });
+    wx.navigateTo({ url: '/pages/user/backpack/backpack' });
   },
 
   goToCollectedTeas() {
@@ -147,7 +163,7 @@ Page({
   },
 
   goToCardBook() {
-    wx.showToast({ title: '卡牌图鉴功能开发中', icon: 'none' });
+    wx.navigateTo({ url: '/pages/user/cardBook/cardBook' });
   },
 
   goToSettings(e) {
@@ -155,15 +171,18 @@ Page({
   },
 
   goToMemberCenter() {
-    wx.showModal({
-      title: '⭐ 会员中心',
-      content: '使用灵力值兑换会员权益\n\n当前灵力值：480\n\n兑换方案（规划中）：\n• 300灵力 → 7天体验会员\n• 800灵力 → 30天正式会员\n• 2000灵力 → 90天尊享会员\n\n会员特权：专属舌象报告、AI深度配茶、优先体验新功能',
-      showCancel: false,
-      confirmText: '期待中'
-    });
+    wx.showToast({ title: '功能规划中，敬请期待', icon: 'none' });
   },
 
   goToRankList() {
-    wx.showToast({ title: '排行榜功能开发中', icon: 'none' });
+    wx.navigateTo({ url: '/pages/user/rank/rank' });
+  },
+
+  goToQuiz() {
+    wx.switchTab({ url: '/pages/quiz/quiz' });
+  },
+
+  goToNearbyStation() {
+    wx.showToast({ title: '功能规划中，敬请期待', icon: 'none' });
   }
 });

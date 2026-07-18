@@ -1,5 +1,17 @@
 // pages/huatuo/huatuo.js - 华佗AI轻问诊 + 奇遇记 + 脑洞答题 + 修行闯关
 const { request } = require('../../utils/request');
+const { getBrainQuestions, settleBrainQuiz, getLandmarks, checkinLandmark } = require('../../services/game');
+
+/** Haversine 公式：计算两点经纬度的直线距离（米） */
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = (deg) => deg * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 function parseMarkdown(text) {
   if (!text) return [{ type: 'text', inlines: [{ style: '', text: '' }] }];
@@ -83,25 +95,9 @@ function parseInlines(text) {
   return parts.filter(p => p.text.length > 0);
 }
 
-const DUNGEON_STAGES = [
-  { id: 0, name: '亳菊山谷', emoji: '🌼', desc: '亳菊盛开之地，学习基础养生知识', reward: '亳菊卡牌 ×1 · 灵力+50' },
-  { id: 1, name: '白芍花海', emoji: '🌸', desc: '白芍芬芳，掌握四季调理要诀', reward: '白芍卡牌 ×1 · 灵力+80' },
-  { id: 2, name: '茯苓秘境', emoji: '🍄', desc: '深入秘境，挑战体质辨识难题', reward: '茯苓卡牌 ×1 · 灵力+120' },
-  { id: 3, name: '华佗试炼', emoji: '⚕️', desc: '华佗亲设关卡，综合养生大考', reward: '华佗真传卡牌 ×1 · 灵力+200' },
-  { id: 4, name: '王者之巅', emoji: '👑', desc: '终极试炼，解锁王者宗师段位', reward: '王者勋章 ×1 · 灵力+500' },
-];
-
-const BRAIN_QUESTIONS = [
-  { q: '以下哪种说法是正确的养生常识？', opts: ['A. 喝凉水对肠胃有好处', 'B. 熬夜后多睡一天就能补回来', 'C. 五禽戏是华佗创立的养生运动 ✓', 'D. 喝酒能活血，每天喝点好'], ans: 2 },
-  { q: '亳州"四大道地药材"包含哪个？', opts: ['A. 人参', 'B. 亳菊 ✓', 'C. 冬虫夏草', 'D. 三七'], ans: 1 },
-  { q: '中医体质共分为几种？', opts: ['A. 5种', 'B. 7种', 'C. 9种 ✓', 'D. 12种'], ans: 2 },
-  { q: '华佗创立的养生功法叫什么？', opts: ['A. 太极拳', 'B. 五禽戏 ✓', 'C. 八段锦', 'D. 易筋经'], ans: 1 },
-  { q: '以下哪个不是亳州道地药材？', opts: ['A. 亳菊', 'B. 白芍', 'C. 人参 ✓', 'D. 茯苓'], ans: 2 },
-];
-
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     currentTab: 'chat',
     inputValue: '',
     scrollToId: '',
@@ -111,40 +107,50 @@ Page({
     ],
 
     // 脑洞答题
-    energyVal: 0,
-    brainQ: BRAIN_QUESTIONS[0],
-    brainAnswered: -1,
+    brainSessionId: '',
+    brainQuestions: [],
+    brainCurrentIdx: 0,
+    brainAnswers: [],
+    brainResult: null,
+    brainLoading: false,
 
-    // 修行闯关
-    dungeonStages: [],
-    currentStage: null,
-    dungeonCleared: 0,
-    cardCount: 3,
-    totalPower: 650,
+    // 现世秘境（LBS 景点打卡）
+    landmarks: [],
+    activeLandmark: null,
+    showModal: false,
+    isSubmitting: false,
+    centerLng: 115.77,
+    centerLat: 33.84,
+    mapScale: 12,
+    markers: [],
   },
 
   onLoad() {
     this.setData({ currentTheme: getApp().globalData.theme });
-    this.initDungeon();
   },
 
   onShow() {
     this.setData({ currentTheme: getApp().globalData.theme });
+    getApp().updateNavigationBar(getApp().globalData.theme);
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 3 });
+      this.getTabBar().setData({ selected: 3, currentTheme: getApp().globalData.theme });
     }
     const subTab = wx.getStorageSync('huatuoSubTab');
     if (subTab) {
       wx.removeStorageSync('huatuoSubTab');
       if (subTab === 'quiz' || subTab === 'story' || subTab === 'dungeon') {
         this.setData({ currentTab: subTab });
+        if (subTab === 'quiz') this.loadBrainQuestions();
       }
     }
   },
 
   // ===== 子标签切换 =====
   switchTab(e) {
-    this.setData({ currentTab: e.currentTarget.dataset.tab });
+    const tab = e.currentTarget.dataset.tab;
+    this.setData({ currentTab: tab });
+    if (tab === 'quiz') this.loadBrainQuestions();
+    if (tab === 'dungeon') this.fetchLandmarks();
   },
 
   // ===== 问诊 =====
@@ -215,82 +221,213 @@ Page({
     });
   },
 
-  // ===== 奇遇记 =====
-  storyChoice(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const responses = [
-      '✨ 完美！华佗赞许点头：此乃上佳之举。解锁「华佗真传」成就！',
-      '💡 华佗微笑道：晨起温水，乃养生第一步，明日试试？',
-      '🌿 华佗说：空腹晨游，可先采几朵白芍花，泡水而饮...',
-    ];
-    wx.showModal({
-      title: '📖 华佗回应',
-      content: responses[idx] || '华佗捋须沉思...',
-      showCancel: false,
-      confirmText: '继续游历',
-    });
+  // ===== 奇遇记 → 独立页面 =====
+  goToAdventure() {
+    wx.navigateTo({ url: '/pages/adventure/adventure' });
   },
 
   // ===== 脑洞答题 =====
-  brainAnswer(e) {
-    if (this.data.brainAnswered >= 0) return;
-    const idx = e.currentTarget.dataset.idx;
-    const q = this.data.brainQ;
-    const correct = idx === q.ans;
-
-    this.setData({ brainAnswered: idx });
-
-    if (correct) {
-      const newEnergy = Math.min(100, this.data.energyVal + 25);
-      this.setData({ energyVal: newEnergy });
-      wx.setStorageSync('brainQuizDone', { date: new Date().toLocaleDateString() });
-      wx.showToast({ title: '+25元气值！', icon: 'success' });
-    } else {
-      wx.showToast({ title: '答错了~', icon: 'none' });
-    }
-
-    setTimeout(() => {
-      const nextIdx = (BRAIN_QUESTIONS.indexOf(q) + 1) % BRAIN_QUESTIONS.length;
+  async loadBrainQuestions() {
+    if (this.data.brainLoading) return;
+    this.setData({ brainLoading: true, brainResult: null });
+    try {
+      const res = await getBrainQuestions();
+      const questions = (res && res.questions) ? res.questions : [];
       this.setData({
-        brainQ: BRAIN_QUESTIONS[nextIdx],
-        brainAnswered: -1,
+        brainSessionId: res.session_id || '',
+        brainQuestions: questions,
+        brainCurrentIdx: 0,
+        brainAnswers: [],
+        brainLoading: false,
       });
-    }, 1200);
-  },
-
-  // ===== 修行闯关 =====
-  initDungeon() {
-    const cleared = wx.getStorageSync('dungeonCleared') || 0;
-    const stages = DUNGEON_STAGES.map((s, i) => ({
-      ...s,
-      unlocked: i <= cleared,
-      current: i === cleared,
-    }));
-    this.setData({
-      dungeonStages: stages,
-      currentStage: stages[cleared] || stages[0],
-      dungeonCleared: cleared,
-    });
-  },
-
-  enterStage(e) {
-    const stage = this.data.dungeonStages[e.currentTarget.dataset.idx];
-    if (!stage.unlocked) {
-      wx.showToast({ title: '请先完成前置关卡', icon: 'none' });
-      return;
+    } catch (err) {
+      console.error('加载脑洞题目失败:', err);
+      wx.showToast({ title: '题目加载失败，请重试', icon: 'none' });
+      this.setData({ brainLoading: false });
     }
-    this.setData({ currentStage: stage });
   },
 
-  startBattle() {
-    const stage = this.data.currentStage;
-    wx.showModal({
-      title: `⚔️ ${stage.name}`,
-      content: `${stage.desc}\n\n${stage.reward}\n\n此功能正在开发中，敬请期待！`,
-      showCancel: false,
-      confirmText: '知道了',
+  brainAnswer(e) {
+    if (this.data.brainResult) return;
+    const choiceIdx = e.currentTarget.dataset.idx;
+    const choiceLetter = String.fromCharCode(65 + choiceIdx); // 0→A, 1→B, ...
+    const q = this.data.brainQuestions[this.data.brainCurrentIdx];
+    if (!q) return;
+
+    const answers = [...this.data.brainAnswers, { question_id: q.question_id, selected_choice: choiceLetter }];
+    const nextIdx = this.data.brainCurrentIdx + 1;
+    this.setData({ brainAnswers: answers, brainCurrentIdx: nextIdx });
+
+    // 答完所有题目，自动结算
+    if (nextIdx >= this.data.brainQuestions.length) {
+      this.settleQuiz();
+    }
+  },
+
+  async settleQuiz() {
+    wx.showLoading({ title: '正在结算...' });
+    try {
+      const res = await settleBrainQuiz(this.data.brainSessionId, this.data.brainAnswers);
+      wx.hideLoading();
+      this.setData({ brainResult: res });
+
+      // 同步每日任务完成状态
+      wx.setStorageSync('brainQuizDone', { date: new Date().toLocaleDateString() });
+
+      const correct = res.total_correct || 0;
+      const total = res.total_questions || this.data.brainQuestions.length;
+      wx.showModal({
+        title: '答题结果',
+        content: '答对 ' + correct + '/' + total + ' 题\n获得 +' + (res.earned_energy || 0) + ' 元气值',
+        confirmText: '查看详情',
+        cancelText: '再来一局',
+        success: (modalRes) => {
+          if (modalRes.cancel) this.resetBrainQuiz();
+        }
+      });
+    } catch (err) {
+      wx.hideLoading();
+      console.error('结算失败:', err);
+      wx.showToast({ title: '结算失败，请重试', icon: 'none' });
+    }
+  },
+
+  resetBrainQuiz() {
+    this.setData({
+      brainSessionId: '',
+      brainQuestions: [],
+      brainCurrentIdx: 0,
+      brainAnswers: [],
+      brainResult: null,
+    });
+    this.loadBrainQuestions();
+  },
+
+  // ===== 现世秘境（LBS 景点打卡）=====
+  async fetchLandmarks() {
+    try {
+      const data = await getLandmarks();
+      const landmarks = data || [];
+      const markers = landmarks.map(l => ({
+        id: l.id,
+        latitude: l.latitude,
+        longitude: l.longitude,
+        title: l.name,
+        iconPath: '/images/marker-lantern.png',
+        width: 64,
+        height: 64,
+        anchor: { x: 0.5, y: 0.25 },
+        callout: {
+          content: l.name,
+          color: '#5C3A21',
+          fontSize: 14,
+          borderRadius: 8,
+          bgColor: '#F4EFE6',
+          padding: 8,
+          display: 'ALWAYS',
+          textAlign: 'center',
+        },
+      }));
+      let centerLng = 115.77, centerLat = 33.84;
+      if (landmarks.length > 0) {
+        const lngs = landmarks.map(l => l.longitude);
+        const lats = landmarks.map(l => l.latitude);
+        centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+        centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+      }
+      this.setData({ landmarks, markers, centerLng, centerLat });
+    } catch (err) {
+      console.error('[Landmarks] 加载失败', err);
+    }
+  },
+
+  onMarkerTap(e) {
+    const id = e.detail.markerId;
+    const landmark = this.data.landmarks.find(l => l.id === id);
+    if (!landmark) return;
+    this.setData({ activeLandmark: landmark, showModal: true });
+  },
+
+  onTapLandmark(e) {
+    const id = e.currentTarget.dataset.id;
+    const landmark = this.data.landmarks.find(l => l.id === id);
+    if (!landmark) return;
+    this.setData({ activeLandmark: landmark, showModal: true });
+  },
+
+  closeModal() {
+    this.setData({ showModal: false, activeLandmark: null });
+  },
+
+  preventBubble() {},
+
+  async onCheckin() {
+    if (this.data.isSubmitting) return;
+    const landmark = this.data.activeLandmark;
+    if (!landmark) return;
+
+    this.setData({ isSubmitting: true });
+
+    try {
+      const locRes = await this._getLocation();
+      const { latitude, longitude } = locRes;
+
+      const dist = haversineDistance(latitude, longitude, landmark.latitude, landmark.longitude);
+      if (dist > (landmark.radius || 500)) {
+        wx.showToast({ title: '距离太远，请前往实地', icon: 'none' });
+        this.setData({ isSubmitting: false });
+        return;
+      }
+
+      const imgRes = await this._chooseImage();
+      const filePath = imgRes.tempFilePaths[0];
+
+      wx.showLoading({ title: '打卡中...', mask: true });
+      await checkinLandmark(landmark.id, filePath);
+      wx.hideLoading();
+      wx.showToast({ title: '打卡成功！', icon: 'success' });
+      this.closeModal();
+    } catch (err) {
+      wx.hideLoading();
+      if (err && err.detail === '该景点已打卡，无需重复提交') {
+        wx.showToast({ title: '该景点已打卡', icon: 'none' });
+      } else if (err && err.errMsg && err.errMsg.includes('cancel')) {
+        // 用户取消选图/定位，静默
+      } else {
+        wx.showToast({ title: err.message || '打卡失败', icon: 'none' });
+      }
+    } finally {
+      this.setData({ isSubmitting: false });
+    }
+  },
+
+  onQuiz() {
+    const landmark = this.data.activeLandmark;
+    if (!landmark) return;
+    wx.setStorageSync('quizLandmarkId', landmark.id);
+    wx.switchTab({ url: '/pages/quiz/quiz' });
+    this.closeModal();
+  },
+
+  _getLocation() {
+    return new Promise((resolve, reject) => {
+      wx.getLocation({ type: 'gcj02', success: resolve, fail: reject });
     });
   },
+
+  _chooseImage() {
+    return new Promise((resolve, reject) => {
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['camera', 'album'],
+        success: resolve,
+        fail: reject,
+      });
+    });
+  },
+
+  preventScroll() {},
 
   placeholderTap(e) {
     wx.showToast({ title: e.currentTarget.dataset.msg || '功能开发中', icon: 'none' });

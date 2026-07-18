@@ -78,7 +78,7 @@ const RECOMMENDATIONS = {
 
 Page({
   data: {
-    currentTheme: 'default',
+    currentTheme: 'warm',
     report: null,
     rec: null,
     details: [],
@@ -87,6 +87,7 @@ Page({
   async onLoad() {
     const app = getApp();
     this.setData({ currentTheme: app.globalData.theme });
+    app.updateNavigationBar(app.globalData.theme);
 
     try {
       const res = await request({ url: '/physical/latest' });

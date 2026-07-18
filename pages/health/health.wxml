@@ -15,7 +15,7 @@
     <view class="rank-bar fade-in">
       <view class="rank-header">
         <view class="rank-title">⚔️ 我的养生战力</view>
-        <view class="rank-level" style="{{rankBadgeStyle}}">{{rankInfo.rankName || '青铜行者'}}</view>
+        <view class="rank-level" style="{{rankBadgeStyle}}" data-rank="{{rankInfo.rankName || ''}}">{{rankInfo.rankName || '青铜行者'}}</view>
       </view>
       <view class="xp-bar-bg">
         <view class="xp-bar-fill" style="width:{{xpPercent}}%"></view>
@@ -43,7 +43,7 @@
           <view class="task-reward">{{item.reward}}</view>
         </view>
       </view>
-      <button class="open-box-btn" bindtap="handleOpenBox">🎁 完成任务·开盲盒</button>
+      <blind-box id="blindBox" bind:tapopen="onBoxTapOpen" bind:done="onBoxDone"></blind-box>
     </view>
 
     <view class="section-header">

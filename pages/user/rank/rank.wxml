@@ -1,0 +1,56 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll-content">
+
+    <!-- 我的排名 -->
+    <view class="my-rank-card fade-in" wx:if="{{myRank}}">
+      <view class="my-rank-badge">我的排名</view>
+      <view class="my-rank-body">
+        <view class="my-rank-avatar">
+          <image class="my-avatar-img" src="{{myRank.avatar}}" mode="aspectFill" wx:if="{{myRank.avatar}}"></image>
+          <view class="my-avatar-placeholder" wx:else>👤</view>
+        </view>
+        <view class="my-rank-info">
+          <view class="my-rank-name">
+            <text>{{myRank.nickname || '养生行者'}}</text>
+            <view class="tier-badge">{{myRank.tier_name || '养生学徒'}}</view>
+          </view>
+          <view class="my-rank-score">战力 {{myRank.score}}</view>
+        </view>
+        <view class="my-rank-num">
+          <view class="my-rank-label">排名</view>
+          <view class="my-rank-value">#{{myRank.rank}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Top 50 榜单 -->
+    <view class="rank-list fade-in">
+      <view class="rank-section-title">🏆 战力总榜 TOP 50</view>
+
+      <view wx:if="{{loading}}" class="rank-loading">加载中...</view>
+
+      <block wx:else>
+        <view wx:if="{{topList.length === 0}}" class="rank-empty">暂无数据</view>
+
+        <view class="rank-item {{item.is_me ? 'is-me' : ''}}"
+              wx:for="{{topList}}" wx:key="rank">
+          <view class="rank-idx {{item.rank <= 3 ? 'top-' + item.rank : ''}}">
+            {{item.rank <= 3 ? ['🥇','🥈','🥉'][item.rank - 1] : item.rank}}
+          </view>
+          <view class="rank-avatar">
+            <image class="rank-avatar-img" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
+            <view class="rank-avatar-placeholder" wx:else>👤</view>
+          </view>
+          <view class="rank-name">
+            <text>{{item.nickname || '养生行者'}}</text>
+            <view class="tier-badge">{{item.tier_name || '养生学徒'}}</view>
+          </view>
+          <view class="rank-score">{{item.score}} 战力</view>
+          <view class="rank-me-tag" wx:if="{{item.is_me}}">我</view>
+        </view>
+      </block>
+    </view>
+
+    <view style="height: 80rpx;"></view>
+  </scroll-view>
+</view>

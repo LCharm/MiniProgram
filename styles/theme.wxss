@@ -1,54 +1,38 @@
 /* styles/theme.wxss — 通过 data-theme 属性挂载 CSS 变量 */
 /* 页面 .app-shell 和 自定义 TabBar .bottom-nav 需同时覆盖 */
 
-/* 1. 默认主题 (深紫蓝) */
-.app-shell[data-theme="default"],
-.bottom-nav[data-theme="default"] {
-  --bg: #0f0f18;
-  --surface: #1a1a2e;
-  --card: #16213e;
-  --accent1: #e8a838;
-  --text: #f0e8d8;
-  --text-sub: #a89880;
-  --border: rgba(232, 168, 56, 0.2);
-  color: var(--text);
-}
-
-/* 2. 暗夜主题 (近黑 - 极低对比度防刺眼) */
-.app-shell[data-theme="night"],
-.bottom-nav[data-theme="night"] {
-  --bg: #080810;
-  --surface: #12121e;
-  --card: #12121e;
-  --accent1: #c89630;
-  --text: #c0c0c8;
-  --text-sub: #707078;
-  --border: rgba(200, 150, 48, 0.1);
-  color: var(--text);
-}
-
-/* 3. 暖金棕 (温润感) */
+/* 1. 暖金棕深色版 (默认) */
 .app-shell[data-theme="warm"],
 .bottom-nav[data-theme="warm"] {
-  --bg: #120d08;
-  --surface: #1a140d;
-  --card: #241d14;
-  --accent1: #e8a838;
-  --text: #f0e0d0;
-  --text-sub: #a89078;
-  --border: rgba(232, 168, 56, 0.15);
+  --bg: #1a1412;
+  --surface: #261d19;
+  --card: #302621;
+  --text: #e8ded1;
+  --text-sub: #9e8e7c;
+  --border: rgba(212, 175, 111, 0.15);
+  --accent1: #B87333;
+  --sandalwood: #5C3A21;
+  --paper: #F4EFE6;
+  --accent2: #658266;
+  --accent3: #b85440;
+  --accent4: #6b5c7d;
+  --green: #71985a;
   color: var(--text);
 }
 
-/* 4. 白天主题 (浅色) */
+/* 2. 白天浅色版 */
 .app-shell[data-theme="day"],
 .bottom-nav[data-theme="day"] {
   --bg: #f2efe8;
   --surface: #faf9f6;
   --card: #ffffff;
   --accent1: #c88828;
+  --accent2: #4ecdc4;
+  --accent3: #ff6b9d;
+  --accent4: #a855f7;
   --text: #2c2c2c;
   --text-sub: #666666;
   --border: rgba(200, 136, 40, 0.15);
+  --green: #6bcb77;
   color: var(--text);
 }
