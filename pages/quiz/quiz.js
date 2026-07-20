@@ -158,8 +158,8 @@ Page({
   },
 
   exitLandmarkQuiz() {
-    wx.setNavigationBarTitle({ title: '体质测评' });
-    this.setData({ quizMode: 'constitution', landmarkResult: null });
+    wx.setStorageSync('huatuoSubTab', 'dungeon');
+    wx.switchTab({ url: '/pages/huatuo/huatuo' });
   },
 
   selectGender(e) {

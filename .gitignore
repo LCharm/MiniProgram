@@ -4,6 +4,9 @@ project.private.config.json
 # 后端（不上传）
 qcminip_backend/
 
+# 部署脚本（含服务器 IP）
+deploy.sh
+
 # 依赖
 node_modules/
 

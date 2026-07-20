@@ -70,15 +70,12 @@
       </view>
 
       <view class="quiz-card fade-in">
-        <!-- 加载中 -->
         <view wx:if="{{brainLoading}}" class="quiz-status">正在加载题目...</view>
 
-        <!-- 未开始 -->
         <view wx:elif="{{brainQuestions.length === 0 && !brainResult}}" class="quiz-status">
           <view class="quiz-start-btn" bindtap="loadBrainQuestions">🎯 开始答题</view>
         </view>
 
-        <!-- 结算结果 -->
         <view wx:elif="{{brainResult}}" class="quiz-result">
           <view class="quiz-result-icon">{{brainResult.total_correct >= 4 ? '🎉' : (brainResult.total_correct >= 2 ? '👍' : '💪')}}</view>
           <view class="quiz-result-score">{{brainResult.total_correct}}<text class="quiz-result-total">/{{brainResult.total_questions}}</text></view>
@@ -93,7 +90,6 @@
           <view class="quiz-retry-btn" bindtap="resetBrainQuiz">🔄 再来一局</view>
         </view>
 
-        <!-- 答题中 -->
         <view wx:else>
           <view class="quiz-header">
             <text class="quiz-progress">第 {{brainCurrentIdx + 1}} / {{brainQuestions.length}} 题</text>
@@ -127,39 +123,32 @@
     </view>
   </scroll-view>
 
-  <!-- 现世秘境（LBS 景点打卡） -->
+  <!-- 现世秘境（景点卡片流） -->
   <block wx:if="{{currentTab === 'dungeon'}}">
-    <view class="map-wrap">
-      <map
-        id="landmarkMap"
-        class="landmark-map"
-        longitude="{{centerLng}}"
-        latitude="{{centerLat}}"
-        scale="{{mapScale}}"
-        markers="{{markers}}"
-        bindmarkertap="onMarkerTap"
-        bindcallouttap="onMarkerTap"
-        enable-poi="{{false}}"
-        enable-building="{{false}}"
-        enable-traffic="{{false}}"
-        show-compass="{{false}}"
-        show-scale="{{false}}"
-        enable-rotate="{{false}}"
-        enable-overlooking="{{false}}"
-      ></map>
-    </view>
+    <scroll-view scroll-y class="landmark-scroll">
+      <view class="landmark-card" wx:for="{{landmarks}}" wx:key="id" bindtap="onTapLandmark" data-id="{{item.id}}">
+        <image class="landmark-img" mode="aspectFill" src="{{item.bg_img}}"></image>
+        <view class="landmark-overlay"></view>
+        <view class="landmark-info">
+          <text class="landmark-name">{{item.name}}</text>
+          <text class="landmark-sub">线下暂未开放 · 点击唤醒秘境</text>
+        </view>
+      </view>
+      <view style="height: calc(24rpx + 120rpx + env(safe-area-inset-bottom));"></view>
+    </scroll-view>
 
     <!-- 半屏模态框 -->
     <view class="lbs-modal-mask" wx:if="{{showModal}}" bindtap="closeModal" catchtouchmove="preventScroll">
       <view class="lbs-modal" catchtap="preventBubble">
-        <view class="lbs-modal-img" style="background-image: url({{activeLandmark.bg_img}})">
+        <view class="lbs-modal-img">
+          <image class="lbs-modal-bg" mode="aspectFill" src="{{activeLandmark.bg_img}}"></image>
           <view class="lbs-modal-overlay"></view>
           <view class="close-btn" bindtap="closeModal">✕</view>
           <view class="lbs-modal-title">{{activeLandmark.name}}</view>
         </view>
         <view class="lbs-modal-body">
-          <!-- 线下打卡卡片 -->
           <view class="action-card card-offline" hover-class="card-press" bindtap="onCheckin">
+            <view class="offline-reminder">暂未开放</view>
             <view class="card-header">
               <text class="card-title">📍 亲临寻迹</text>
               <text class="card-badge">超高收益</text>
@@ -169,10 +158,9 @@
               <text class="reward-tag tag-ssr">SSR级药材</text>
               <text class="reward-tag tag-ssr">实体文创</text>
               <text class="reward-tag tag-ssr">景区门票</text>
+              <text class="ssc-privilege-tag">💳 亳州社保卡专属免票通道</text>
             </view>
           </view>
-
-          <!-- 神游古迹卡片 -->
           <view class="action-card card-online" hover-class="card-press" bindtap="onQuiz">
             <view class="card-header">
               <text class="card-title">📜 神游古迹</text>

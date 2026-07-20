@@ -81,7 +81,7 @@
           <text class="lm-fail-text">医理深奥，大侠请重头来过</text>
         </view>
 
-        <button class="lm-retry-btn" bindtap="exitLandmarkQuiz">返回体质测评</button>
+        <button class="lm-retry-btn" bindtap="exitLandmarkQuiz">返回现世秘境</button>
 
         <view class="lm-watermark">神游</view>
       </view>

@@ -3,23 +3,27 @@
 /* ===== 子导航 ===== */
 .sub-nav {
   display: flex;
-  gap: 6px;
-  padding: 12px 12px 0;
-  background: var(--bg);
+  justify-content: space-around;
+  padding: 20rpx 24rpx;
+  background: var(--card);
+  border-bottom: 2rpx solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
   flex-shrink: 0;
 }
 .sub-nav-pill {
-  flex: 1;
-  text-align: center;
-  padding: 10px 0;
-  background: var(--card);
-  border: 2rpx solid var(--border);
-  border-radius: 40rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--text-sub);
-  transition: all 0.2s;
+  padding: 10rpx 20rpx;
+  border-radius: 30rpx;
+  transition: all 0.3s;
 }
-.sub-nav-pill.active { background: rgba(232,168,56,0.12); border-color: var(--accent1); color: var(--accent1); }
+.sub-nav-pill.active {
+  background: rgba(232, 168, 56, 0.15);
+  color: var(--accent1);
+  font-weight: bold;
+}
 
 /* ===== 问诊对话 ===== */
 .chat-scroll { flex: 1; overflow-y: hidden; }
@@ -212,14 +216,60 @@
   padding: 2rpx 12rpx; border-radius: 20rpx; font-weight: 700;
 }
 
-/* ===== 现世秘境（LBS 景点打卡）===== */
-.map-wrap {
+/* ===== 现世秘境（景点卡片流）===== */
+.landmark-scroll {
   flex: 1;
-  overflow: hidden;
+  background: #F4F6F5;
+  padding: 24rpx 24rpx 0;
 }
-.landmark-map {
+
+.landmark-card {
+  position: relative;
+  width: 100%;
+  height: 400rpx;
+  border-radius: 24rpx;
+  margin-bottom: 32rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+}
+
+.landmark-img {
   width: 100%;
   height: 100%;
+  filter: blur(1.5px);
+  transform: scale(1.1);
+}
+
+.landmark-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+  pointer-events: none;
+}
+
+.landmark-info {
+  position: absolute;
+  left: 28rpx;
+  bottom: 28rpx;
+  right: 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.landmark-name {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.5);
+}
+
+.landmark-sub {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* 半屏模态框 */
@@ -235,7 +285,7 @@
 
 .lbs-modal {
   width: 100%;
-  height: 66vh;
+  height: 75vh;
   background: var(--surface);
   border-radius: 40rpx 40rpx 0 0;
   display: flex;
@@ -251,12 +301,20 @@
 
 .lbs-modal-img {
   height: 35%;
-  background-size: cover;
-  background-position: center;
   position: relative;
   display: flex;
   align-items: flex-end;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.lbs-modal-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(1.5px);
+  transform: scale(1.1);
 }
 
 .lbs-modal-overlay {
@@ -301,7 +359,7 @@
   justify-content: center;
   padding: 24rpx 36rpx;
   padding-bottom: calc(24rpx + 120rpx + env(safe-area-inset-bottom));
-  gap: 20rpx;
+  gap: 40rpx;
 }
 
 /* ===== 富信息动作卡片 ===== */
@@ -318,6 +376,24 @@
 .card-offline {
   background: linear-gradient(135deg, #F3E7D8 0%, #E6D0B3 100%);
   border: 2rpx solid #D2B48C;
+  position: relative;
+  overflow: hidden;
+}
+
+.offline-reminder {
+  position: absolute;
+  right: 28rpx;
+  top: 50%;
+  transform: translateY(-50%) rotate(12deg);
+  font-size: 36rpx;
+  font-weight: 800;
+  color: rgba(184, 115, 51, 0.3);
+  letter-spacing: 8rpx;
+  pointer-events: none;
+  white-space: nowrap;
+  border: 3rpx solid rgba(184, 115, 51, 0.25);
+  border-radius: 12rpx;
+  padding: 12rpx 24rpx;
 }
 
 /* 线上：虚线虚化 */
@@ -382,6 +458,16 @@
 
 .tag-normal {
   color: #8B7355;
+}
+
+.ssc-privilege-tag {
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  color: #1B5299;
+  background: rgba(27, 82, 153, 0.06);
+  border: 1rpx solid rgba(27, 82, 153, 0.25);
 }
 
 .open-box-btn {
