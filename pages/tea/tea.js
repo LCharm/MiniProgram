@@ -1,7 +1,7 @@
 // pages/tea/tea.js - AI智能配茶坊 + 消消乐 + 推荐茶方 + 创意赛
 const { request } = require('../../utils/request');
 const { matchStart, matchSettle } = require('../../services/game');
-const { getFormulaBySymptom, getHotFormula, brewTea } = require('../../services/tea');
+const { getFormulaBySymptom, getHotFormula, brewTea, submitContest, getPublicFormulas, toggleContestLike } = require('../../services/tea');
 const { getBackpack } = require('../../services/user');
 
 Page({
@@ -41,7 +41,13 @@ Page({
     isLocked: false,
     showCouponModal: false,
     couponReward: '',
-    settleResult: null
+    settleResult: null,
+
+    // 创意大赛
+    publicFormulas: [],
+    showSubmitModal: false,
+    formData: { title: '', ingredients: '', efficacy: '', tags: '', suitable_for: '', brewing_method: '', taboos: '' },
+    tagOptions: ['助眠', '养颜', '补气', '去火', '祛湿', '健脾', '润喉', '轻畅'],
   },
 
   _timerInterval: null,
@@ -56,10 +62,18 @@ Page({
     this.setData({ currentTheme: getApp().globalData.theme });
     getApp().updateNavigationBar(getApp().globalData.theme);
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2, currentTheme: getApp().globalData.theme });
+      this.getTabBar().setData({ selected: 3, currentTheme: getApp().globalData.theme });
+    }
+    // 读取外部设置的子 tab
+    const subTab = wx.getStorageSync('teaSubTab');
+    if (subTab) {
+      wx.removeStorageSync('teaSubTab');
+      this.setData({ currentTab: subTab });
+      if (subTab === 'game') this.initGame();
     }
     // 每次切回页面刷新库存与配方
     this.refreshFormulas();
+    this.fetchPublicFormulas();
   },
 
   onHide() {
@@ -78,6 +92,9 @@ Page({
       return;
     }
     this.setData({ currentTab: tab });
+    if (tab === 'contest' && this.data.publicFormulas.length === 0) {
+      this.fetchPublicFormulas();
+    }
     if (tab === 'game') {
       this.stopTimer();
       this.setData({ sessionId: '', gameRunning: false, gameOver: false });
@@ -154,7 +171,7 @@ Page({
         cancelText: '稍后',
         success: (res) => {
           if (res.confirm) {
-            wx.switchTab({ url: '/pages/index/index' });
+            this.setData({ currentTab: 'game' });
           }
         }
       });
@@ -231,10 +248,13 @@ Page({
       gameScore: 0,
       gameTimer: 60,
       gameLevel: 1,
+      gameRunning: false,
+      gameOver: false,
       flippedIndices: [],
       isLocked: false,
       showCouponModal: false,
-      couponReward: ''
+      couponReward: '',
+      settleResult: null
     });
   },
 
@@ -427,22 +447,107 @@ Page({
 
   // ==================== 创意赛 ====================
 
-  likeFormula(e) {
-    const name = e.currentTarget.dataset.name;
-    wx.showToast({ title: `已为「${name}」点赞`, icon: 'none' });
+  async fetchPublicFormulas() {
+    try {
+      const data = await getPublicFormulas();
+      const list = Array.isArray(data) ? data : (data.list || []);
+      this.setData({ publicFormulas: list });
+    } catch (err) {
+      console.error('[Contest] 列表加载失败', err);
+    }
   },
 
-  submitFormula() {
-    wx.showModal({
-      title: '提交创意配方',
-      content: '请描述您的创意茶方，审核通过后将公开展示并获得灵力奖励',
-      showCancel: true,
-      confirmText: '立即提交',
-      success: (res) => {
-        if (res.confirm) {
-          wx.showToast({ title: '已提交审核', icon: 'success' });
+  async handleLike(e) {
+    const formulaId = e.currentTarget.dataset.id;
+    try {
+      const res = await toggleContestLike(formulaId);
+      if (res) {
+        const newLikesCount = res.likes_count;
+        const index = this.data.publicFormulas.findIndex(item => item.id === formulaId);
+        if (index !== -1) {
+          this.setData({
+            [`publicFormulas[${index}].likes_count`]: newLikesCount
+          });
         }
       }
-    });
+    } catch (err) {
+      const msg = (err && err.message) || '操作频繁';
+      wx.showToast({ title: msg, icon: 'none' });
+    }
+  },
+
+  openSubmitModal() {
+    this.setData({ showSubmitModal: true, formData: { title: '', ingredients: '', efficacy: '', tags: '', suitable_for: '', brewing_method: '', taboos: '' } });
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ hidden: true });
+    }
+  },
+
+  closeSubmitModal() {
+    this.setData({ showSubmitModal: false });
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ hidden: false });
+    }
+  },
+
+  toggleTag(e) {
+    const tag = e.currentTarget.dataset.tag;
+    const next = this.data.formData.tags === tag ? '' : tag;
+    this.setData({ 'formData.tags': next });
+  },
+
+  onFormFieldChange(e) {
+    const field = e.currentTarget.dataset.field;
+    this.setData({ [`formData.${field}`]: e.detail.value });
+  },
+
+  preventClose() {},
+
+  async handleSubmitAction() {
+    const title = (this.data.formData.title || '').trim();
+    const ingredients = (this.data.formData.ingredients || '').trim();
+    const efficacy = (this.data.formData.efficacy || '').trim();
+    const tags = this.data.formData.tags || '';
+    const suitable_for = (this.data.formData.suitable_for || '').trim();
+    const brewing_method = (this.data.formData.brewing_method || '').trim();
+    const taboos = (this.data.formData.taboos || '').trim();
+
+    if (!title || !ingredients || !efficacy) {
+      return wx.showToast({ title: '请填写完整配方', icon: 'none' });
+    }
+
+    if (title.length < 2) {
+      return wx.showToast({ title: '茶方名称至少2个字', icon: 'none' });
+    }
+    if (ingredients.length < 5) {
+      return wx.showToast({ title: '配方材料至少5个字', icon: 'none' });
+    }
+    if (efficacy.length < 5) {
+      return wx.showToast({ title: '功效说明至少5个字', icon: 'none' });
+    }
+
+    try {
+      const res = await submitContest({ title, ingredients, efficacy, tags, suitable_for, brewing_method, taboos });
+      if (res && res.id) {
+        this.closeSubmitModal();
+        this.setData({
+          formData: { title: '', ingredients: '', efficacy: '', tags: '', suitable_for: '', brewing_method: '', taboos: '' }
+        });
+
+        wx.showModal({
+          title: '提交成功',
+          content: '您的茶方已提交，请等待人工审核。是否前往查看进度？',
+          confirmText: '去查看',
+          cancelText: '留在本页',
+          success(modalRes) {
+            if (modalRes.confirm) {
+              wx.navigateTo({ url: '/pages/my-formulas/index' });
+            }
+          }
+        });
+      }
+    } catch (err) {
+      wx.showToast({ title: '提交失败，请重试', icon: 'none' });
+    }
   }
 });

@@ -3,28 +3,63 @@
     <view class="hero fade-in">
       <view class="hero-badge">⚡ 华佗故里 · 亳州</view>
       <view class="hero-title">AI <text class="highlight">体质养生</text><br/>管家</view>
-      <view class="hero-subtitle">华佗故里 · 亳州道地药材 · 九种体质精准调理</view>
+      <view class="hero-subtitle">华佗故里 · 九种体质精准调理 · 世界中医药康养之都</view>
       <view class="hero-stats">
         <view class="stat-item"><view class="stat-num">9</view><view class="stat-label">体质类型</view></view>
         <view class="stat-item"><view class="stat-num">20+</view><view class="stat-label">道地药材</view></view>
         <view class="stat-item"><view class="stat-num">5</view><view class="stat-label">闯关秘境</view></view>
-        <view class="stat-item"><view class="stat-num">7</view><view class="stat-label">方案模块</view></view>
+        <view class="stat-item"><view class="stat-num">10000+</view><view class="stat-label">亲身体验</view></view>
       </view>
     </view>
 
     <view class="rank-bar fade-in">
       <view class="rank-header">
         <view class="rank-title">⚔️ 我的养生战力</view>
-        <view class="rank-level" style="{{rankBadgeStyle}}" data-rank="{{rankInfo.rankName || ''}}">{{rankInfo.rankName || '青铜行者'}}</view>
+        <view class="rank-level rank-{{myRankInfo.rank_key || 'apprentice'}}">{{myRankInfo.rank_name || '养生学徒'}}</view>
       </view>
       <view class="xp-bar-bg">
-        <view class="xp-bar-fill" style="width:{{xpPercent}}%"></view>
+        <view class="xp-bar-fill" style="width:{{progressWidth}}"></view>
       </view>
-      <view class="xp-text">{{xpText || '加载中…'}}</view>
+      <view class="xp-text" wx:if="{{myRankInfo.is_max_level}}">已满级 · {{myRankInfo.rank_points || 0}} 战力</view>
+      <view class="xp-text" wx:else>距{{myRankInfo.next_rank_name || ''}}还需 {{(myRankInfo.next_threshold || 0) - (myRankInfo.rank_points || 0)}} 战力</view>
       <view class="rank-stages">
-        <view class="stage {{item.status}} rank-{{item.key}}" wx:for="{{stageList}}" wx:key="level">
+        <view class="stage {{item.status}} rank-{{item.key}}" wx:for="{{rankTiers}}" wx:key="level" wx:if="{{item.level > 0}}">
           <view class="stage-dot"></view>
           <text>{{item.short}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-header">
+      <view class="section-title">快捷入口</view>
+    </view>
+    <view class="feature-entries fade-in">
+      <view class="feature-entry" bindtap="goToMatchGame" style="border-color:rgba(107,203,119,0.3)">
+        <view class="feature-entry-icon">🎯</view>
+        <view class="feature-entry-info">
+          <view class="feature-entry-name" style="color:var(--green)">消消乐</view>
+          <view class="feature-entry-desc">药材翻牌·赢优惠券</view>
+        </view>
+      </view>
+      <view class="feature-entry" bindtap="goToAdventure" style="border-color:rgba(168,85,247,0.3)">
+        <view class="feature-entry-icon">📖</view>
+        <view class="feature-entry-info">
+          <view class="feature-entry-name" style="color:var(--accent4)">奇遇记</view>
+          <view class="feature-entry-desc">古风剧情·选择结局</view>
+        </view>
+      </view>
+      <view class="feature-entry" bindtap="goToBrainQuiz" style="border-color:rgba(255,107,157,0.3)">
+        <view class="feature-entry-icon">📚</view>
+        <view class="feature-entry-info">
+          <view class="feature-entry-name" style="color:var(--accent3)">知识答题</view>
+          <view class="feature-entry-desc">冷知识对战·赢灵力</view>
+        </view>
+      </view>
+      <view class="feature-entry" bindtap="goToDungeon" style="border-color:rgba(232,168,56,0.3)">
+        <view class="feature-entry-icon">🗺️</view>
+        <view class="feature-entry-info">
+          <view class="feature-entry-name" style="color:var(--accent1)">现世秘境</view>
+          <view class="feature-entry-desc">景区打卡·神游古迹</view>
         </view>
       </view>
     </view>
@@ -48,9 +83,9 @@
 
     <view class="section-header">
       <view class="section-title">我的养生报告</view>
-      <view class="section-more" bindtap="loadReport">🔄 刷新</view>
+      <view class="section-more" bindtap="goHistory">历史记录 ›</view>
     </view>
-    <view class="report-card fade-in" wx:if="{{report}}">
+    <view class="report-card fade-in" wx:if="{{report}}" bindtap="goReport">
       <view class="report-physical">
         <view class="physical-emoji">{{report.emoji || '💧'}}</view>
         <view>
@@ -88,6 +123,6 @@
       </view>
       <button class="open-box-btn" bindtap="goToQuiz" style="margin-top:24rpx">前往测评</button>
     </view>
-    <view style="height:160rpx;"></view>
   </scroll-view>
+  <view class="tabbar-safe-spacer"></view>
 </view>

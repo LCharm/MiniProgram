@@ -1,5 +1,6 @@
+.app-shell { height: auto; display: block; }
 .scroll-content {
-  height: 100vh;
+  min-height: 100vh;
   padding: 24rpx;
   background: var(--bg, #0f0f18);
 }

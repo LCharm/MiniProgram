@@ -15,9 +15,17 @@ page {
   --green: #71985a;
   --radius: 16px;
 
-  background-color: var(--bg);
+  background-color: #F8F6F0;
   color: var(--text);
   font-family: -apple-system, 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  box-sizing: border-box;
+}
+
+.app-shell {
+  height: 100vh;
+  background-color: var(--bg);
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
 }
 
@@ -31,4 +39,12 @@ view, text, scroll-view, image {
   width: 0;
   height: 0;
   color: transparent;
+}
+
+/* 全局底部安全区占位：自定义 TabBar (120rpx) + iOS 安全区 */
+.tabbar-safe-spacer {
+  height: calc(120rpx + env(safe-area-inset-bottom));
+  width: 100%;
+  flex-shrink: 0;
+  background: transparent;
 }

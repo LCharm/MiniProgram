@@ -1,0 +1,81 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll">
+
+    <!-- ═══════════ 顶部审判区 ═══════════ -->
+    <view class="verdict {{isDraw ? 'draw' : (isWinner ? 'win' : 'lose')}}">
+      <view class="verdict-title">{{isDraw ? '势均力敌' : (isWinner ? '大获全胜' : '惨遭掠夺')}}</view>
+      <view class="verdict-sub" wx:if="{{!isDraw}}">
+        {{isWinner ? '你掠夺了对手的灵力和战力' : '你的灵力和战力被对手夺走'}}
+      </view>
+    </view>
+
+    <!-- ═══════════ 数据对比区 ═══════════ -->
+    <view class="vs-board">
+      <!-- 比分行 -->
+      <view class="vs-row vs-score-row">
+        <view class="vs-cell {{myScore > opponentScore ? 'dominant' : ''}} {{isDraw ? '' : (isWinner ? 'winner-glow' : 'loser-dim')}}">
+          <view class="vs-label">我</view>
+          <view class="vs-name">{{myName}}</view>
+          <view class="vs-tier" wx:if="{{myTier}}">{{myTier}}</view>
+          <view class="vs-score">{{myScore}}<text class="vs-total">/{{totalQuestions}}</text></view>
+        </view>
+        <view class="vs-divider">
+          <text class="vs-vs">VS</text>
+        </view>
+        <view class="vs-cell {{opponentScore > myScore ? 'dominant' : ''}} {{isDraw ? '' : (isWinner ? 'loser-dim' : 'winner-glow')}}">
+          <view class="vs-label">对手</view>
+          <view class="vs-name">{{opponentName}}</view>
+          <view class="vs-tier" wx:if="{{opponentTier}}">{{opponentTier}}</view>
+          <view class="vs-score">{{opponentScore}}<text class="vs-total">/{{totalQuestions}}</text></view>
+        </view>
+      </view>
+
+      <!-- 分隔线 -->
+      <view class="vs-sep"></view>
+
+      <!-- 变动行 -->
+      <view class="vs-row vs-stat-row" wx:if="{{!isDraw}}">
+        <view class="vs-cell">
+          <view class="stat-item">
+            <text class="stat-dot energy-dot"></text>
+            <text class="stat-label">灵力</text>
+            <text class="stat-val {{energyChange >= 0 ? 'up' : 'down'}}">{{energyChange >= 0 ? '+' : ''}}{{energyChange}}</text>
+          </view>
+        </view>
+        <view class="vs-cell">
+          <view class="stat-item">
+            <text class="stat-dot rank-dot"></text>
+            <text class="stat-label">战力</text>
+            <text class="stat-val {{rankChange >= 0 ? 'up' : 'down'}}">{{rankChange >= 0 ? '+' : ''}}{{rankChange}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 平局：双方返还 -->
+      <view class="vs-row vs-stat-row" wx:else>
+        <view class="vs-cell full-width">
+          <view class="stat-item draw-refund">
+            <text class="stat-label">灵力返还</text>
+            <text class="stat-val">±0</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ═══════════ 掉段处刑位 ═══════════ -->
+    <view class="demotion-card" wx:if="{{isRankDown}}">
+      <view class="demotion-inner">
+        <view class="demotion-icon">⚡</view>
+        <view class="demotion-text">战力崩塌！您已跌落至</view>
+        <view class="demotion-rank">{{newRankName}}</view>
+      </view>
+    </view>
+
+    <!-- ═══════════ 底部操作区 ═══════════ -->
+    <view class="actions">
+      <button class="act-btn act-primary" bindtap="goHome">返回现世秘境</button>
+      <button class="act-btn act-ghost" bindtap="goToRank">查看战力排行</button>
+    </view>
+
+  </scroll-view>
+</view>

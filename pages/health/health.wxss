@@ -1,7 +1,7 @@
 .scroll-content {
-  height: 100vh;
-  padding-bottom: 200rpx; /* 避开底部 tabBar */
-  background: var(--bg, #0f0f18);
+  flex: 1;
+  height: 0;
+  background: var(--bg);
 }
 
 .hero {
@@ -52,10 +52,13 @@
   border-radius: 40rpx;
   font-weight: 700;
 }
-/* 白天主题：白银徽章白字浅底看不清，加暗色描边 */
-.app-shell[data-theme="day"] .rank-level[data-rank="白银药师"] {
-  -webkit-text-stroke: 1.5rpx rgba(0, 0, 0, 0.55);
-}
+/* 段位徽章配色 — 由后端 rank_key 驱动 */
+.rank-level.rank-apprentice { background: #3A3A4A; color: #B0B0C0; }
+.rank-level.rank-bronze { background: #634A35; color: #F0D9BF; }
+.rank-level.rank-silver { background: #B9BCBF; color: #1a1a2e; }
+.rank-level.rank-gold { background: #D3AD36; color: #1a1a2e; }
+.rank-level.rank-emerald { background: #2E8074; color: #D2ECE7; }
+.rank-level.rank-king { background: #9C2923; color: #FFE2A8; }
 .xp-bar-bg {
   height: 16rpx;
   background: var(--border);
@@ -69,6 +72,7 @@
   background: linear-gradient(90deg, var(--accent2), var(--accent1));
 }
 .xp-text { font-size: 20rpx; color: var(--text-sub); text-align: right; }
+
 .rank-stages { display: flex; justify-content: space-between; margin-top: 20rpx; }
 .stage { display: flex; flex-direction: column; align-items: center; gap: 6rpx; font-size: 18rpx; color: var(--text-sub); }
 .stage-dot {
@@ -76,38 +80,23 @@
   background: var(--border);
   border: 2rpx solid transparent;
 }
-
-/* ===== 段位配色 — 中式器物低饱和暖调 ===== */
-
-/* 青铜行者 — 粗陶药钵 */
-.stage.rank-bronze { color: #C49F76; }
+/* 段位点配色 — 由后端 rank_key + status 驱动 */
 .stage.rank-bronze.done .stage-dot,
 .stage.rank-bronze.current .stage-dot { background: #634A35; border-color: #C49F76; box-shadow: 0 0 8px rgba(211,175,128,0.5); }
 .stage.rank-bronze.locked .stage-dot { background: transparent; border-color: #634A35; }
 
-/* 白银药师 — 锡制药罐 */
-.stage.rank-silver { color: #F2F3F5; }
-.app-shell[data-theme="day"] .stage.rank-silver {
-  -webkit-text-stroke: 1.5rpx rgba(19, 19, 19, 0.2);
-}
 .stage.rank-silver.done .stage-dot,
 .stage.rank-silver.current .stage-dot { background: #C8C9CB; border-color: #E0E2E5; box-shadow: 0 0 8px rgba(224,226,229,0.5); }
 .stage.rank-silver.locked .stage-dot { background: transparent; border-color: #B0B3B8; }
 
-/* 黄金医士 — 鎏金医书 */
-.stage.rank-gold { color: #FFDD8A; }
 .stage.rank-gold.done .stage-dot,
 .stage.rank-gold.current .stage-dot { background: #C99F30; border-color: #FFE8A0; box-shadow: 0 0 8px rgba(255,241,182,0.5); }
 .stage.rank-gold.locked .stage-dot { background: transparent; border-color: #C99F30; }
 
-/* 翡翠圣医 — 青玉本草 */
-.stage.rank-emerald { color: #B6E9E1; }
 .stage.rank-emerald.done .stage-dot,
 .stage.rank-emerald.current .stage-dot { background: #348C7F; border-color: #63E1D0; box-shadow: 0 0 8px rgba(99,225,208,0.4); }
 .stage.rank-emerald.locked .stage-dot { background: transparent; border-color: #348C7F; }
 
-/* 华佗王者 — 朱砂鎏金（双层光晕） */
-.stage.rank-king { color: #FFD66F; }
 .stage.rank-king.done .stage-dot,
 .stage.rank-king.current .stage-dot {
   background: #8C2C26;
@@ -117,6 +106,24 @@
 .stage.rank-king.locked .stage-dot { background: transparent; border-color: #8C2C26; }
 
 .section-header { display: flex; align-items: center; justify-content: space-between; padding: 28rpx 24rpx 16rpx; }
+
+/* ===== 快捷入口 ===== */
+.feature-entries { display: grid; grid-template-columns: 1fr 1fr; gap: 16rpx; padding: 0 24rpx 10rpx; }
+.feature-entry {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28rpx 24rpx;
+  border: 2rpx solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  transition: all 0.2s;
+}
+.feature-entry:active { transform: scale(0.97); }
+.feature-entry-icon { font-size: 52rpx; flex-shrink: 0; }
+.feature-entry-info { flex: 1; }
+.feature-entry-name { font-size: 26rpx; font-weight: 700; margin-bottom: 6rpx; }
+.feature-entry-desc { font-size: 20rpx; color: var(--text-sub); line-height: 1.4; }
 .section-title { font-size: 30rpx; font-weight: 700; display: flex; align-items: center; gap: 12rpx; }
 .section-title::before { content: ''; display: block; width: 6rpx; height: 32rpx; background: var(--accent1); border-radius: 4rpx; }
 .section-more { font-size: 22rpx; color: var(--accent2); }

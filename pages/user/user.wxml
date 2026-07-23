@@ -51,7 +51,7 @@
       <view class="stat-divider"></view>
       <view class="stat-item">
         <view class="stat-num">{{isLogin ? cardCount : '--'}}</view>
-        <view class="stat-label">卡牌收集</view>
+        <view class="stat-label">药材收集</view>
       </view>
       <view class="stat-divider"></view>
       <view class="stat-item">
@@ -70,18 +70,18 @@
       </view>
       <view class="menu-item" bindtap="goToCardBook">
         <view class="menu-icon">🃏</view>
-        <view class="menu-text">秘境卡牌图鉴</view>
+        <view class="menu-text">百草药材图鉴</view>
         <view class="menu-arrow">›</view>
       </view>
       <view class="menu-item" bindtap="goToRankList">
         <view class="menu-icon">🏆</view>
         <view class="menu-text">段位排行榜</view>
-        <view class="menu-badge" wx:if="{{isLogin && currentRank}}">{{currentRank}}</view>
+        <view class="menu-badge rank-{{rankKey}}" wx:if="{{isLogin && rankName}}">{{rankName}}</view>
         <view class="menu-arrow">›</view>
       </view>
-      <view class="menu-item" bindtap="goToCollectedTeas">
+      <view class="menu-item" bindtap="goToMyFormulas">
         <view class="menu-icon">🍵</view>
-        <view class="menu-text">收藏的茶方</view>
+        <view class="menu-text">我的茶方</view>
         <view class="menu-arrow">›</view>
       </view>
       <view class="menu-item" bindtap="goToBackpack">
@@ -109,6 +109,6 @@
       </view>
     </view>
 
-    <view style="height: 160rpx;"></view>
   </scroll-view>
+  <view class="tabbar-safe-spacer"></view>
 </view>

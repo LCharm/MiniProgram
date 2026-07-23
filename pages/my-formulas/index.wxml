@@ -1,0 +1,84 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <view class="page-container">
+    <!-- 顶部 Tab 切换区 -->
+    <view class="tab-header">
+      <view class="tab-item {{currentTab === 'collected' ? 'active' : ''}}"
+            bindtap="switchTab" data-tab="collected">
+        我收藏的
+      </view>
+      <view class="tab-item {{currentTab === 'submitted' ? 'active' : ''}}"
+            bindtap="switchTab" data-tab="submitted">
+        我提交的
+      </view>
+    </view>
+
+    <!-- 列表渲染区 -->
+    <scroll-view scroll-y class="list-container">
+
+      <!-- ========== 我提交的 ========== -->
+      <block wx:if="{{currentTab === 'submitted'}}">
+        <view wx:if="{{submittedList.length > 0}}">
+          <view class="formula-card" wx:for="{{submittedList}}" wx:key="id">
+            <view class="card-header">
+              <text class="title">{{item.title}}</text>
+              <text class="status-tag status-{{item.status}}">{{item.statusText}}</text>
+            </view>
+            <view class="card-body">
+              <view class="info-row">
+                <text class="label">材料：</text>
+                <text class="value">{{item.ingredients}}</text>
+              </view>
+              <view class="info-row">
+                <text class="label">功效：</text>
+                <text class="value">{{item.efficacy}}</text>
+              </view>
+              <view class="info-row time-row">
+                <text class="time">{{item.created_at}}</text>
+              </view>
+            </view>
+            <view class="reject-reason" wx:if="{{item.status === 2 && item.reject_reason}}">
+              审核反馈：{{item.reject_reason}}
+            </view>
+          </view>
+        </view>
+        <view class="empty-state" wx:else>
+          <view class="empty-icon">📋</view>
+          <text class="empty-text">暂无提交记录</text>
+        </view>
+      </block>
+
+      <!-- ========== 我收藏的 ========== -->
+      <block wx:if="{{currentTab === 'collected'}}">
+        <view wx:if="{{collectedList.length > 0}}">
+          <view class="formula-card" wx:for="{{collectedList}}" wx:key="id">
+            <view class="card-header">
+              <text class="title">{{item.name}}</text>
+              <view class="collected-tags" wx:if="{{item.tags && item.tags.length > 0}}">
+                <text class="ctag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="t">{{t}}</text>
+              </view>
+            </view>
+            <view class="card-body">
+              <view class="info-row" wx:if="{{item.desc}}">
+                <text class="label">描述：</text>
+                <text class="value">{{item.desc}}</text>
+              </view>
+              <view class="info-row" wx:if="{{item.formula}}">
+                <text class="label">配方：</text>
+                <text class="value">{{item.formula}}</text>
+              </view>
+              <view class="info-row" wx:if="{{item.suitable}}">
+                <text class="label">适合：</text>
+                <text class="value">{{item.suitable}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="empty-state" wx:else>
+          <view class="empty-icon">🍵</view>
+          <text class="empty-text">暂无收藏记录</text>
+        </view>
+      </block>
+
+    </scroll-view>
+  </view>
+</view>

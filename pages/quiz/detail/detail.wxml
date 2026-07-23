@@ -1,0 +1,120 @@
+<!-- pages/quiz/detail/detail.wxml — 体质详情报告页 -->
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <block wx:if="{{physicalData}}">
+
+    <!-- ═══ 1. 头部：视觉重心 ═══ -->
+    <view class="d-header">
+      <image class="d-header-img" src="/images/constitutions/{{physicalData.id}}.png" mode="aspectFit"></image>
+      <view class="d-header-name">{{physicalData.name}}</view>
+    </view>
+
+    <!-- ═══ 2. 基础诊断区 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">基础诊断</view>
+      <view class="d-card">
+        <view class="d-diag-row">
+          <view class="d-diag-badge">阴阳气血</view>
+          <text class="d-diag-text">{{physicalData.overview}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- ═══ 3. 特征切片区 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">特征切片</view>
+
+      <view class="d-card d-chip">
+        <view class="d-chip-icon">🏃</view>
+        <view class="d-chip-title">形体特征</view>
+        <view class="d-chip-body">{{physicalData.features}}</view>
+      </view>
+
+      <view class="d-card d-chip">
+        <view class="d-chip-icon">🔍</view>
+        <view class="d-chip-title">常见表现</view>
+        <view class="d-chip-body">{{physicalData.manifestations}}</view>
+      </view>
+
+      <view class="d-card d-chip">
+        <view class="d-chip-icon">🧠</view>
+        <view class="d-chip-title">心理特征</view>
+        <view class="d-chip-body">{{physicalData.psychology}}</view>
+      </view>
+    </view>
+
+    <!-- ═══ 4. 风险预警区 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">风险预警</view>
+      <view class="d-card d-card-warn">
+        <view class="d-risk-item">
+          <view class="d-risk-dot"></view>
+          <view class="d-risk-info">
+            <view class="d-risk-title">易患疾病</view>
+            <view class="d-risk-text">{{physicalData.susceptibility}}</view>
+          </view>
+        </view>
+        <view class="d-risk-item">
+          <view class="d-risk-dot d-risk-dot-env"></view>
+          <view class="d-risk-info">
+            <view class="d-risk-title">环境适应</view>
+            <view class="d-risk-text">{{physicalData.environment}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ═══ 5. 核心调理区 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">核心调理</view>
+
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">🥗</text>
+          <text class="d-care-title">饮食建议</text>
+        </view>
+        <view class="d-care-content">{{physicalData.diet}}</view>
+      </view>
+
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">🏃</text>
+          <text class="d-care-title">运动方案</text>
+        </view>
+        <view class="d-care-content">{{physicalData.exercise}}</view>
+      </view>
+
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">🌙</text>
+          <text class="d-care-title">起居要点</text>
+        </view>
+        <view class="d-care-content">{{physicalData.routine}}</view>
+      </view>
+
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">🍵</text>
+          <text class="d-care-title">推荐茶方</text>
+        </view>
+        <view class="d-care-content">{{physicalData.tea}}</view>
+      </view>
+
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">📍</text>
+          <text class="d-care-title">保健穴位</text>
+        </view>
+        <view class="d-care-content">{{physicalData.acupoints}}</view>
+      </view>
+    </view>
+
+    <!-- 底部安全区占位 -->
+    <view class="d-bottom-safe"></view>
+
+  </block>
+
+  <!-- ═══ 6. 底部悬浮按钮 ═══ -->
+  <view class="d-fixed-footer">
+    <button class="d-footer-btn" bindtap="onAskAi">找华佗 AI 定制养生方案</button>
+  </view>
+</view>

@@ -16,9 +16,9 @@
           <view class="hero-title">AI<span class="highlight">配方</span><br/>生成器</view>
           <view class="hero-subtitle">道地药材 · 智能配比 · 体质精准匹配</view>
           <view class="hero-stats">
-            <view class="stat-item"><view class="stat-num">86</view><view class="stat-label">爆款茶方</view></view>
-            <view class="stat-item"><view class="stat-num">32</view><view class="stat-label">药食同源</view></view>
-            <view class="stat-item"><view class="stat-num">7</view><view class="stat-label">效果分类</view></view>
+            <view class="stat-item"><view class="stat-num">31</view><view class="stat-label">经典茶方</view></view>
+            <view class="stat-item"><view class="stat-num">23</view><view class="stat-label">道地药材</view></view>
+            <view class="stat-item"><view class="stat-num">8</view><view class="stat-label">养生场景</view></view>
           </view>
         </view>
       </view>
@@ -63,7 +63,7 @@
             wx:elif="{{f.hasRecipeReq}}"
             bindtap="handleBrew"
             data-id="{{f.id}}"
-            data-craftable="{{f.isCraftable}}">缺失药材，去获取</button>
+            data-craftable="{{f.isCraftable}}">缺失合成药材，去获取</button>
           <view class="btn-none" wx:else>暂不支持合成</view>
         </view>
       </view>
@@ -156,43 +156,46 @@
 
       <view class="section-header">
         <view class="section-title">热门创意茶方</view>
-        <view class="section-more" bindtap="submitFormula">投稿 ›</view>
       </view>
 
-      <view class="contest-grid fade-in">
-        <view class="contest-card hot" bindtap="likeFormula" data-name="熬夜护肝茶">
-          <view class="contest-icon">🌙</view>
-          <view class="contest-name">熬夜护肝茶</view>
-          <view class="contest-author">@宿舍的酸菜鱼</view>
-          <view class="contest-likes">👍 2.3k 点赞</view>
-          <view class="contest-hot-badge">🔥榜首</view>
-        </view>
-        <view class="contest-card" bindtap="likeFormula" data-name="学生素颜茶">
-          <view class="contest-icon">✨</view>
-          <view class="contest-name">学生素颜茶</view>
-          <view class="contest-author">@爱美的小周</view>
-          <view class="contest-likes">👍 1.8k 点赞</view>
-        </view>
-        <view class="contest-card" bindtap="likeFormula" data-name="久坐祛湿茶">
-          <view class="contest-icon">💼</view>
-          <view class="contest-name">久坐祛湿茶</view>
-          <view class="contest-author">@打工人小李</view>
-          <view class="contest-likes">👍 1.2k 点赞</view>
-        </view>
-        <view class="contest-card" bindtap="likeFormula" data-name="备考提神茶">
-          <view class="contest-icon">📚</view>
-          <view class="contest-name">备考提神茶</view>
-          <view class="contest-author">@考研中的阿强</view>
-          <view class="contest-likes">👍 980 点赞</view>
+      <!-- 热门列表 -->
+      <view class="hot-list" wx:if="{{publicFormulas.length > 0}}">
+        <view class="hot-card" wx:for="{{publicFormulas}}" wx:key="id">
+          <view class="card-header">
+            <text class="title">{{item.title}}</text>
+            <text class="tag" wx:if="{{item.tags}}">{{item.tags}}</text>
+          </view>
+          <view class="card-body">
+            <view class="row" wx:if="{{item.suitable_for}}"><text class="label">适合：</text>{{item.suitable_for}}</view>
+            <view class="row"><text class="label">材料：</text>{{item.ingredients}}</view>
+            <view class="row"><text class="label">功效：</text>{{item.efficacy}}</view>
+            <view class="row" wx:if="{{item.brewing_method}}"><text class="label">冲泡：</text>{{item.brewing_method}}</view>
+            <view class="row" wx:if="{{item.taboos}}"><text class="label">禁忌：</text>{{item.taboos}}</view>
+          </view>
+          <view class="card-footer">
+            <view class="meta-info">@{{item.author}} · {{item.created_at}}</view>
+            <view class="like-btn"
+                  hover-class="like-btn-hover"
+                  bindtap="handleLike"
+                  data-id="{{item.id}}">
+              <text class="icon">👍</text>
+              <text class="count">{{item.likes_count}}</text>
+            </view>
+          </view>
         </view>
       </view>
 
-      <view class="submit-section">
-        <button class="submit-formula-btn" bindtap="submitFormula">✍️ 提交我的创意配方</button>
+      <!-- 空状态 -->
+      <view class="empty-state" wx:else>
+        <view class="empty-icon">🍃</view>
+        <text class="empty-text">暂无配方，快来做第一个分享者吧</text>
+      </view>
+
+      <view class="bottom-action-bar">
+        <button class="primary-btn" bindtap="openSubmitModal">✍️ 提交我的创意配方</button>
       </view>
     </block>
 
-    <view style="height: 160rpx;"></view>
   </scroll-view>
 
   <!-- 优惠券弹窗 -->
@@ -221,6 +224,57 @@
     </view>
   </view>
 
+  <!-- 投稿表单 Modal -->
+  <view class="modal-mask" wx:if="{{showSubmitModal}}" bindtap="closeSubmitModal">
+    <view class="modal-content" catchtap="preventClose">
+      <view class="modal-title">✍️ 提交创意配方</view>
+      <!-- 标签（单选框） -->
+      <view class="form-group">
+        <view class="form-label">功效标签（选一项）</view>
+        <view class="tag-chips">
+          <view class="tag-chip {{formData.tags === item ? 'active' : ''}}"
+                wx:for="{{tagOptions}}" wx:key="*this"
+                bindtap="toggleTag" data-tag="{{item}}">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="form-group">
+        <input class="form-input" placeholder="茶方名称（如：深夜安神茶）"
+               maxlength="20"
+               value="{{formData.title}}" bindinput="onFormFieldChange" data-field="title" placeholder-class="ph-color"/>
+      </view>
+      <view class="form-group">
+        <input class="form-input" placeholder="配方材料（如：酸枣仁10克、百合5克）"
+               maxlength="100"
+               value="{{formData.ingredients}}" bindinput="onFormFieldChange" data-field="ingredients" placeholder-class="ph-color"/>
+      </view>
+      <view class="form-group">
+        <textarea class="form-textarea" placeholder="功效说明（如：安神助眠、缓解焦虑）"
+                  maxlength="200"
+                  value="{{formData.efficacy}}" bindinput="onFormFieldChange" data-field="efficacy" placeholder-class="ph-color"/>
+      </view>
+      <view class="form-group">
+        <input class="form-input" placeholder="适用人群（如：熬夜上班族、中老年）"
+               maxlength="200"
+               value="{{formData.suitable_for}}" bindinput="onFormFieldChange" data-field="suitable_for" placeholder-class="ph-color"/>
+      </view>
+      <view class="form-group">
+        <textarea class="form-textarea form-textarea-sm" placeholder="冲泡方法（如：85°C热水冲泡3分钟）"
+                  maxlength="500"
+                  value="{{formData.brewing_method}}" bindinput="onFormFieldChange" data-field="brewing_method" placeholder-class="ph-color"/>
+      </view>
+      <view class="form-group">
+        <input class="form-input" placeholder="禁忌（如：孕妇慎用、体寒者减量）"
+               maxlength="500"
+               value="{{formData.taboos}}" bindinput="onFormFieldChange" data-field="taboos" placeholder-class="ph-color"/>
+      </view>
+      <view class="modal-actions">
+        <button class="btn-cancel" bindtap="closeSubmitModal">取消</button>
+        <button class="btn-submit" bindtap="handleSubmitAction">提交审核</button>
+      </view>
+    </view>
+  </view>
+
   <!-- 熬制成功结算弹窗 -->
   <view class="brew-success-overlay" wx:if="{{showSuccessModal}}" bindtap="closeSuccessModal">
     <view class="brew-success-modal" catchtap="">
@@ -232,4 +286,5 @@
       <button class="bs-btn" bindtap="closeSuccessModal">收入背包</button>
     </view>
   </view>
+  <view class="tabbar-safe-spacer"></view>
 </view>

@@ -1,6 +1,7 @@
 .scroll-content {
-  height: 100vh;
-  background: var(--bg, #0f0f18);
+  flex: 1;
+  height: 0;
+  background: var(--bg);
 }
 
 /* 头部 Banner */
@@ -35,27 +36,49 @@
 
 /* 标题样式 */
 .section-header { display: flex; align-items: center; justify-content: space-between; padding: 28rpx 24rpx 16rpx; }
-.section-title { font-size: 30rpx; font-weight: 700; display: flex; align-items: center; gap: 12rpx; }
-.section-title::before { content: ''; display: block; width: 6rpx; height: 32rpx; background: var(--accent1); border-radius: 4rpx; }
+.section-title {
+  font-size: 32rpx; font-weight: 800;
+  color: var(--text);
+  margin-bottom: 32rpx;
+  position: relative;
+  padding-left: 24rpx;
+  display: flex;
+  align-items: center;
+}
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8rpx;
+  height: 30rpx;
+  background: #e8a838;
+  border-radius: 4rpx;
+}
 
 /* 九宫格 */
 .physical-types {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16rpx;
+  gap: 20rpx;
   padding: 0 24rpx 20rpx;
 }
 .physical-chip {
   background: var(--card);
   border: 2rpx solid var(--border);
   border-radius: 20rpx;
-  padding: 24rpx 12rpx;
-  text-align: center;
+  padding: 24rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
   transition: all 0.2s;
 }
 .physical-chip.active { border-color: var(--accent1); background: rgba(232, 168, 56, 0.1); }
-.physical-chip .emoji { font-size: 44rpx; display: block; margin-bottom: 8rpx; }
-.physical-chip .name { font-size: 24rpx; font-weight: bold; }
+.physical-chip-img { width: 120rpx; height: 120rpx; display: block; border-radius: 50%; margin-bottom: 0; }
+.physical-chip .name { font-size: 26rpx; font-weight: bold; color: var(--text); }
 
 /* 问卷答题区 */
 .quiz-card-wrapper {
@@ -109,9 +132,55 @@
 .step-gender, .step-intermission { text-align: center; }
 .gender-title, .intermission-title { font-size: 32rpx; font-weight: 800; margin-bottom: 40rpx; }
 .intermission-desc { font-size: 26rpx; color: var(--text-sub); line-height: 1.6; margin-bottom: 60rpx; text-align: left; }
-.gender-options { display: flex; gap: 40rpx; justify-content: center; }
-.gender-card { background: var(--surface); border: 2rpx solid var(--border); border-radius: var(--radius); width: 200rpx; height: 240rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 32rpx; font-weight: bold; }
-.gender-icon { font-size: 80rpx; margin-bottom: 20rpx; }
+.gender-options {
+  display: flex; justify-content: space-evenly;
+  margin-top: 40rpx;
+}
+.gender-card {
+  display: flex; flex-direction: column; align-items: center;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+.gender-card.active { opacity: 1; transform: scale(1.05); }
+.avatar-wrapper {
+  width: 220rpx; height: 220rpx;
+  background: var(--card);
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  border: 4rpx solid transparent;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
+}
+.gender-card.active .avatar-wrapper {
+  border-color: #e8a838;
+  background: rgba(232, 168, 56, 0.1);
+  box-shadow: 0 0 30rpx rgba(232, 168, 56, 0.2);
+}
+.gender-avatar { width: 80%; height: 80%; display: block; }
+.gender-label { font-size: 32rpx; font-weight: bold; color: var(--text); letter-spacing: 8rpx; }
+
+/* 开始测评按钮 */
+.action-section { margin-top: 70rpx; margin-bottom: 40rpx; display: flex; justify-content: center; }
+.start-btn {
+  width: 80%; height: 96rpx; border-radius: 48rpx;
+  background: var(--surface);
+  color: var(--text-sub);
+  font-size: 32rpx; font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s ease;
+  border: 2rpx solid var(--border);
+}
+.start-btn[disabled] {
+  background: var(--surface) !important;
+  color: var(--text-sub) !important;
+}
+.start-btn.ready {
+  background: linear-gradient(135deg, #e8a838, #d49324);
+  color: #fff;
+  box-shadow: 0 12rpx 24rpx rgba(232, 168, 56, 0.25);
+  transform: translateY(-4rpx);
+}
 
 /* 舌象空壳 */
 .tongue-entry {
@@ -135,7 +204,7 @@
   border-bottom: 2rpx solid var(--border);
   margin-bottom: 28rpx;
 }
-.result-emoji { font-size: 96rpx; margin-bottom: 12rpx; }
+.result-emoji-img { width: 160rpx; height: 160rpx; margin: 0 auto 12rpx; display: block; border-radius: 50%; }
 .result-type {
   font-size: 44rpx;
   font-weight: 900;
@@ -220,6 +289,15 @@
 
 .result-actions { margin-top: 32rpx; }
 .result-actions .nav-btn { width: 100% !important; }
+.report-link-btn {
+  background: linear-gradient(135deg, #43A047, #2E7D32) !important;
+  color: #fff !important;
+  animation: reportPulse 2s ease-in-out infinite;
+}
+@keyframes reportPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.4); }
+  50% { box-shadow: 0 0 0 12rpx rgba(67, 160, 71, 0); }
+}
 
 /* ===== 神游古迹景点答题 ===== */
 .lm-scroll-bg {

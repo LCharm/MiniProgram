@@ -3,7 +3,7 @@
 
     <!-- 收集进度 -->
     <view class="book-header fade-in">
-      <view class="book-title">🃏 秘境卡牌图鉴</view>
+      <view class="book-title">百草药材图鉴</view>
       <view class="book-progress">已集齐 {{unlockedCount}} / {{totalCount}}</view>
       <view class="book-bar-bg"><view class="book-bar-fill" style="width:{{unlockedCount / totalCount * 100}}%"></view></view>
     </view>
@@ -20,20 +20,16 @@
     <view wx:else class="card-grid fade-in">
       <view class="card-item {{item.is_unlocked ? 'herb-unlocked' : 'herb-locked'}} {{item.tier === 'rare' ? 'rare' : ''}}"
             wx:for="{{cards}}" wx:key="item_id"
-            wx:if="{{filter === 'all' || (filter === 'unlocked' && item.is_unlocked) || (filter === 'locked' && !item.is_unlocked)}}">
-        <!-- 稀有标记 -->
+            wx:if="{{filter === 'all' || (filter === 'unlocked' && item.is_unlocked) || (filter === 'locked' && !item.is_unlocked)}}"
+            bindtap="onCardTap" data-item-id="{{item.item_id}}" data-quantity="{{item.quantity}}">
         <view class="card-tier-badge" wx:if="{{item.tier === 'rare'}}">稀有</view>
-        <!-- 数量角标 -->
-        <view class="card-qty-badge" wx:if="{{item.is_unlocked && item.quantity > 1}}">×{{item.quantity}}</view>
+        <view class="card-qty-badge" wx:if="{{item.is_unlocked && item.quantity > 0}}">{{item.quantity}}</view>
         <image class="card-img" src="{{item.icon_url}}" mode="aspectFit" wx:if="{{item.icon_url}}"></image>
-        <view class="card-emoji" wx:else>🌿</view>
-        <view class="card-name">{{item.name}}</view>
-        <view class="card-label">{{item.label || item.desc}}</view>
+        <image class="card-img" src="/images/herbs/{{item.item_id}}.png" mode="aspectFit" wx:else></image>
         <view class="card-tips" wx:if="{{!item.is_unlocked && item.unlock_tips}}">{{item.unlock_tips}}</view>
-        <view class="card-unlocked-mark" wx:elif="{{item.is_unlocked}}">✓ 已解锁</view>
+        <view class="card-unlocked-mark" wx:elif="{{item.is_unlocked}}">已解锁</view>
       </view>
     </view>
 
-    <view style="height: 80rpx;"></view>
   </scroll-view>
 </view>

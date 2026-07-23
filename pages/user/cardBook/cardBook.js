@@ -1,4 +1,4 @@
-// pages/user/cardBook/cardBook.js - 秘境卡牌图鉴
+// pages/user/cardBook/cardBook.js - 百草药材图鉴
 const { getCardBook } = require('../../../services/game');
 
 Page({
@@ -42,6 +42,13 @@ Page({
 
   switchFilter(e) {
     this.setData({ filter: e.currentTarget.dataset.filter });
+  },
+
+  onCardTap(e) {
+    const { itemId, quantity } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: '/pages/user/cardBook/detail/detail?itemId=' + encodeURIComponent(itemId) + '&quantity=' + (quantity || 0),
+    });
   },
 
   onPullDownRefresh() {

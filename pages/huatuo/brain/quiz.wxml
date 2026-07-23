@@ -1,0 +1,124 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll-content">
+
+    <!-- ═══════════ 等待对手交卷 ═══════════ -->
+    <view class="wait-card fade-in" wx:if="{{waitingOpponent}}">
+      <view class="wait-icon">⏳</view>
+      <view class="wait-title">已提交，等待对手交卷</view>
+      <view class="wait-desc">答案已锁定，双方交卷后自动结算</view>
+      <view class="wait-share-tip">分享给好友，提醒ta快来答题</view>
+      <button class="share-btn" open-type="share">📤 分享房间</button>
+    </view>
+
+    <!-- ═══════════ 好友对战结算 ═══════════ -->
+    <view class="result-card fade-in" wx:elif="{{battleReport}}">
+      <view class="result-icon">{{battleReport.result === 'win' ? '🏆' : (battleReport.result === 'lose' ? '💔' : '🤝')}}</view>
+      <view class="result-title">{{battleReport.result === 'win' ? '你赢了！' : (battleReport.result === 'lose' ? '你输了' : '平局')}}</view>
+
+      <view class="battle-scoreboard">
+        <view class="battle-player {{battleReport.winner === 'creator' ? 'winner' : ''}}">
+          <view class="battle-player-name">{{battleReport.creator_name || '发起者'}}</view>
+          <view class="battle-player-tier">{{battleReport.creator_tier || ''}}</view>
+          <view class="battle-player-score">{{battleReport.creator_score}} / {{battleReport.total_questions}}</view>
+        </view>
+        <view class="battle-vs">VS</view>
+        <view class="battle-player {{battleReport.winner === 'challenger' ? 'winner' : ''}}">
+          <view class="battle-player-name">{{battleReport.challenger_name || '挑战者'}}</view>
+          <view class="battle-player-tier">{{battleReport.challenger_tier || ''}}</view>
+          <view class="battle-player-score">{{battleReport.challenger_score}} / {{battleReport.total_questions}}</view>
+        </view>
+      </view>
+
+      <view class="result-changes">
+        <view class="change-item" wx:if="{{battleReport.energy_change > 0}}">
+          <text class="change-label">灵力</text>
+          <text class="change-val up">+{{battleReport.energy_change}}</text>
+        </view>
+        <view class="change-item" wx:elif="{{battleReport.energy_change < 0}}">
+          <text class="change-label">灵力</text>
+          <text class="change-val down">{{battleReport.energy_change}}</text>
+        </view>
+        <view class="change-item" wx:if="{{battleReport.rank_change > 0}}">
+          <text class="change-label">战力</text>
+          <text class="change-val up">+{{battleReport.rank_change}}</text>
+        </view>
+        <view class="change-item" wx:elif="{{battleReport.rank_change < 0}}">
+          <text class="change-label">战力</text>
+          <text class="change-val down">{{battleReport.rank_change}}</text>
+        </view>
+      </view>
+
+      <view class="demotion-warn" wx:if="{{battleReport.demotion && battleReport.demotion.demoted}}">
+        <text>⚠️ 段位降级：{{battleReport.demotion.from}} → {{battleReport.demotion.to}}</text>
+      </view>
+
+      <view class="result-actions">
+        <button class="nav-btn retry-btn" bindtap="goBack">返回</button>
+        <button class="nav-btn share-btn" open-type="share">📤 分享</button>
+      </view>
+    </view>
+
+    <!-- ═══════════ 单人结算 ═══════════ -->
+    <view class="result-card fade-in" wx:elif="{{soloResult}}">
+      <view class="result-icon">{{soloResult.total_correct >= 4 ? '🎉' : (soloResult.total_correct >= 2 ? '👍' : '💪')}}</view>
+      <view class="result-score">{{soloResult.total_correct}}<text class="result-total">/{{soloResult.total_questions}}</text></view>
+      <view class="result-energy">+{{soloResult.earned_energy}} 灵力</view>
+
+      <view class="detail-list">
+        <view class="detail-item {{item.is_correct ? 'right' : 'wrong'}}"
+              wx:for="{{soloResult.details}}" wx:key="question_id">
+          <view class="detail-q">{{item.content}}</view>
+          <view class="detail-ans">你的答案: {{item.user_answer}} | 正确答案: {{item.correct_answer}}</view>
+        </view>
+      </view>
+
+      <view class="result-actions">
+        <button class="nav-btn retry-btn" bindtap="goBack">返回大厅</button>
+      </view>
+    </view>
+
+    <!-- ═══════════ 答题中 ═══════════ -->
+    <view class="quiz-card fade-in" wx:else>
+      <view class="quiz-header">
+        <text class="quiz-progress">第 {{currentIdx + 1}} / {{questions.length}} 题</text>
+        <view class="quiz-bar-bg">
+          <view class="quiz-bar-fill" style="width:{{(currentIdx / questions.length) * 100}}%"></view>
+        </view>
+        <!-- 倒计时 -->
+        <view class="quiz-timer {{timerSec <= 5 ? 'urgent' : ''}}">
+          <text class="quiz-timer-text">{{timerSec}}s</text>
+          <view class="quiz-timer-bg">
+            <view class="quiz-timer-fill" style="width:{{timerWidth}}%"></view>
+          </view>
+        </view>
+        <text class="quiz-mode-tag">{{mode === 'battle' ? '⚔️ 对决' : '🧘 修行'}}</text>
+      </view>
+
+      <view class="quiz-q no-select" bindlongpress="noop">{{questions[currentIdx].content}}</view>
+
+      <view class="quiz-options no-select" bindlongpress="noop">
+        <view class="quiz-opt {{selectedChoice === item.key ? 'selected' : ''}}"
+              wx:for="{{questions[currentIdx].options}}" wx:key="key"
+              bindtap="selectAnswer" data-idx="{{index}}">
+          <text class="quiz-opt-key">{{item.key}}</text>
+          <text class="quiz-opt-text">{{item.text}}</text>
+        </view>
+      </view>
+
+      <view class="quiz-hint">⚡ 10秒极限作答！超时自动提交</view>
+
+      <!-- 对战模式下显示分享按钮 -->
+      <view class="quiz-share-row" wx:if="{{mode === 'battle'}}">
+        <text class="quiz-share-label">邀请好友前来应战</text>
+        <button class="quiz-share-btn" open-type="share">邀请好友对战</button>
+      </view>
+    </view>
+
+  </scroll-view>
+
+  <!-- 模糊遮罩：分享/切后台时覆盖题目内容 -->
+  <view class="blur-overlay" wx:if="{{blurContent}}">
+    <view class="blur-overlay-bg"></view>
+    <view class="blur-overlay-text">分享中...</view>
+  </view>
+</view>

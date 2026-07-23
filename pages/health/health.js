@@ -8,7 +8,8 @@ const DEFAULT_TASKS = [
   { id: 'sleep', type: 'sleep', text: '早睡打卡（23:00前）', reward: '+20灵力', action: 'clock' },
   { id: 'water', type: 'water', text: '晨起喝水记录', reward: '+15灵力', action: 'clock' },
   { id: 'exercise', type: 'exercise', text: '今日运动30分钟', reward: '+25灵力', action: 'clock' },
-  { id: 'quiz', type: 'quiz', text: '完成养生答题', reward: '+30灵力', action: 'navigate', url: '/pages/huatuo/huatuo' },
+  { id: 'quiz', type: 'quiz', text: '完成养生答题', reward: '+25灵力', action: 'navigate', url: '/pages/huatuo/huatuo' },
+  { id: 'bind_ssc', type: 'bind_ssc', text: '授权绑定本地电子社保卡', reward: '+100灵力', action: 'navigate', url: '/pages/bind-ssc/bind-ssc' },
 ];
 
 const CONST_EMOJI = {
@@ -77,23 +78,15 @@ Page({
   data: {
     currentTheme: 'warm',
     userInfo: null,
-    rankInfo: null,
+    myRankInfo: null,
+    rankTiers: [],
+    progressWidth: '0%',
     dailyTasks: DEFAULT_TASKS,
     solarTerm: null,
     report: null,
     rec: null,
     loading: true,
     todayClocks: {},
-    rankStages: [
-      { name: '青铜行者', short: '青铜', level: 1, key: 'bronze', bg: '#72563E', text: '#F0D9BF' },
-      { name: '白银药师', short: '白银', level: 2, key: 'silver', bg: '#B9BCBF', text: '#FFFFFF' },
-      { name: '黄金医士', short: '黄金', level: 3, key: 'gold', bg: '#D3AD36', text: '#FFF7DD' },
-      { name: '翡翠圣医', short: '翡翠', level: 4, key: 'emerald', bg: '#2E8074', text: '#D2ECE7' },
-      { name: '华佗王者', short: '王者', level: 5, key: 'king', bg: '#9C2923', text: '#FFE2A8' },
-    ],
-    stageList: [],
-    xpPercent: 0,
-    xpText: '',
   },
 
   async onLoad() {
@@ -183,31 +176,20 @@ Page({
         getDailyTasks(),
         getSolarTermInfo(),
       ]);
-      const currentLevel = (rankInfo && rankInfo.level) || 1;
-      const stageList = this.data.rankStages.map(s => ({
-        ...s,
-        status: s.level < currentLevel ? 'done' : s.level === currentLevel ? 'current' : 'locked'
-      }));
-      const currentRankStage = this.data.rankStages.find(
-        s => s.level === currentLevel
-      );
-      const rankBadgeStyle = currentRankStage
-        ? `background:${currentRankStage.bg};color:${currentRankStage.text}`
-        : '';
-      const nextStage = this.data.rankStages.find(s => s.level === currentLevel + 1);
-      const xpCurrent = rankInfo?.xp || rankInfo?.power || 0;
-      const xpNext = rankInfo?.nextXp || rankInfo?.nextPower || 1000;
-      const xpPercent = Math.min(100, Math.round((xpCurrent / xpNext) * 100));
-      const xpText = nextStage
-        ? `战力 ${xpCurrent} / ${xpNext} → 升级${nextStage.name}`
-        : `战力 ${xpCurrent} — 已达最高段位`;
+
+      // 进度条完全由后端 get_rank_info 驱动
+      let progressWidth = '100%';
+      if (rankInfo && !rankInfo.is_max_level) {
+        progressWidth = Math.min(100, Math.round(
+          (rankInfo.rank_points / rankInfo.next_threshold) * 100
+        )) + '%';
+      }
+
       this.setData({
         userInfo: app.globalData.userInfo,
-        rankInfo,
-        rankBadgeStyle,
-        stageList,
-        xpPercent,
-        xpText,
+        myRankInfo: rankInfo,
+        rankTiers: (rankInfo && rankInfo.all_tiers) ? rankInfo.all_tiers : [],
+        progressWidth,
         dailyTasks: this.ensureTaskType(tasks).length ? tasks : DEFAULT_TASKS,
         solarTerm,
         loading: false,
@@ -235,6 +217,33 @@ Page({
     const { type, label, action, url } = e.currentTarget.dataset;
     const key = type || String(e.currentTarget.dataset.id || '');
     if (!key) return;
+
+    // 社保卡绑定：模拟授权流程后再调后端
+    if (key === 'bind_ssc') {
+      if (this.data.todayClocks[key]) {
+        wx.showToast({ title: '已完成', icon: 'none' });
+        return;
+      }
+      wx.showLoading({ title: '[模拟] 连接人社系统...', mask: true });
+      setTimeout(() => {
+        wx.showLoading({ title: '[模拟] 拉取电子社保凭证...', mask: true });
+        setTimeout(async () => {
+          wx.hideLoading();
+          wx.showToast({ title: '[模拟] 社保卡绑定成功', icon: 'success' });
+          try {
+            await completeTask(key);
+            const clocks = { ...this.data.todayClocks, [key]: true };
+            this.setData({ todayClocks: clocks });
+          } catch (err) {
+            if (err.code === 400) {
+              const clocks = { ...this.data.todayClocks, [key]: true };
+              this.setData({ todayClocks: clocks });
+            }
+          }
+        }, 800);
+      }, 800);
+      return;
+    }
 
     if (action === 'navigate') {
       if (this.data.todayClocks[key]) {
@@ -281,17 +290,35 @@ Page({
 
   onBoxDone(e) {
     if (e.detail && e.detail.success) {
-      this.fetchUserStats();
-      this.loadDailyTasks();
+      this.loadPageData();
     }
   },
 
   viewAllTasks() {
-    wx.showToast({ title: '更多任务开发中', icon: 'none' });
+    wx.navigateTo({ url: '/pages/health/tasks/tasks' });
   },
 
   goToQuiz() {
     wx.switchTab({ url: '/pages/quiz/quiz' });
+  },
+
+  goToMatchGame() {
+    wx.setStorageSync('teaSubTab', 'game');
+    wx.switchTab({ url: '/pages/tea/tea' });
+  },
+
+  goToAdventure() {
+    wx.navigateTo({ url: '/pages/adventure/adventure' });
+  },
+
+  goToBrainQuiz() {
+    wx.setStorageSync('huatuoSubTab', 'quiz');
+    wx.switchTab({ url: '/pages/huatuo/huatuo' });
+  },
+
+  goToDungeon() {
+    wx.setStorageSync('huatuoSubTab', 'dungeon');
+    wx.switchTab({ url: '/pages/huatuo/huatuo' });
   },
 
   goTongue() {
@@ -302,14 +329,18 @@ Page({
     wx.navigateTo({ url: '/pages/health/report/report' });
   },
 
+  goHistory() {
+    wx.navigateTo({ url: '/pages/health/history/history' });
+  },
+
   goStation() {
     wx.showToast({ title: '养生驿站功能开发中', icon: 'none' });
   },
 
   onShareAppMessage() {
-    const rank = this.data.rankInfo;
+    const rank = this.data.myRankInfo;
     return {
-      title: `我在华佗养生秘境达到了${rank?.rankName || '白银药师'}段位！`,
+      title: `我在华佗养生秘境达到了${rank?.rank_name || '养生学徒'}段位！`,
       path: '/pages/health/health',
       imageUrl: '',
     };

@@ -1,0 +1,77 @@
+/* pages/user/cardBook/detail/detail.wxss — 药材详情页 */
+.app-shell { height: auto; display: block; padding: 24rpx 24rpx 80rpx; min-height: 100vh; background: var(--bg); box-sizing: border-box; }
+
+/* ═══════════ 1. 头部 ═══════════ */
+.d-header { text-align: center; padding: 48rpx 16rpx 36rpx; border-bottom: 2rpx solid var(--border); margin-bottom: 28rpx; }
+/* 药材图片占位区 */
+.d-img-box {
+  width: 160rpx; height: 160rpx; margin: 0 auto 20rpx;
+  border-radius: 50%; background: var(--card);
+  border: 4rpx solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.d-img { width: 100%; height: 100%; border-radius: 50%; }
+.d-header-name { font-size: 44rpx; font-weight: 900; color: var(--text); letter-spacing: 6rpx; margin-bottom: 16rpx; }
+.d-tier-row { display: flex; justify-content: center; gap: 16rpx; align-items: center; }
+.d-tier-badge { font-size: 22rpx; font-weight: 700; padding: 6rpx 22rpx; border-radius: 20rpx; }
+.tier-SSR { background: linear-gradient(135deg, #e8a838, #d4145a); color: #fff; }
+.tier-SR { background: linear-gradient(135deg, #8e5cc8, #c8a2c8); color: #fff; }
+.tier-R { background: linear-gradient(135deg, #5b8def, #a0c4ff); color: #fff; }
+.tier-N { background: var(--border); color: var(--text-sub); }
+.d-own-badge { font-size: 22rpx; font-weight: 600; color: var(--accent2); background: rgba(232,168,56,.12); padding: 6rpx 18rpx; border-radius: 20rpx; }
+
+/* ═══════════ 通用区块 ═══════════ */
+.d-section { margin-bottom: 28rpx; }
+.d-section-label { font-size: 22rpx; font-weight: 700; color: var(--accent1); letter-spacing: 4rpx; margin-bottom: 16rpx; text-transform: uppercase; }
+.d-card { background: var(--card); border: 2rpx solid var(--border); border-radius: 16rpx; padding: 24rpx; }
+
+/* ═══════════ 2. 性味归经 ═══════════ */
+.d-prop-row { display: flex; gap: 12rpx; }
+.d-prop-item { flex: 1; text-align: center; }
+.d-prop-icon { font-size: 36rpx; margin-bottom: 6rpx; }
+.d-prop-label { font-size: 20rpx; color: var(--text-sub); margin-bottom: 4rpx; }
+.d-prop-value { font-size: 24rpx; font-weight: 700; color: var(--text); }
+
+/* ═══════════ 3. 功效主治 ═══════════ */
+.d-eff-row { display: flex; align-items: flex-start; gap: 14rpx; }
+.d-eff-badge { flex-shrink: 0; font-size: 20rpx; color: var(--accent1); background: rgba(232,168,56,.12); padding: 4rpx 14rpx; border-radius: 8rpx; }
+.d-eff-text { font-size: 24rpx; color: var(--text); line-height: 1.85; }
+.d-eff-sep { height: 2rpx; background: var(--border); margin: 18rpx 0; }
+
+/* ═══════════ 4. 食用禁忌区 ═══════════ */
+.d-card-warn { background: rgba(184,84,64,.06); border-color: rgba(184,84,64,.2); margin-bottom: 16rpx; }
+.d-card-warn:last-child { margin-bottom: 0; }
+.d-card-safe { background: rgba(46,160,67,.06); border-color: rgba(46,160,67,.2); margin-top: 16rpx; }
+.d-taboo-head { margin-bottom: 12rpx; }
+.d-taboo-title { font-size: 24rpx; font-weight: 700; color: #b85440; }
+.d-taboo-title.safe { color: #2ea043; }
+.d-taboo-text { font-size: 24rpx; color: var(--text-sub); line-height: 1.85; }
+
+/* ═══════════ 5. 用法用量 ═══════════ */
+.d-care-card { margin-bottom: 14rpx; }
+.d-care-card:last-child { margin-bottom: 0; }
+.d-care-head { display: flex; align-items: center; gap: 10rpx; margin-bottom: 12rpx; }
+.d-care-icon { font-size: 28rpx; }
+.d-care-title { font-size: 24rpx; font-weight: 700; color: var(--text); }
+.d-care-content { font-size: 24rpx; color: var(--text-sub); line-height: 1.85; }
+.d-care-tags { display: flex; flex-wrap: wrap; gap: 10rpx; }
+.d-care-tag { font-size: 22rpx; color: var(--accent1); background: rgba(232,168,56,.1); padding: 6rpx 18rpx; border-radius: 20rpx; }
+
+/* ═══════════ 底部安全区 ═══════════ */
+.d-bottom-safe { height: 40rpx; }
+
+/* ═══════════ 底部悬浮按钮 ═══════════ */
+.d-fixed-footer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom));
+  background: var(--bg);
+  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.06);
+}
+.d-footer-btn {
+  width: 100%; height: 88rpx; line-height: 88rpx;
+  background: var(--accent1); color: #1a1412;
+  border-radius: 44rpx; font-size: 28rpx; font-weight: 700;
+  letter-spacing: 2rpx; border: none; padding: 0; text-align: center;
+}
+.d-footer-btn::after { border: none; }

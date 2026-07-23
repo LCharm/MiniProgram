@@ -12,7 +12,7 @@
         <view class="my-rank-info">
           <view class="my-rank-name">
             <text>{{myRank.nickname || '养生行者'}}</text>
-            <view class="tier-badge">{{myRank.tier_name || '养生学徒'}}</view>
+            <view class="tier-badge rank-{{myRank.rank_key}}">{{myRank.rank_name || '养生学徒'}}</view>
           </view>
           <view class="my-rank-score">战力 {{myRank.score}}</view>
         </view>
@@ -43,7 +43,7 @@
           </view>
           <view class="rank-name">
             <text>{{item.nickname || '养生行者'}}</text>
-            <view class="tier-badge">{{item.tier_name || '养生学徒'}}</view>
+            <view class="tier-badge rank-{{item.rank_key}}">{{item.rank_name || '养生学徒'}}</view>
           </view>
           <view class="rank-score">{{item.score}} 战力</view>
           <view class="rank-me-tag" wx:if="{{item.is_me}}">我</view>
@@ -51,6 +51,5 @@
       </block>
     </view>
 
-    <view style="height: 80rpx;"></view>
   </scroll-view>
 </view>

@@ -1,6 +1,8 @@
 <view class="app-shell" data-theme="{{currentTheme}}">
   <scroll-view scroll-y class="scroll-content">
 
+    <view class="history-link" wx:if="{{report}}" bindtap="goToHistory">📊 历史记录 ›</view>
+
     <!-- 空状态 -->
     <view class="empty-state fade-in" wx:if="{{!report}}">
       <view class="empty-emoji">📋</view>
@@ -70,11 +72,10 @@
       </view>
 
       <view class="action-btns">
+        <button class="cta-btn share-btn" open-type="share">📤 分享我的体质报告</button>
         <button class="cta-btn" bindtap="goBack">返回首页</button>
-        <button class="secondary-btn" bindtap="goToQuiz">重新测评</button>
       </view>
 
-      <view style="height:80rpx;"></view>
     </block>
 
   </scroll-view>

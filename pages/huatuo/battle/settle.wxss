@@ -1,0 +1,219 @@
+.app-shell { height: auto; display: block; }
+.scroll {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ═══════════ 顶部审判区 ═══════════ */
+.verdict {
+  text-align: center;
+  padding: 72rpx 32rpx 40rpx;
+}
+.verdict-title {
+  font-size: 68rpx;
+  font-weight: 900;
+  letter-spacing: 8rpx;
+}
+.verdict.win .verdict-title {
+  color: #e8a838;
+  text-shadow: 0 0 60rpx rgba(232, 168, 56, 0.35);
+}
+.verdict.lose .verdict-title {
+  color: #585858;
+  text-shadow: none;
+}
+.verdict.draw .verdict-title {
+  color: var(--text-sub);
+}
+.verdict-sub {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--text-sub);
+  letter-spacing: 2rpx;
+  opacity: 0.8;
+}
+
+/* ═══════════ VS 对比卡 ═══════════ */
+.vs-board {
+  margin: 0 24rpx;
+  background: var(--card);
+  border: 2rpx solid var(--border);
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+.vs-row {
+  display: flex;
+  align-items: stretch;
+}
+.vs-score-row {
+  padding: 36rpx 20rpx 28rpx;
+}
+.vs-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  transition: opacity 0.3s;
+}
+.vs-cell.winner-glow {
+  position: relative;
+}
+.vs-cell.loser-dim {
+  opacity: 0.5;
+}
+.vs-label {
+  font-size: 20rpx;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 4rpx;
+  margin-bottom: 2rpx;
+}
+.vs-name {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--text);
+}
+.vs-tier {
+  font-size: 20rpx;
+  color: var(--text-sub);
+  opacity: 0.7;
+}
+.vs-score {
+  font-size: 52rpx;
+  font-weight: 900;
+  color: var(--text);
+  margin-top: 8rpx;
+}
+.vs-cell.dominant .vs-score {
+  color: var(--accent1);
+}
+.vs-total {
+  font-size: 28rpx;
+  font-weight: 400;
+  color: var(--text-sub);
+  margin-left: 4rpx;
+}
+.vs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 60rpx;
+}
+.vs-vs {
+  font-size: 22rpx;
+  font-weight: 900;
+  color: var(--text-sub);
+  opacity: 0.35;
+  letter-spacing: 2rpx;
+}
+
+/* 分隔线 */
+.vs-sep {
+  height: 2rpx;
+  background: var(--border);
+  margin: 0 24rpx;
+}
+
+/* 变动统计行 */
+.vs-stat-row {
+  padding: 24rpx 20rpx 28rpx;
+}
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.stat-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.energy-dot { background: var(--accent2); }
+.rank-dot { background: var(--accent1); }
+.stat-label {
+  font-size: 22rpx;
+  color: var(--text-sub);
+}
+.stat-val {
+  font-size: 28rpx;
+  font-weight: 700;
+  margin-left: auto;
+  letter-spacing: 1rpx;
+}
+.stat-val.up { color: var(--green); }
+.stat-val.down { color: var(--accent3); }
+
+/* 平局 */
+.vs-cell.full-width {
+  flex: 2;
+}
+.draw-refund {
+  justify-content: center;
+}
+.draw-refund .stat-val {
+  color: var(--text-sub);
+  margin-left: 8rpx;
+}
+
+/* ═══════════ 掉段处刑位 ═══════════ */
+.demotion-card {
+  margin: 32rpx 24rpx 0;
+  background: linear-gradient(135deg, #6b1a1a, #8b2020);
+  border: 2rpx dashed rgba(255, 255, 255, 0.25);
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+.demotion-inner {
+  padding: 36rpx 32rpx;
+  text-align: center;
+}
+.demotion-icon {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+.demotion-text {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 2rpx;
+}
+.demotion-rank {
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 8rpx;
+  letter-spacing: 6rpx;
+  text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.4);
+}
+
+/* ═══════════ 底部操作 ═══════════ */
+.actions {
+  margin: 48rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.act-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  border: none;
+  padding: 0;
+  text-align: center;
+}
+.act-btn::after { border: none; }
+.act-primary {
+  background: var(--accent1);
+  color: #1a1412;
+}
+.act-ghost {
+  background: transparent;
+  color: var(--text-sub);
+  border: 2rpx solid var(--border) !important;
+}

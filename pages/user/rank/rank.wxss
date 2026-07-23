@@ -1,7 +1,8 @@
 /* pages/user/rank/rank.wxss - 总战力排行榜 */
 
+.app-shell { height: auto; display: block; }
 .scroll-content {
-  height: 100vh;
+  min-height: 100vh;
   background: var(--bg);
 }
 

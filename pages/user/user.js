@@ -14,7 +14,7 @@ Page({
     nickName: '',
     totalPower: 0,
     spiritualEnergy: 0,
-    currentRank: '暂无',
+    rankName: '',
     physicalType: '',
     physicalEmoji: '',
     cardCount: 0,
@@ -118,22 +118,25 @@ Page({
         data: {}
       });
       const expiry = res.member_expiry || '';
+      const rank = res.rank || {};
       this.setData({
-        totalPower: res.total_power || 1050,
-        spiritualEnergy: res.spiritual_energy || 320,
-        currentRank: res.current_rank || '青铜二段',
-        cardCount: res.card_count || 3,
-        checkinDays: res.checkin_days || 15,
+        totalPower: res.total_power || 0,
+        spiritualEnergy: res.spiritual_energy || 0,
+        rankName: rank.rank_name || '养生学徒',
+        rankKey: rank.rank_key || 'apprentice',
+        cardCount: res.card_count || 0,
+        checkinDays: res.checkin_days || 0,
         memberExpiry: expiry,
         isVip: expiry ? new Date(expiry.replace(/\//g, '-')) > new Date() : false,
       });
     } catch (err) {
       this.setData({
-        totalPower: 1250,
-        spiritualEnergy: 480,
-        currentRank: '白银药师',
-        cardCount: 3,
-        checkinDays: 15,
+        totalPower: 0,
+        spiritualEnergy: 0,
+        rankName: '养生学徒',
+        rankKey: 'apprentice',
+        cardCount: 0,
+        checkinDays: 0,
       });
     }
   },
@@ -142,15 +145,10 @@ Page({
     try {
       const res = await request({ url: '/physical/latest' });
       if (res) {
-        wx.showModal({
-          title: res.name,
-          content: `转化分：${res.score}\n测评日期：${res.date}\n\n详细数据请查看健康报告`,
-          showCancel: false,
-          confirmText: '知道了'
-        });
+        wx.navigateTo({ url: '/pages/health/history/history' });
       }
     } catch (e) {
-      wx.showToast({ title: '请先完成体质测评', icon: 'none' });
+      wx.navigateTo({ url: '/pages/health/history/history' });
     }
   },
 
@@ -158,8 +156,8 @@ Page({
     wx.navigateTo({ url: '/pages/user/backpack/backpack' });
   },
 
-  goToCollectedTeas() {
-    wx.navigateTo({ url: '/pages/tea/collect/collect' });
+  goToMyFormulas() {
+    wx.navigateTo({ url: '/pages/my-formulas/index' });
   },
 
   goToCardBook() {

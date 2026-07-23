@@ -1,6 +1,6 @@
 // pages/huatuo/huatuo.js - 华佗AI轻问诊 + 奇遇记 + 脑洞答题 + 修行闯关
 const { request } = require('../../utils/request');
-const { getBrainQuestions, settleBrainQuiz, getLandmarks, checkinLandmark } = require('../../services/game');
+const { getLandmarks, checkinLandmark, getBrainQuestions, battleCreate } = require('../../services/game');
 
 /** Haversine 公式：计算两点经纬度的直线距离（米） */
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -106,14 +106,6 @@ Page({
       { id: 'msg-0', role: 'ai', content: '老夫华佗，在此候诊。观你气色，近日可有不适？' }
     ],
 
-    // 脑洞答题
-    brainSessionId: '',
-    brainQuestions: [],
-    brainCurrentIdx: 0,
-    brainAnswers: [],
-    brainResult: null,
-    brainLoading: false,
-
     // 现世秘境（LBS 景点打卡）
     landmarks: [],
     activeLandmark: null,
@@ -123,6 +115,20 @@ Page({
     centerLat: 33.84,
     mapScale: 12,
     markers: [],
+
+    // 快捷标签（含食谱康养）
+    quickTags: [
+      { id: 'physique', label: '我的体质食谱', prompt: '' },
+      { id: 'seasonal', label: '时令药膳推荐', prompt: '请结合当前季节，为我推荐三道日常养生药膳，说明做法和功效。' },
+      { id: 'slim', label: '减脂去水肿食谱', prompt: '请给我推荐一套健康的减脂去水肿食谱，食材要容易买到。' },
+      { id: 'late', label: '熬夜调理', prompt: '我熬夜怎么调理？' },
+      { id: 'stomach', label: '脾胃调养', prompt: '我脾胃不好吃什么？' },
+      { id: 'spring', label: '春季养生', prompt: '春季养生怎么做？' },
+      { id: 'chrysanthemum', label: '亳菊功效', prompt: '亳菊有什么功效？' },
+      { id: 'wuqinxi', label: '五禽戏', prompt: '五禽戏怎么练？' },
+    ],
+    userPhysical: '',
+    showPhysiqueModal: false,
   },
 
   onLoad() {
@@ -133,15 +139,29 @@ Page({
     this.setData({ currentTheme: getApp().globalData.theme });
     getApp().updateNavigationBar(getApp().globalData.theme);
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 3, currentTheme: getApp().globalData.theme });
+      this.getTabBar().setData({ selected: 2, currentTheme: getApp().globalData.theme });
     }
+    let subTabApplied = false;
     const subTab = wx.getStorageSync('huatuoSubTab');
     if (subTab) {
       wx.removeStorageSync('huatuoSubTab');
       if (subTab === 'quiz' || subTab === 'story' || subTab === 'dungeon') {
         this.setData({ currentTab: subTab });
-        if (subTab === 'quiz') this.loadBrainQuestions();
+        if (subTab === 'dungeon') this.fetchLandmarks();
+        subTabApplied = true;
       }
+    }
+    // 体质详情页 → AI 问诊跨 Tab 跳转（仅在无 subTab 时生效，避免覆盖现世秘境等）
+    const app = getApp();
+    if (app.globalData.pendingAiPrompt && !subTabApplied) {
+      this.setData({ currentTab: 'chat', inputValue: app.globalData.pendingAiPrompt });
+      delete app.globalData.pendingAiPrompt;
+      this.sendMessage();
+    }
+    // 加载用户体质数据
+    const userPhysical = wx.getStorageSync('userPhysical');
+    if (userPhysical) {
+      this.setData({ userPhysical });
     }
   },
 
@@ -149,7 +169,6 @@ Page({
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;
     this.setData({ currentTab: tab });
-    if (tab === 'quiz') this.loadBrainQuestions();
     if (tab === 'dungeon') this.fetchLandmarks();
   },
 
@@ -158,9 +177,28 @@ Page({
     this.setData({ inputValue: e.detail.value });
   },
 
-  askQuick(e) {
-    this.setData({ inputValue: e.currentTarget.dataset.text });
+  onQuickTag(e) {
+    const { id, prompt } = e.currentTarget.dataset;
+    if (id === 'physique' && !this.data.userPhysical) {
+      this.setData({ showPhysiqueModal: true });
+      return;
+    }
+    if (id === 'physique') {
+      const p = '我最近的体质测试结果是【' + this.data.userPhysical + '】，请为我定制专属的一周养生食谱。';
+      this.setData({ inputValue: p });
+    } else {
+      this.setData({ inputValue: prompt });
+    }
     this.sendMessage();
+  },
+
+  closePhysiqueModal() {
+    this.setData({ showPhysiqueModal: false });
+  },
+
+  goToQuiz() {
+    this.setData({ showPhysiqueModal: false });
+    wx.switchTab({ url: '/pages/quiz/quiz' });
   },
 
   async sendMessage() {
@@ -226,81 +264,64 @@ Page({
     wx.navigateTo({ url: '/pages/adventure/adventure' });
   },
 
-  // ===== 脑洞答题 =====
-  async loadBrainQuestions() {
-    if (this.data.brainLoading) return;
-    this.setData({ brainLoading: true, brainResult: null });
+  // ===== 脑洞对战大厅 =====
+  roomId: '',
+
+  goToBrainBattle() {
+    this.setData({ currentTab: 'quiz' });
+  },
+
+  async startSolo() {
+    if (this._loading) return;
+    this._loading = true;
     try {
       const res = await getBrainQuestions();
       const questions = (res && res.questions) ? res.questions : [];
-      this.setData({
-        brainSessionId: res.session_id || '',
-        brainQuestions: questions,
-        brainCurrentIdx: 0,
-        brainAnswers: [],
-        brainLoading: false,
-      });
+      const isFree = res.is_free !== undefined ? res.is_free : true;
+      if (!isFree) {
+        wx.showToast({ title: '今日免费次数已用完，本局消耗30灵力', icon: 'none', duration: 2000 });
+      }
+      getApp().globalData.brainQuiz = { sessionId: res.session_id || '', questions, mode: 'solo' };
+      wx.navigateTo({ url: '/pages/huatuo/brain/quiz?mode=solo' });
     } catch (err) {
-      console.error('加载脑洞题目失败:', err);
-      wx.showToast({ title: '题目加载失败，请重试', icon: 'none' });
-      this.setData({ brainLoading: false });
+      if (err.code === 402) {
+        wx.showToast({ title: '灵力不足，每局需消耗30灵力', icon: 'none' });
+      } else {
+        wx.showToast({ title: '题目加载失败，请重试', icon: 'none' });
+      }
+    } finally {
+      this._loading = false;
     }
   },
 
-  brainAnswer(e) {
-    if (this.data.brainResult) return;
-    const choiceIdx = e.currentTarget.dataset.idx;
-    const choiceLetter = String.fromCharCode(65 + choiceIdx); // 0→A, 1→B, ...
-    const q = this.data.brainQuestions[this.data.brainCurrentIdx];
-    if (!q) return;
-
-    const answers = [...this.data.brainAnswers, { question_id: q.question_id, selected_choice: choiceLetter }];
-    const nextIdx = this.data.brainCurrentIdx + 1;
-    this.setData({ brainAnswers: answers, brainCurrentIdx: nextIdx });
-
-    // 答完所有题目，自动结算
-    if (nextIdx >= this.data.brainQuestions.length) {
-      this.settleQuiz();
-    }
-  },
-
-  async settleQuiz() {
-    wx.showLoading({ title: '正在结算...' });
+  async startBattle() {
+    if (this._loading) return;
+    this._loading = true;
     try {
-      const res = await settleBrainQuiz(this.data.brainSessionId, this.data.brainAnswers);
-      wx.hideLoading();
-      this.setData({ brainResult: res });
-
-      // 同步每日任务完成状态
-      wx.setStorageSync('brainQuizDone', { date: new Date().toLocaleDateString() });
-
-      const correct = res.total_correct || 0;
-      const total = res.total_questions || this.data.brainQuestions.length;
-      wx.showModal({
-        title: '答题结果',
-        content: '答对 ' + correct + '/' + total + ' 题\n获得 +' + (res.earned_energy || 0) + ' 元气值',
-        confirmText: '查看详情',
-        cancelText: '再来一局',
-        success: (modalRes) => {
-          if (modalRes.cancel) this.resetBrainQuiz();
-        }
-      });
+      const res = await battleCreate();
+      this.setData({ roomId: res.room_id });
+      wx.showToast({ title: '房间已创建，请分享给好友', icon: 'none', duration: 2000 });
+      getApp().globalData.brainQuiz = {
+        roomId: res.room_id,
+        questions: res.questions || [],
+        mode: 'battle',
+        role: 'creator'
+      };
+      wx.navigateTo({ url: '/pages/huatuo/brain/quiz?mode=battle&role=creator' });
     } catch (err) {
-      wx.hideLoading();
-      console.error('结算失败:', err);
-      wx.showToast({ title: '结算失败，请重试', icon: 'none' });
+      if (err.code === 402) {
+        wx.showToast({ title: '灵力不足，对战需要30灵力', icon: 'none' });
+      } else {
+        wx.showToast({ title: '创建房间失败，请重试', icon: 'none' });
+      }
+    } finally {
+      this._loading = false;
     }
   },
 
-  resetBrainQuiz() {
-    this.setData({
-      brainSessionId: '',
-      brainQuestions: [],
-      brainCurrentIdx: 0,
-      brainAnswers: [],
-      brainResult: null,
-    });
-    this.loadBrainQuestions();
+  // ===== 脑洞排行榜 =====
+  goToBrainRank() {
+    wx.navigateTo({ url: '/pages/huatuo/rank/rank' });
   },
 
   // ===== 现世秘境（LBS 景点打卡）=====
@@ -434,6 +455,12 @@ Page({
   },
 
   onShareAppMessage() {
+    if (this.data.roomId) {
+      return {
+        title: '我押了30点灵力，敢不敢来跟我拼一下中医知识？',
+        path: '/pages/huatuo/brain/index?room_id=' + this.data.roomId + '&action=challenge',
+      };
+    }
     return {
       title: '华佗AI在线问诊，亳州道地药材养生！',
       path: '/pages/huatuo/huatuo',

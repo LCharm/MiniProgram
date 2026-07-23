@@ -1,6 +1,4 @@
-.app-shell {
-  height: 100vh;
-  background: var(--bg);
+.app-shell { height: auto; display: block; min-height: 100vh; background: var(--bg);
   display: flex;
   flex-direction: column;
 }

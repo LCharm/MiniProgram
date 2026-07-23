@@ -1,4 +1,4 @@
-.app-shell { padding: 32rpx; min-height: 100vh; background: var(--bg); color: var(--text); }
+.app-shell { height: auto; display: block; padding: 32rpx; min-height: 100vh; background: var(--bg); color: var(--text); }
 
 .list { display: flex; flex-direction: column; gap: 24rpx; }
 

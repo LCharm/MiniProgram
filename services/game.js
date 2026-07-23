@@ -39,7 +39,7 @@ const startPK = (targetUserId) =>
 const getRankList = () =>
   request({ url: '/game/rank/list' });
 
-/** 获取用户卡牌图鉴 */
+/** 获取用户百草药材图鉴 */
 const getCardBook = () => request({ url: '/game/cardBook' });
 
 /** 对局开始：扣除灵力，获取 session_id */
@@ -78,6 +78,24 @@ const settleBrainQuiz = (sessionId, answers) =>
     url: '/game/brain/settle',
     method: 'POST',
     data: { session_id: sessionId, answers },
+  });
+
+/** 获取脑洞答题今日排行榜 */
+const getBrainRank = () => request({ url: '/game/brain/rank' });
+
+/** 好友对战：创建房间 */
+const battleCreate = () => request({ url: '/game/battle/create', method: 'POST' });
+
+/** 好友对战：加入房间 */
+const battleJoin = (roomId) =>
+  request({ url: '/game/battle/join', method: 'POST', data: { room_id: roomId } });
+
+/** 好友对战：提交答案结算 */
+const battleSubmit = (roomId, answers) =>
+  request({
+    url: '/game/battle/settle',
+    method: 'POST',
+    data: { room_id: roomId, answers },
   });
 
 /** 获取现世秘境景点列表 */
@@ -129,6 +147,10 @@ module.exports = {
   matchSettle,
   getBrainQuestions,
   settleBrainQuiz,
+  getBrainRank,
+  battleCreate,
+  battleJoin,
+  battleSubmit,
   getLandmarks,
   checkinLandmark,
   getLandmarkQuiz,

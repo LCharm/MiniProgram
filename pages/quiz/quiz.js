@@ -164,8 +164,13 @@ Page({
 
   selectGender(e) {
     const gender = e.currentTarget.dataset.gender;
+    this.setData({ userGender: gender });
+  },
+
+  startTest() {
+    if (!this.data.userGender) return;
     wx.removeStorageSync('quizCompletedToday');
-    this.setData({ userGender: gender, step: 'testing' });
+    this.setData({ step: 'testing' });
     this.buildQueue('basic');
   },
 
@@ -325,6 +330,8 @@ Page({
       date: new Date().toLocaleDateString()
     };
 
+    wx.setStorageSync('userPhysical', majorName);
+
     // 发送到云端入库
     try {
       await request({
@@ -357,18 +364,22 @@ Page({
     });
   },
 
+  goToReport() {
+    wx.navigateTo({ url: '/pages/health/report/report' });
+  },
+
   goToHealth() {
     wx.switchTab({ url: '/pages/health/health' });
   },
 
   selectPhysical(e) {
-    const { name, desc } = e.currentTarget.dataset;
-    this.setData({ selectedPhysical: name });
-    wx.showToast({
-      title: `${name}：${desc}`,
-      icon: 'none',
-      duration: 2000
-    });
+    const { name } = e.currentTarget.dataset;
+    wx.navigateTo({ url: '/pages/quiz/detail/detail?name=' + encodeURIComponent(name) });
+  },
+
+  onAskAi(e) {
+    // 第二步留空，第三步实现跨 Tab 跳转
+    console.log('askAi event:', e.detail);
   },
 
   openTongue() {

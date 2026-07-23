@@ -2,6 +2,7 @@ Component({
   data: {
     selected: 0,
     currentTheme: 'warm',
+    hidden: false,
   },
   lifetimes: {
     attached() {

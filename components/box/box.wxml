@@ -29,7 +29,7 @@
             <view class="herb-emblem">🌿</view>
             <view class="herb-tier-tag" wx:if="{{prizeData.isFirstUnlock}}">首次解锁</view>
             <view class="herb-name">{{prizeData.name}}</view>
-            <view class="herb-sub">已收录至秘境图鉴</view>
+            <view class="herb-sub">已收录至百草药材图鉴</view>
           </view>
         </view>
         <view class="modal-btn" bindtap="closeResult">收下宝物</view>

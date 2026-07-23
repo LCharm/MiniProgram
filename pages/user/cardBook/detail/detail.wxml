@@ -1,0 +1,132 @@
+<!-- pages/user/cardBook/detail/detail.wxml — 药材详情页 -->
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <block wx:if="{{herb}}">
+
+    <!-- ═══ 1. 头部：药材视觉 ═══ -->
+    <view class="d-header">
+      <!-- 药材图片占位区 — 后续替换为真实图片 -->
+      <view class="d-img-box">
+        <image class="d-img" src="/images/herbs/{{itemId}}.png" mode="aspectFill"></image>
+      </view>
+      <view class="d-header-name">{{herb.name}}</view>
+      <view class="d-tier-row">
+        <view class="d-tier-badge tier-{{herb.tier}}" wx:if="{{herb.tier !== 'N'}}">{{herb.tier}}</view>
+        <view class="d-own-badge" wx:if="{{userQuantity > 0}}">已拥有 ×{{userQuantity}}</view>
+      </view>
+    </view>
+
+    <!-- ═══ 2. 性味归经 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">性味归经</view>
+      <view class="d-card">
+        <view class="d-prop-row">
+          <view class="d-prop-item">
+            <view class="d-prop-label">性</view>
+            <view class="d-prop-value">{{herb.nature}}</view>
+          </view>
+          <view class="d-prop-item">
+            <view class="d-prop-label">味</view>
+            <view class="d-prop-value">{{herb.flavor}}</view>
+          </view>
+          <view class="d-prop-item">
+            <view class="d-prop-label">归经</view>
+            <view class="d-prop-value">{{herb.meridian}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ═══ 3. 功效主治 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">功效主治</view>
+      <view class="d-card">
+        <view class="d-eff-row">
+          <view class="d-eff-badge">功效</view>
+          <text class="d-eff-text">{{herb.efficacy}}</text>
+        </view>
+        <view class="d-eff-sep"></view>
+        <view class="d-eff-row">
+          <view class="d-eff-badge">主治</view>
+          <text class="d-eff-text">{{herb.indications}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- ═══ 4. 食用禁忌 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">⚠️ 食用禁忌</view>
+
+      <view class="d-card d-card-warn">
+        <view class="d-taboo-head">
+          <text class="d-taboo-title">禁忌人群</text>
+        </view>
+        <view class="d-taboo-text">{{herb.unsuitable}}</view>
+      </view>
+
+      <view class="d-card d-card-warn">
+        <view class="d-taboo-head">
+          <text class="d-taboo-title">禁忌事项</text>
+        </view>
+        <view class="d-taboo-text">{{herb.taboos}}</view>
+      </view>
+
+      <view class="d-card d-card-safe">
+        <view class="d-taboo-head">
+          <text class="d-taboo-title safe">✅ 适用人群</text>
+        </view>
+        <view class="d-taboo-text">{{herb.suitable}}</view>
+      </view>
+    </view>
+
+    <!-- ═══ 5. 用法用量 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">用法用量</view>
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">⚖️</text>
+          <text class="d-care-title">用量</text>
+        </view>
+        <view class="d-care-content">{{herb.dosage}}</view>
+      </view>
+      <view class="d-card d-care-card" wx:if="{{herb.pairings && herb.pairings.length > 0}}">
+        <view class="d-care-head">
+          <text class="d-care-icon">🤝</text>
+          <text class="d-care-title">常见搭配</text>
+        </view>
+        <view class="d-care-tags">
+          <text class="d-care-tag" wx:for="{{herb.pairings}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">💡</text>
+          <text class="d-care-title">使用提示</text>
+        </view>
+        <view class="d-care-content">{{herb.notes}}</view>
+      </view>
+    </view>
+
+    <!-- ═══ 6. 来源贮藏 ═══ -->
+    <view class="d-section">
+      <view class="d-section-label">来源与贮藏</view>
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">🔬</text>
+          <text class="d-care-title">药材来源</text>
+        </view>
+        <view class="d-care-content">{{herb.source}}</view>
+      </view>
+      <view class="d-card d-care-card">
+        <view class="d-care-head">
+          <text class="d-care-icon">📦</text>
+          <text class="d-care-title">贮藏方法</text>
+        </view>
+        <view class="d-care-content">{{herb.storage}}</view>
+      </view>
+    </view>
+
+    <view class="d-bottom-safe"></view>
+
+  </block>
+
+</view>

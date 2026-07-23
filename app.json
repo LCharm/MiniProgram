@@ -2,17 +2,26 @@
   "pages": [
     "pages/health/health",
     "pages/quiz/quiz",
+    "pages/quiz/detail/detail",
     "pages/tea/tea",
     "pages/tea/create/create",
     "pages/tea/collect/collect",
     "pages/health/report/report",
+    "pages/health/history/history",
     "pages/huatuo/huatuo",
     "pages/user/user",
     "pages/user/settings/settings",
     "pages/user/rank/rank",
     "pages/user/backpack/backpack",
     "pages/user/cardBook/cardBook",
-    "pages/adventure/adventure"
+    "pages/user/cardBook/detail/detail",
+    "pages/adventure/adventure",
+    "pages/my-formulas/index",
+    "pages/health/tasks/tasks",
+    "pages/huatuo/rank/rank",
+    "pages/huatuo/brain/index",
+    "pages/huatuo/brain/quiz",
+    "pages/huatuo/battle/settle"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -29,7 +38,7 @@
       { "pagePath": "pages/health/health", "text": "首页" },
       { "pagePath": "pages/quiz/quiz", "text": "体质测评" },
       { "pagePath": "pages/tea/tea", "text": "花茶配方" },
-      { "pagePath": "pages/huatuo/huatuo", "text": "华佗问诊" },
+      { "pagePath": "pages/huatuo/huatuo", "text": "灵犀华佗" },
       { "pagePath": "pages/user/user", "text": "个人中心" }
     ]
   },

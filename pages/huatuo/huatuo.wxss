@@ -26,6 +26,13 @@
 }
 
 /* ===== 问诊对话 ===== */
+.chat-header { padding: 16rpx 24rpx 8rpx; background: var(--surface); border-bottom: 1rpx solid var(--border); flex-shrink: 0; }
+.chat-header-left { display: flex; align-items: center; gap: 10rpx; }
+.chat-header-icon { font-size: 36rpx; }
+.chat-header-info { display: flex; flex-direction: column; }
+.chat-header-name { font-size: 26rpx; font-weight: 700; color: var(--text); }
+.chat-header-status { font-size: 20rpx; color: var(--green); }
+
 .chat-scroll { flex: 1; overflow-y: hidden; }
 .chat-content { padding: 30rpx 24rpx; padding-bottom: 20rpx; }
 .msg-row { display: flex; margin-bottom: 40rpx; align-items: flex-start; }
@@ -57,15 +64,24 @@
 .msg-spacer { height: 16rpx; }
 .msg-text { line-height: 1.8; }
 
-.quick-qs {
-  display: flex; gap: 8px; padding: 0 24rpx 12rpx; overflow-x: auto; flex-shrink: 0;
+.quick-tags-wrap { padding: 12rpx 0 20rpx 0; }
+.quick-tags-scroll {
+  width: 100%;
   white-space: nowrap;
+  padding-left: 24rpx;
+  box-sizing: border-box;
 }
-.quick-q {
-  flex-shrink: 0; padding: 8rpx 20rpx; background: var(--card); border: 2rpx solid var(--border);
-  border-radius: 40rpx; font-size: 22rpx; color: var(--text-sub); transition: all 0.2s;
+.tag-item {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 52rpx; padding: 0 26rpx; margin-right: 16rpx;
+  font-size: 24rpx; border-radius: 60rpx;
+  background: rgba(0, 0, 0, 0.03); color: #6A6157;
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
 }
-.quick-q:active { border-color: var(--accent1); color: var(--accent1); }
+.tag-item.tag-primary {
+  background: #C38B3A; color: #FFFFFF; border: none; font-weight: 500;
+  box-shadow: none;
+}
 
 /* 打字动画 */
 .ai-typing { display: flex; align-items: center; gap: 8rpx; padding: 12rpx 8rpx; }
@@ -93,20 +109,27 @@
 @keyframes voicePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,157,0.4); } 50% { box-shadow: 0 0 0 16rpx rgba(255,107,157,0); } }
 
 .input-area {
-  display: flex; align-items: center; padding: 16rpx 24rpx;
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; box-sizing: border-box;
+  padding: 16rpx 24rpx;
   padding-bottom: calc(16rpx + 110rpx + env(safe-area-inset-bottom));
   background: var(--card); border-top: 2rpx solid var(--border); flex-shrink: 0;
 }
 .chat-input {
-  flex: 1; height: 80rpx; background: var(--bg); border-radius: 40rpx;
-  padding: 0 32rpx; font-size: 28rpx; color: var(--text);
+  flex: 1 !important; height: 72rpx; margin: 0 20rpx;
+  background: var(--bg); border-radius: 40rpx; padding: 0 24rpx;
+  font-size: 28rpx; color: var(--text);
 }
 .send-btn {
-  margin-left: 24rpx; width: 140rpx !important; height: 80rpx; line-height: 1;
-  background: var(--accent1); color: #0f0f18; font-weight: 800; border-radius: 40rpx;
-  padding: 0; font-size: 28rpx;
-  display: flex; align-items: center; justify-content: center;
+  width: 140rpx !important; flex: 0 0 140rpx !important;
+  height: 64rpx !important;
+  padding: 0 !important; margin: 0 !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  font-size: 26rpx !important; font-weight: 500;
+  border-radius: 64rpx !important; background: #C38B3A !important; color: #FFFFFF !important;
+  line-height: normal !important; box-sizing: border-box;
 }
+.send-btn::after { display: none !important; }
 
 /* ===== 通用子页面 ===== */
 .sub-content { padding: 0 24rpx 160rpx; }
@@ -153,55 +176,8 @@
 .progress-sub { font-size: 20rpx; color: var(--text-sub); margin-top: 4rpx; }
 .progress-num { font-size: 36rpx; font-weight: 800; color: var(--accent4); }
 
-/* ===== 脑洞答题 ===== */
-.quiz-card {
-  background: var(--card); border-radius: var(--radius); padding: 28rpx;
-  border: 2rpx solid var(--border); margin-bottom: 16rpx;
-}
-.quiz-header { margin-bottom: 20rpx; }
-.quiz-energy { font-size: 22rpx; color: var(--accent2); font-weight: 700; }
-.quiz-bar-bg { height: 8rpx; background: var(--border); border-radius: 8rpx; margin-top: 10rpx; overflow: hidden; }
-.quiz-bar-fill { height: 100%; border-radius: 8rpx; background: linear-gradient(90deg, var(--accent2), var(--green)); transition: width 0.4s; }
-.quiz-q { font-size: 28rpx; font-weight: 600; line-height: 1.6; margin-bottom: 20rpx; }
-.quiz-options { display: flex; flex-direction: column; gap: 12rpx; }
-.quiz-opt {
-  padding: 18rpx 20rpx; background: var(--surface); border: 2rpx solid var(--border);
-  border-radius: 16rpx; font-size: 24rpx; transition: all 0.2s;
-}
-.quiz-opt.right { background: rgba(107,203,119,0.15); border-color: var(--green); }
-.quiz-opt.wrong { background: rgba(255,107,157,0.15); border-color: var(--accent3); }
-.quiz-opt-key {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 40rpx; height: 40rpx; border-radius: 50%;
-  background: var(--border); font-weight: 700; margin-right: 12rpx; font-size: 22rpx;
-}
-.quiz-status { text-align: center; padding: 40rpx 0; }
-.quiz-start-btn {
-  display: inline-block; padding: 20rpx 60rpx; background: linear-gradient(135deg, var(--accent2), var(--green));
-  color: #fff; border-radius: 40rpx; font-size: 28rpx; font-weight: 700;
-}
-.quiz-progress { font-size: 22rpx; color: var(--accent2); font-weight: 700; }
-.quiz-result { text-align: center; }
-.quiz-result-icon { font-size: 80rpx; margin-bottom: 12rpx; }
-.quiz-result-score { font-size: 72rpx; font-weight: 800; color: var(--accent2); line-height: 1; }
-.quiz-result-total { font-size: 36rpx; color: var(--text-sub); font-weight: 400; }
-.quiz-result-energy { font-size: 26rpx; color: var(--green); font-weight: 600; margin: 12rpx 0 24rpx; }
-.quiz-detail-list { text-align: left; margin-bottom: 24rpx; }
-.quiz-detail-item {
-  padding: 16rpx 20rpx; border-radius: 12rpx; margin-bottom: 10rpx;
-  border: 2rpx solid var(--border);
-}
-.quiz-detail-item.right { background: rgba(107,203,119,0.08); border-color: var(--green); }
-.quiz-detail-item.wrong { background: rgba(255,107,157,0.08); border-color: var(--accent3); }
-.quiz-detail-q { font-size: 24rpx; font-weight: 600; margin-bottom: 6rpx; }
-.quiz-detail-ans { font-size: 20rpx; color: var(--text-sub); }
-.quiz-retry-btn {
-  display: inline-block; padding: 16rpx 50rpx; background: var(--surface);
-  border: 2rpx solid var(--accent2); color: var(--accent2);
-  border-radius: 40rpx; font-size: 26rpx; font-weight: 700;
-}
-
-.game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12rpx; margin-bottom: 20rpx; }
+/* ===== 脑洞答题入口 ===== */
+.game-grid { display: flex; flex-direction: column; gap: 12rpx; margin-bottom: 20rpx; }
 .game-card {
   background: var(--card); border-radius: var(--radius); padding: 24rpx 20rpx;
   border: 2rpx solid var(--border); position: relative; overflow: hidden;
@@ -478,3 +454,45 @@
 
 .fade-in { animation: fadeIn .4s ease both; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== 体质缺失引导弹窗 ===== */
+.physique-modal-mask {
+  position: fixed; inset: 0; z-index: 1100;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.physique-modal {
+  width: 560rpx; background: var(--surface); border-radius: 24rpx;
+  padding: 48rpx 36rpx 32rpx; text-align: center;
+  animation: fadeIn .3s ease both;
+}
+.physique-modal-title {
+  font-size: 34rpx; font-weight: 800; color: var(--text); margin-bottom: 20rpx;
+}
+.physique-modal-body {
+  font-size: 26rpx; color: var(--text-sub); line-height: 1.8; margin-bottom: 36rpx;
+}
+.physique-modal-actions { display: flex; gap: 20rpx; }
+.physique-btn-cancel {
+  flex: 1; height: 80rpx; line-height: 80rpx; font-size: 26rpx;
+  background: var(--card); color: var(--text-sub); border-radius: 40rpx;
+  border: 2rpx solid var(--border); padding: 0;
+}
+.physique-btn-go {
+  flex: 1; height: 80rpx; line-height: 80rpx; font-size: 26rpx; font-weight: 700;
+  background: var(--accent1); color: #1a1412; border-radius: 40rpx;
+  border: none; padding: 0;
+}
+
+.tip-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin: 32rpx 24rpx;
+  padding: 24rpx;
+  background: rgba(232,168,56,0.08);
+  border: 2rpx solid rgba(232,168,56,0.2);
+  border-radius: var(--radius);
+}
+.tip-icon { font-size: 36rpx; flex-shrink: 0; }
+.tip-text { font-size: 24rpx; color: var(--text-sub); line-height: 1.5; }

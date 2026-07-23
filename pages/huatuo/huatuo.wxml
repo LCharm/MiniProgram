@@ -8,6 +8,16 @@
 
   <!-- 问诊对话 -->
   <block wx:if="{{currentTab === 'chat'}}">
+    <!-- 状态栏 -->
+    <view class="chat-header">
+      <view class="chat-header-left">
+        <text class="chat-header-icon">⚕️</text>
+        <view class="chat-header-info">
+          <text class="chat-header-name">华佗养生顾问</text>
+          <text class="chat-header-status">● 在线 · 仅养生科普建议</text>
+        </view>
+      </view>
+    </view>
     <scroll-view scroll-y class="chat-scroll" scroll-into-view="{{scrollToId}}" scroll-with-animation>
       <view class="chat-content">
         <block wx:for="{{msgList}}" wx:key="id">
@@ -45,12 +55,17 @@
         <view id="scroll-bottom" style="height: 40rpx;"></view>
       </view>
     </scroll-view>
-    <view class="quick-qs">
-      <text class="quick-q" bindtap="askQuick" data-text="我熬夜怎么调理？">熬夜调理</text>
-      <text class="quick-q" bindtap="askQuick" data-text="我脾胃不好吃什么？">脾胃调养</text>
-      <text class="quick-q" bindtap="askQuick" data-text="春季养生怎么做？">春季养生</text>
-      <text class="quick-q" bindtap="askQuick" data-text="亳菊有什么功效？">亳菊功效</text>
-      <text class="quick-q" bindtap="askQuick" data-text="五禽戏怎么练？">五禽戏</text>
+    <view class="quick-tags-wrap">
+      <scroll-view class="quick-tags-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="tag-item {{index === 0 ? 'tag-primary' : ''}}"
+              wx:for="{{quickTags}}"
+              wx:key="id"
+              bindtap="onQuickTag"
+              data-id="{{item.id}}"
+              data-prompt="{{item.prompt}}">
+          {{item.label}}
+        </view>
+      </scroll-view>
     </view>
     <view class="input-area">
       <view class="voice-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord">
@@ -58,6 +73,17 @@
       </view>
       <input class="chat-input" value="{{inputValue}}" bindinput="onInput" placeholder="询问养生建议..." confirm-type="send" bindconfirm="sendMessage"/>
       <button class="send-btn" bindtap="sendMessage">发送</button>
+    </view>
+    <!-- 体质缺失引导弹窗 -->
+    <view class="physique-modal-mask" wx:if="{{showPhysiqueModal}}" bindtap="closePhysiqueModal" catchtouchmove="preventScroll">
+      <view class="physique-modal" catchtap="preventBubble">
+        <view class="physique-modal-title">缺少体质数据</view>
+        <view class="physique-modal-body">华佗需要先为你把脉（体质测评），才能为你开出最精准的专属食谱。</view>
+        <view class="physique-modal-actions">
+          <button class="physique-btn-cancel" bindtap="closePhysiqueModal">暂不需要</button>
+          <button class="physique-btn-go" bindtap="goToQuiz">去测体质</button>
+        </view>
+      </view>
     </view>
   </block>
 
@@ -67,59 +93,33 @@
       <view class="hero hero-teal fade-in">
         <view class="hero-badge">🎯 脑洞大挑战</view>
         <view class="hero-title">养生<text class="highlight">冷知识</text>答题对战</view>
-      </view>
-
-      <view class="quiz-card fade-in">
-        <view wx:if="{{brainLoading}}" class="quiz-status">正在加载题目...</view>
-
-        <view wx:elif="{{brainQuestions.length === 0 && !brainResult}}" class="quiz-status">
-          <view class="quiz-start-btn" bindtap="loadBrainQuestions">🎯 开始答题</view>
-        </view>
-
-        <view wx:elif="{{brainResult}}" class="quiz-result">
-          <view class="quiz-result-icon">{{brainResult.total_correct >= 4 ? '🎉' : (brainResult.total_correct >= 2 ? '👍' : '💪')}}</view>
-          <view class="quiz-result-score">{{brainResult.total_correct}}<text class="quiz-result-total">/{{brainResult.total_questions}}</text></view>
-          <view class="quiz-result-energy">+{{brainResult.earned_energy}} 元气值</view>
-          <view class="quiz-detail-list">
-            <view class="quiz-detail-item {{item.is_correct ? 'right' : 'wrong'}}"
-                  wx:for="{{brainResult.details}}" wx:key="question_id">
-              <view class="quiz-detail-q">{{item.content}}</view>
-              <view class="quiz-detail-ans">你的答案: {{item.user_answer}} | 正确答案: {{item.correct_answer}}</view>
-            </view>
-          </view>
-          <view class="quiz-retry-btn" bindtap="resetBrainQuiz">🔄 再来一局</view>
-        </view>
-
-        <view wx:else>
-          <view class="quiz-header">
-            <text class="quiz-progress">第 {{brainCurrentIdx + 1}} / {{brainQuestions.length}} 题</text>
-            <view class="quiz-bar-bg"><view class="quiz-bar-fill" style="width:{{(brainCurrentIdx / brainQuestions.length) * 100}}%"></view></view>
-          </view>
-          <view class="quiz-q">{{brainQuestions[brainCurrentIdx].content}}</view>
-          <view class="quiz-options">
-            <view class="quiz-opt"
-                  wx:for="{{brainQuestions[brainCurrentIdx].options}}" wx:key="key" wx:for-index="idx"
-                  bindtap="brainAnswer" data-idx="{{idx}}">
-              <text class="quiz-opt-key">{{item.key}}</text>
-              <text>{{item.text}}</text>
-            </view>
-          </view>
-        </view>
+        <view class="hero-subtitle">每日前3局免费，之后每局消耗30灵力</view>
       </view>
 
       <view class="game-grid fade-in">
-        <view class="game-card" bindtap="placeholderTap" data-msg="好友对战功能开发中">
-          <view class="game-card-icon">👥</view>
+        <view class="game-card" bindtap="startSolo">
+          <view class="game-card-icon">🧘</view>
+          <view class="game-card-name">单人修行</view>
+          <view class="game-card-desc">5道养生题 · 赢灵力 · 积累战力</view>
+        </view>
+        <view class="game-card" bindtap="startBattle">
+          <view class="game-card-icon">⚔️</view>
           <view class="game-card-name">好友对战</view>
-          <view class="game-card-desc">邀请好友同时答题竞速</view>
+          <view class="game-card-desc">7题对决 · 押注30灵力 · 掠夺50战力</view>
           <view class="game-hot-badge">热</view>
         </view>
-        <view class="game-card" bindtap="placeholderTap" data-msg="排行榜功能开发中">
+        <view class="game-card" bindtap="goToBrainRank">
           <view class="game-card-icon">🏅</view>
           <view class="game-card-name">今日排行</view>
-          <view class="game-card-desc">元气值榜单兑换专属茶方</view>
+          <view class="game-card-desc">前三名有机会兑换专属茶方</view>
         </view>
       </view>
+
+      <view class="tip-card fade-in">
+        <view class="tip-icon">💡</view>
+        <view class="tip-text">发起对决后分享给微信好友，双方答题完毕自动结算。赢家<text class="highlight">通吃灵力</text>，还可掠夺对手<text class="highlight">50点战力</text>！</view>
+      </view>
+      <view class="tabbar-safe-spacer"></view>
     </view>
   </scroll-view>
 

@@ -1,0 +1,67 @@
+/* components/constitution-sheet/constitution-sheet.wxss */
+
+/* ═══════════ 根 + 遮罩 ═══════════ */
+.sheet-root  { position: fixed; inset: 0; z-index: 1000; }
+.sheet-mask  { position: absolute; inset: 0; background: rgba(0,0,0,0.55); animation: maskIn .25s ease; }
+@keyframes maskIn { from { opacity:0; } to { opacity:1; } }
+
+/* ═══════════ 半屏主体 ═══════════ */
+.sheet-body {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 80vh;
+  background: var(--surface); border-radius: 32rpx 32rpx 0 0; overflow: hidden;
+  animation: sheetUp .32s cubic-bezier(.32,.72,0,1);
+}
+@keyframes sheetUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+
+.sheet-handle { position:absolute; top:0; left:0; right:0; z-index:10; display:flex; justify-content:center; padding:14rpx 0 0; background:var(--surface); }
+.sheet-handle-bar { width:64rpx; height:6rpx; background:var(--border); border-radius:6rpx; }
+
+.sheet-scroll-wrap { height:100%; box-sizing:border-box; padding-top:40rpx; padding-bottom:calc(160rpx + env(safe-area-inset-bottom)); }
+.sheet-scroll { height:100%; padding:0 28rpx; }
+
+/* ═══════════ 1. 头部 ═══════════ */
+.s-header { position:relative; text-align:center; padding:28rpx 0 32rpx; border-bottom:2rpx solid var(--border); margin-bottom:20rpx; }
+.s-header-close { position:absolute; top:8rpx; right:0; width:56rpx; height:56rpx; display:flex; align-items:center; justify-content:center; z-index:2; }
+.s-close-icon { font-size:32rpx; color:var(--text-sub); font-weight:300; }
+.s-header-img { width: 120rpx; height: 120rpx; margin: 0 auto 6rpx; display: block; border-radius: 50%; }
+.s-header-name { font-size:44rpx; font-weight:900; color:var(--text); letter-spacing:6rpx; margin-bottom:14rpx; }
+.s-header-desc { font-size:26rpx; color:var(--text-sub); line-height:1.75; padding:0 8rpx; }
+
+/* ═══════════ 通用区块标签 ═══════════ */
+.s-block { margin-bottom:20rpx; }
+.s-block-label { font-size:22rpx; font-weight:700; color:var(--accent1); letter-spacing:4rpx; margin-bottom:14rpx; text-transform:uppercase; }
+
+/* ═══════════ 2. 基础诊断 ═══════════ */
+.s-block-diag { background:var(--card); border:2rpx solid var(--border); border-radius:16rpx; padding:24rpx; }
+.s-diag-row { display:flex; align-items:flex-start; gap:14rpx; }
+.s-diag-badge { flex-shrink:0; font-size:20rpx; color:var(--accent1); background:rgba(232,168,56,.12); padding:6rpx 18rpx; border-radius:8rpx; line-height:1.4; }
+.s-diag-text { font-size:24rpx; color:var(--text); line-height:1.8; word-break:break-all; }
+
+/* ═══════════ 3. 特征切片区 ═══════════ */
+.s-chip-row { display:flex; flex-direction:column; gap:12rpx; }
+.s-chip { background:var(--card); border:2rpx solid var(--border); border-radius:16rpx; padding:22rpx 24rpx; }
+.s-chip-icon { font-size:28rpx; margin-bottom:2rpx; }
+.s-chip-title { font-size:22rpx; font-weight:700; color:var(--text); margin-bottom:8rpx; }
+.s-chip-body { font-size:24rpx; color:var(--text-sub); line-height:1.8; word-break:break-all; }
+
+/* ═══════════ 4. 风险预警区 ═══════════ */
+.s-block-risk { background:rgba(184,84,64,.06); border:2rpx solid rgba(184,84,64,.2); border-radius:16rpx; padding:24rpx; }
+.s-risk-item { display:flex; gap:14rpx; margin-bottom:16rpx; }
+.s-risk-item:last-child { margin-bottom:0; }
+.s-risk-dot { width:10rpx; height:10rpx; background:var(--accent3); border-radius:50%; margin-top:8rpx; flex-shrink:0; }
+.s-risk-dot.env { background:var(--accent4); }
+.s-risk-title { font-size:22rpx; font-weight:700; color:var(--text); margin-bottom:4rpx; }
+.s-risk-text { font-size:24rpx; color:var(--text-sub); line-height:1.8; word-break:break-all; }
+
+/* ═══════════ 5. 核心调理区 ═══════════ */
+.s-care-card { background:var(--card); border:2rpx solid var(--border); border-radius:16rpx; padding:22rpx 24rpx; margin-bottom:12rpx; }
+.s-care-card:last-child { margin-bottom:0; }
+.s-care-head { display:flex; align-items:center; gap:10rpx; margin-bottom:10rpx; }
+.s-care-icon { font-size:28rpx; }
+.s-care-title { font-size:24rpx; font-weight:700; color:var(--text); }
+.s-care-content { font-size:24rpx; color:var(--text-sub); line-height:1.8; word-break:break-all; }
+
+/* ═══════════ 6. 底部操作区 ═══════════ */
+.s-footer { position:absolute; bottom:0; left:0; right:0; z-index:20; background:var(--surface); padding:12rpx 28rpx calc(24rpx + env(safe-area-inset-bottom)); box-shadow:0 -8rpx 20rpx rgba(0,0,0,0.05); }
+.s-footer-btn { width:100%; height:88rpx; line-height:88rpx; background:var(--accent1); color:#1a1412; border-radius:44rpx; font-size:28rpx; font-weight:700; letter-spacing:2rpx; border:none; padding:0; text-align:center; }
+.s-footer-btn::after { border:none; }

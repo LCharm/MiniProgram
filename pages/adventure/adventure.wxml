@@ -39,7 +39,6 @@
       <text class="cost-val">{{cost === 0 ? '🆓 免费' : '⚡ ' + cost + ' 灵力'}}</text>
     </view>
 
-    <view style="height: 80rpx;"></view>
   </scroll-view>
 
   <!-- 结果模态框 -->

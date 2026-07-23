@@ -5,8 +5,15 @@
       <view class="m-chip {{item.selected ? 'active' : ''}} {{item.locked ? 'locked' : ''}}"
             wx:for="{{materials}}" wx:key="id"
             bindtap="toggleMaterial" data-id="{{item.id}}">
-        <view class="m-icon-text">{{item.label}}</view>
-        <view class="m-name">{{item.name}}</view>
+
+        <!-- 选中时的右上角勾选标识 -->
+        <view class="m-check-badge" wx:if="{{item.selected}}">✓</view>
+
+        <!-- 图片 -->
+        <image class="m-icon-img" src="{{item.icon_url}}" mode="aspectFit" wx:if="{{item.icon_url}}"></image>
+        <image class="m-icon-img" src="/images/herbs/{{item.id}}.png" mode="aspectFit" wx:else></image>
+
+        <!-- 描述文字 -->
         <view class="m-desc">{{item.locked ? item.unlock_tips || '需解锁后使用' : item.desc}}</view>
       </view>
     </view>
@@ -57,5 +64,4 @@
       </view>
     </view>
   </view>
-  <view style="height: 60rpx;"></view>
 </view>

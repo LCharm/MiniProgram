@@ -1,0 +1,54 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll-content">
+
+    <view class="hero fade-in">
+      <view class="hero-badge">📋 每日修行</view>
+      <view class="hero-title">今日<text class="highlight">任务清单</text></view>
+      <view class="hero-subtitle">完成每日修行任务，积累灵力，提升养生战力</view>
+    </view>
+
+    <view class="tasks-section fade-in">
+      <view class="section-label">任务列表</view>
+
+      <block wx:if="{{loading}}">
+        <view class="task-card skeleton">
+          <view class="sk-line"></view>
+        </view>
+      </block>
+
+      <block wx:elif="{{tasks.length === 0}}">
+        <view class="empty-state">
+          <view class="empty-icon">🎋</view>
+          <view class="empty-text">暂无可领取任务</view>
+        </view>
+      </block>
+
+      <block wx:else>
+        <view class="task-card {{clocks[item.id] ? 'done' : ''}}"
+              wx:for="{{tasks}}" wx:key="id"
+              bindtap="handleTask" data-id="{{item.id}}" data-type="{{item.id}}" data-label="{{item.text}}">
+          <view class="task-card-body">
+            <view class="task-icon">{{clocks[item.id] ? '✅' : '⚡'}}</view>
+            <view class="task-info">
+              <view class="task-name">{{item.text}}</view>
+              <view class="task-meta" wx:if="{{item.id === 'bind_ssc'}}">一次性 · 高额奖励</view>
+              <view class="task-meta" wx:else>每日可完成一次</view>
+            </view>
+            <view class="task-card-right">
+              <view class="task-reward">{{item.reward}}</view>
+              <view class="task-action {{clocks[item.id] ? 'completed' : ''}}">
+                {{clocks[item.id] ? '已完成' : '去完成'}}
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view class="tip-card fade-in">
+      <view class="tip-icon">💡</view>
+      <view class="tip-text">全部任务完成后可开启<text class="highlight">盲盒宝箱</text>，获得稀有药材与高额灵力</view>
+    </view>
+
+  </scroll-view>
+</view>

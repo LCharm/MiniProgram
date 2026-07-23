@@ -1,0 +1,125 @@
+<!-- components/constitution-sheet/constitution-sheet.wxml — 体质详情半屏弹窗 -->
+<view class="sheet-root" wx:if="{{visible}}">
+  <view class="sheet-mask" bindtap="onTapMask"></view>
+
+  <view class="sheet-body" catchtap="onTapSheet">
+    <!-- 拖拽条 -->
+    <view class="sheet-handle"><view class="sheet-handle-bar"></view></view>
+
+    <view class="sheet-scroll-wrap">
+      <scroll-view scroll-y class="sheet-scroll" wx:if="{{data}}" enhanced show-scrollbar="{{false}}">
+
+        <!-- ═══ 1. 头部：视觉重心 + 关闭按钮 ═══ -->
+        <view class="s-header">
+          <view class="s-header-close" bindtap="onTapMask">
+            <text class="s-close-icon">✕</text>
+          </view>
+          <image class="s-header-img" src="/images/constitutions/{{data.id}}.png" mode="aspectFit"></image>
+          <view class="s-header-name">{{data.name}}</view>
+          <view class="s-header-desc">{{data.overview}}</view>
+        </view>
+
+        <!-- ═══ 2. 基础诊断区 ═══ -->
+        <view class="s-block s-block-diag">
+          <view class="s-block-label">基础诊断</view>
+          <view class="s-diag-row">
+            <view class="s-diag-badge">阴阳气血</view>
+            <text class="s-diag-text">{{data.overview}}</text>
+          </view>
+        </view>
+
+        <!-- ═══ 3. 特征切片区 ═══ -->
+        <view class="s-block">
+          <view class="s-block-label">特征切片</view>
+          <view class="s-chip-row">
+            <view class="s-chip">
+              <view class="s-chip-icon">🏃</view>
+              <view class="s-chip-title">形体特征</view>
+              <view class="s-chip-body">{{data.features}}</view>
+            </view>
+            <view class="s-chip">
+              <view class="s-chip-icon">🔍</view>
+              <view class="s-chip-title">常见表现</view>
+              <view class="s-chip-body">{{data.manifestations}}</view>
+            </view>
+            <view class="s-chip">
+              <view class="s-chip-icon">🧠</view>
+              <view class="s-chip-title">心理特征</view>
+              <view class="s-chip-body">{{data.psychology}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- ═══ 4. 风险预警区 ═══ -->
+        <view class="s-block s-block-risk">
+          <view class="s-block-label">风险预警</view>
+          <view class="s-risk-item">
+            <view class="s-risk-dot"></view>
+            <view class="s-risk-info">
+              <view class="s-risk-title">易患疾病</view>
+              <view class="s-risk-text">{{data.susceptibility}}</view>
+            </view>
+          </view>
+          <view class="s-risk-item">
+            <view class="s-risk-dot env"></view>
+            <view class="s-risk-info">
+              <view class="s-risk-title">环境适应</view>
+              <view class="s-risk-text">{{data.environment}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- ═══ 5. 核心调理区 ═══ -->
+        <view class="s-block s-block-care">
+          <view class="s-block-label">核心调理</view>
+
+          <view class="s-care-card">
+            <view class="s-care-head">
+              <text class="s-care-icon">🥗</text>
+              <text class="s-care-title">饮食建议</text>
+            </view>
+            <view class="s-care-content">{{data.diet}}</view>
+          </view>
+
+          <view class="s-care-card">
+            <view class="s-care-head">
+              <text class="s-care-icon">🏃</text>
+              <text class="s-care-title">运动方案</text>
+            </view>
+            <view class="s-care-content">{{data.exercise}}</view>
+          </view>
+
+          <view class="s-care-card">
+            <view class="s-care-head">
+              <text class="s-care-icon">🌙</text>
+              <text class="s-care-title">起居要点</text>
+            </view>
+            <view class="s-care-content">{{data.routine}}</view>
+          </view>
+
+          <view class="s-care-card">
+            <view class="s-care-head">
+              <text class="s-care-icon">🍵</text>
+              <text class="s-care-title">推荐茶方</text>
+            </view>
+            <view class="s-care-content">{{data.tea}}</view>
+          </view>
+
+          <view class="s-care-card">
+            <view class="s-care-head">
+              <text class="s-care-icon">📍</text>
+              <text class="s-care-title">保健穴位</text>
+            </view>
+            <view class="s-care-content">{{data.acupoints}}</view>
+          </view>
+        </view>
+
+      </scroll-view>
+    </view>
+
+    <!-- ═══ 6. 底部吸底操作区 ═══ -->
+    <view class="s-footer">
+      <button class="s-footer-btn" bindtap="onAskAI">找华佗 AI 问诊</button>
+    </view>
+  </view>
+</view>

@@ -25,5 +25,4 @@
     <view class="loading-text">加载中...</view>
   </view>
 
-  <view style="height: 60rpx;"></view>
 </view>

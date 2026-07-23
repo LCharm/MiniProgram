@@ -84,23 +84,42 @@ Page({
     details: [],
   },
 
-  async onLoad() {
+  onLoad(options) {
     const app = getApp();
     this.setData({ currentTheme: app.globalData.theme });
     app.updateNavigationBar(app.globalData.theme);
 
+    if (options && options.date) {
+      this.fetchReportByDate(options.date);
+    } else {
+      this.fetchLatestReport();
+    }
+  },
+
+  async fetchLatestReport() {
     try {
       const res = await request({ url: '/physical/latest' });
-      if (res) {
-        const report = { ...res, emoji: CONST_EMOJI[res.id] || '💧' };
-        const rec = RECOMMENDATIONS[res.id] || RECOMMENDATIONS.pinghe;
-        const details = this.buildDetails(res.details || {}, res.id);
-        const tip = CONST_TIPS[res.id] || CONST_TIPS.pinghe;
-        this.setData({ report, rec, details, tip });
-      }
+      if (res) this.renderReport(res);
     } catch (e) {
       console.error('获取报告失败', e);
     }
+  },
+
+  async fetchReportByDate(date) {
+    try {
+      const res = await request({ url: '/physical/report', data: { date } });
+      if (res) this.renderReport(res);
+    } catch (e) {
+      console.error('获取历史报告失败', e);
+    }
+  },
+
+  renderReport(res) {
+    const report = { ...res, emoji: CONST_EMOJI[res.id] || '💧' };
+    const rec = RECOMMENDATIONS[res.id] || RECOMMENDATIONS.pinghe;
+    const details = this.buildDetails(res.details || {}, res.id);
+    const tip = CONST_TIPS[res.id] || CONST_TIPS.pinghe;
+    this.setData({ report, rec, details, tip });
   },
 
   buildDetails(scoreMap, majorId) {
@@ -127,6 +146,10 @@ Page({
     wx.switchTab({ url: '/pages/quiz/quiz' });
   },
 
+  goToHistory() {
+    wx.navigateTo({ url: '/pages/health/history/history' });
+  },
+
   goBack() {
     wx.switchTab({ url: '/pages/health/health' });
   },
@@ -135,9 +158,11 @@ Page({
     const report = this.data.report;
     return {
       title: report
-        ? `我的体质是${report.name}，来看看你的！`
-        : 'AI体质养生报告',
+        ? `我的体质是${report.name}，AI华佗给我配了专属茶方，你也来测测？`
+        : 'AI体质养生报告，测测你的体质！',
       path: '/pages/health/report/report',
+      imageUrl: '/images/share-report.png',
     };
   },
+
 });

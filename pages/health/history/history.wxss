@@ -1,0 +1,41 @@
+.app-shell { height: auto; display: block; min-height: 100vh; background: var(--bg); }
+.scroll-content { min-height: 100vh; padding: 24rpx; box-sizing: border-box; }
+
+/* 空状态 */
+.empty-state { text-align: center; padding-top: 200rpx; }
+.empty-emoji { font-size: 80rpx; margin-bottom: 24rpx; }
+.empty-title { font-size: 32rpx; font-weight: 800; color: var(--text); margin-bottom: 12rpx; }
+.empty-desc { font-size: 24rpx; color: var(--text-sub); margin-bottom: 48rpx; line-height: 1.6; }
+.cta-btn {
+  width: 320rpx; height: 80rpx; line-height: 80rpx;
+  background: var(--accent1); color: #1a1412; font-weight: 700;
+  border-radius: 40rpx; padding: 0; font-size: 28rpx;
+}
+
+/* 区块标题 */
+.section-title { font-size: 30rpx; font-weight: 700; color: var(--text); margin-bottom: 20rpx; padding-left: 8rpx; }
+
+/* 折线图容器 */
+.trend-chart-box {
+  width: 100%; height: 400rpx;
+  background: var(--card); border-radius: 16rpx;
+  padding: 16rpx; box-sizing: border-box;
+}
+
+/* 历史列表 */
+.history-list { display: flex; flex-direction: column; gap: 16rpx; }
+.history-card {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--card); border-radius: 16rpx; padding: 24rpx 28rpx;
+  border: 2rpx solid var(--border);
+}
+.history-left { display: flex; flex-direction: column; gap: 6rpx; }
+.history-type { font-size: 28rpx; font-weight: 700; color: var(--text); }
+.history-date { font-size: 22rpx; color: var(--text-sub); }
+.history-score { display: flex; align-items: baseline; gap: 4rpx; }
+.history-score-num { font-size: 44rpx; font-weight: 800; color: var(--accent1); }
+.history-score-unit { font-size: 24rpx; color: var(--text-sub); }
+
+/* 动画 */
+.fade-in { animation: fadeIn .4s ease both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

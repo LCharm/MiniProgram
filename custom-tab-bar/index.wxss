@@ -1,6 +1,8 @@
 @import '../styles/theme.wxss';
 
 .bottom-nav {
+  position: relative;
+  z-index: 1;
   display: flex;
   background: var(--surface, #1a1a2e);
   border-top: 1px solid var(--border, rgba(232, 168, 56, 0.2));

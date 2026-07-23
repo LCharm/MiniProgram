@@ -22,7 +22,7 @@
       <view class="backpack-grid">
         <view class="backpack-card {{item.tier === 'rare' ? 'rare' : ''}}" wx:for="{{herbs}}" wx:key="item_id">
           <image class="bp-card-icon" src="{{item.icon_url}}" mode="aspectFit" wx:if="{{item.icon_url}}"></image>
-          <view class="bp-card-emoji" wx:else>🌿</view>
+          <image class="bp-card-icon" src="/images/herbs/{{item.item_id}}.png" mode="aspectFit" wx:else></image>
           <view class="bp-card-name">{{item.name}}</view>
           <view class="bp-card-desc">{{item.desc}}</view>
           <view class="bp-card-qty">×{{item.quantity}}</view>
@@ -91,6 +91,5 @@
       </view>
     </view>
 
-    <view style="height: 80rpx;"></view>
   </scroll-view>
 </view>

@@ -38,12 +38,19 @@ const getUserMaterialPieces = () => request({ url: '/game/getUserMaterialPieces'
 
 const submitContest = (params) =>
   request({
-    url: '/tea/submitContest',
+    url: '/contest/formulas',
     method: 'POST',
     data: params,
   });
 
-const getContestList = () => request({ url: '/tea/getContestList' });
+const getContestList = (params) =>
+  request({ url: '/contest/formulas', data: params });
+
+const toggleContestLike = (formulaId) =>
+  request({
+    url: `/contest/formulas/${formulaId}/like`,
+    method: 'POST',
+  });
 
 const getBrewedList = () => request({ url: '/tea/brewed' });
 
@@ -55,6 +62,9 @@ const redeemItem = (itemId, recipientName, phone, address) =>
     url: '/shop/redeem', method: 'POST',
     data: { item_id: itemId, recipient_name: recipientName, phone, address },
   });
+
+const getPublicFormulas = (params = {}) =>
+  request({ url: '/contest/formulas/public', data: params });
 
 module.exports = {
   getHotFormula,
@@ -68,7 +78,9 @@ module.exports = {
   getUserMaterialPieces,
   submitContest,
   getContestList,
+  toggleContestLike,
   getBrewedList,
   brewTea,
   redeemItem,
+  getPublicFormulas,
 };

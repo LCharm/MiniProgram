@@ -1,0 +1,5 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <view class="loading-container">
+    <text>加载中...</text>
+  </view>
+</view>

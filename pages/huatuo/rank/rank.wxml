@@ -1,0 +1,66 @@
+<view class="app-shell" data-theme="{{currentTheme}}">
+  <scroll-view scroll-y class="scroll-content">
+
+    <!-- 我的战绩 -->
+    <view class="my-rank-card fade-in" wx:if="{{myRank}}">
+      <view class="my-rank-badge">今日战绩</view>
+      <view class="my-rank-body">
+        <view class="my-rank-avatar">
+          <image class="my-avatar-img" src="{{myRank.avatar}}" mode="aspectFill" wx:if="{{myRank.avatar}}"></image>
+          <view class="my-avatar-placeholder" wx:else>👤</view>
+        </view>
+        <view class="my-rank-info">
+          <view class="my-rank-name">{{myRank.nickname || '养生行者'}}</view>
+          <view class="my-rank-stats">
+            <text>答对 {{myRank.total_correct}} 题</text>
+            <text class="stat-divider">|</text>
+            <text>{{myRank.rounds}} 局</text>
+            <text class="stat-divider">|</text>
+            <text>最佳 {{myRank.best}} 题</text>
+          </view>
+        </view>
+        <view class="my-rank-num">
+          <view class="my-rank-label">排名</view>
+          <view class="my-rank-value">#{{myRank.rank}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 排行榜说明 -->
+    <view class="rank-intro fade-in" wx:if="{{!loading && topList.length > 0}}">
+      <text>🏆 今日排行榜单前三名有机会兑换专属茶方</text>
+    </view>
+
+    <!-- 榜单 -->
+    <view class="rank-list fade-in">
+      <view wx:if="{{loading}}" class="rank-loading">加载中...</view>
+
+      <block wx:else>
+        <view wx:if="{{topList.length === 0}}" class="rank-empty">
+          <view class="empty-icon">🎯</view>
+          <view class="empty-text">今日暂无排行，快来答题上榜吧</view>
+        </view>
+
+        <view class="rank-item {{item.is_me ? 'is-me' : ''}}"
+              wx:for="{{topList}}" wx:key="rank">
+          <view class="rank-idx {{item.rank <= 3 ? 'top-' + item.rank : ''}}">
+            {{item.rank <= 3 ? ['🥇','🥈','🥉'][item.rank - 1] : item.rank}}
+          </view>
+          <view class="rank-avatar">
+            <image class="rank-avatar-img" src="{{item.avatar}}" mode="aspectFill" wx:if="{{item.avatar}}"></image>
+            <view class="rank-avatar-placeholder" wx:else>👤</view>
+          </view>
+          <view class="rank-name">
+            <text>{{item.nickname || '养生行者'}}</text>
+          </view>
+          <view class="rank-stat">
+            <text class="rank-stat-num">{{item.total_correct}}题</text>
+            <text class="rank-stat-label">{{item.rounds}}局</text>
+          </view>
+          <view class="rank-me-tag" wx:if="{{item.is_me}}">我</view>
+        </view>
+      </block>
+    </view>
+
+  </scroll-view>
+</view>
